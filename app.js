@@ -1226,7 +1226,9 @@ function initApp() {
 
   // Register Service Worker for Offline-First PWA
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.update().catch(() => {});
+    }).catch(err => {
       console.warn('SW registration skipped:', err);
     });
   }
@@ -3060,11 +3062,18 @@ function deleteExpense(expId) {
   const exp = trip.expenses.find(e => e.id === expId);
   trip.expenses = trip.expenses.filter(e => e.id !== expId);
 
+  // Tombstone tracking so cloud sync does not resurrect deleted expense
+  if (!trip.deletedExpenseIds) trip.deletedExpenseIds = [];
+  if (!trip.deletedExpenseIds.includes(expId)) {
+    trip.deletedExpenseIds.push(expId);
+  }
+
   logActivity('delete', 'Friend', `Deleted expense "${exp?.title || 'Expense'}"`, 'fa-trash');
 
   saveTripsToStorage();
   renderAll();
   showToast('✓ Expense deleted');
+  syncActiveTripToCloud(false);
 }
 
 // ==================== RECEIPT ATTACHMENT & CLIENT COMPRESSION ====================
@@ -3636,7 +3645,9 @@ async function joinTripByCode(directCode) {
 
   showToast(`⏳ Connecting to trip room ${code}...`);
   try {
-    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(code)}`);
+    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(code)}`, {
+      cache: 'no-store'
+    });
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.trip) {
@@ -3644,16 +3655,20 @@ async function joinTripByCode(directCode) {
         cloudTrip.code = code;
         const existingIdx = state.trips.findIndex(t => (t.code || '').toUpperCase() === code || t.id === cloudTrip.id);
         if (existingIdx >= 0) {
-          state.trips[existingIdx] = cloudTrip;
+          const merged = mergeTrips(state.trips[existingIdx], cloudTrip);
+          state.trips[existingIdx] = merged;
+          state.activeTrip = merged;
         } else {
           state.trips.push(cloudTrip);
+          state.activeTrip = cloudTrip;
         }
-        state.activeTrip = cloudTrip;
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_TRIP_ID, state.activeTrip.id);
         saveTripsToStorage();
-        applyDestinationTheme(cloudTrip.theme || detectThemeFromTrip(cloudTrip));
+        applyDestinationTheme(state.activeTrip.theme || detectThemeFromTrip(state.activeTrip));
         renderAll();
         SoundEffects.playSuccess();
-        showToast(`🎉 Joined "${cloudTrip.name}"! Synced ${cloudTrip.expenses.length} expenses.`);
+        showToast(`🎉 Connected to "${state.activeTrip.name}"! Synced ${state.activeTrip.expenses.length} expenses.`);
+        syncActiveTripToCloud(false);
         return;
       }
     }
@@ -3723,6 +3738,93 @@ let lastCloudSyncTime = 0;
 let cloudSyncTimer = null;
 let isSyncingToCloud = false;
 
+// Conflict-Free Offline/Online Trip Merger (Tombstone-Aware)
+function mergeTrips(localTrip, cloudTrip) {
+  if (!localTrip) return cloudTrip;
+  if (!cloudTrip) return localTrip;
+
+  const localExpenses = Array.isArray(localTrip.expenses) ? localTrip.expenses : [];
+  const cloudExpenses = Array.isArray(cloudTrip.expenses) ? cloudTrip.expenses : [];
+  const deletedIds = new Set([
+    ...(localTrip.deletedExpenseIds || []),
+    ...(cloudTrip.deletedExpenseIds || [])
+  ]);
+
+  const expenseMap = new Map();
+  // Preserve all local non-deleted expenses
+  localExpenses.forEach(exp => {
+    if (exp && exp.id && !deletedIds.has(exp.id)) {
+      expenseMap.set(exp.id, exp);
+    }
+  });
+
+  // Merge cloud non-deleted expenses
+  cloudExpenses.forEach(cloudExp => {
+    if (!cloudExp || !cloudExp.id || deletedIds.has(cloudExp.id)) return;
+    if (!expenseMap.has(cloudExp.id)) {
+      expenseMap.set(cloudExp.id, cloudExp);
+    } else {
+      const localExp = expenseMap.get(cloudExp.id);
+      const cloudTime = cloudExp.updatedAt || cloudExp.createdAt || 0;
+      const localTime = localExp.updatedAt || localExp.createdAt || 0;
+      if (cloudTime > localTime) {
+        expenseMap.set(cloudExp.id, cloudExp);
+      }
+    }
+  });
+
+  // Merge members
+  const memberMap = new Map();
+  (localTrip.members || []).forEach(m => {
+    if (m && m.id) memberMap.set(m.id, m);
+  });
+  (cloudTrip.members || []).forEach(m => {
+    if (!m || !m.id) return;
+    if (!memberMap.has(m.id)) {
+      memberMap.set(m.id, m);
+    } else {
+      const localM = memberMap.get(m.id);
+      memberMap.set(m.id, {
+        ...m,
+        upi: m.upi || localM.upi || '',
+        phone: m.phone || localM.phone || '',
+        color: m.color || localM.color
+      });
+    }
+  });
+
+  // Merge settlements
+  const settlementMap = new Map();
+  (localTrip.settlements || []).forEach(s => {
+    if (s && s.id) settlementMap.set(s.id, s);
+  });
+  (cloudTrip.settlements || []).forEach(s => {
+    if (s && s.id) settlementMap.set(s.id, s);
+  });
+
+  return {
+    ...cloudTrip,
+    ...localTrip,
+    code: localTrip.code || cloudTrip.code,
+    name: localTrip.name || cloudTrip.name,
+    destination: localTrip.destination || cloudTrip.destination,
+    baseCurrency: localTrip.baseCurrency || cloudTrip.baseCurrency || 'INR',
+    currencySymbol: localTrip.currencySymbol || cloudTrip.currencySymbol || '₹',
+    homeCurrency: localTrip.homeCurrency || cloudTrip.homeCurrency || 'INR',
+    homeCurrencySymbol: localTrip.homeCurrencySymbol || cloudTrip.homeCurrencySymbol || '₹',
+    forexRate: localTrip.forexRate || cloudTrip.forexRate || 1,
+    members: memberMap.size > 0 ? Array.from(memberMap.values()) : (localTrip.members || cloudTrip.members || []),
+    expenses: Array.from(expenseMap.values()),
+    settlements: Array.from(settlementMap.values()),
+    deletedExpenseIds: Array.from(deletedIds),
+    myMemberId: localTrip.myMemberId || cloudTrip.myMemberId,
+    kitty: (cloudTrip.kitty && (cloudTrip.kitty.transactions?.length || 0) > (localTrip.kitty?.transactions?.length || 0))
+      ? cloudTrip.kitty
+      : (localTrip.kitty || cloudTrip.kitty),
+    theme: localTrip.theme || cloudTrip.theme
+  };
+}
+
 function updateSyncStatusUI(status) {
   // Update header sync badge
   const headerIcon = document.getElementById('syncHeaderIcon');
@@ -3770,11 +3872,12 @@ async function syncActiveTripToCloud(forceToast = false) {
   try {
     const res = await fetch('/api/sync/trip', {
       method: 'POST',
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code: trip.code,
         trip: trip,
-        sender: 'Device',
+        sender: localStorage.getItem('tb_user_name') || 'Device',
         timestamp: Date.now()
       })
     });
@@ -3782,6 +3885,7 @@ async function syncActiveTripToCloud(forceToast = false) {
     if (res.ok) {
       const data = await res.json();
       lastCloudSyncTime = data.lastModified || Date.now();
+      localStorage.setItem('tb_last_cloud_sync_' + trip.id, lastCloudSyncTime.toString());
       updateSyncStatusUI('online');
       if (forceToast) {
         showToast(`☁️ Room ${trip.code} synced to cloud!`);
@@ -3801,7 +3905,7 @@ function debouncedCloudSync() {
   if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(() => {
     syncActiveTripToCloud(false);
-  }, 700);
+  }, 200);
 }
 
 async function fetchCloudUpdates(silent = true) {
@@ -3809,30 +3913,47 @@ async function fetchCloudUpdates(silent = true) {
   if (!trip || !trip.code || !navigator.onLine || isSyncingToCloud) return;
 
   try {
-    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(trip.code)}`);
+    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(trip.code)}`, {
+      cache: 'no-store'
+    });
     if (res.ok) {
       const data = await res.json();
-      if (data.success && data.trip && data.lastModified > lastCloudSyncTime) {
+      if (data.success && data.trip) {
         const cloudTrip = data.trip;
         const currentExpCount = (trip.expenses || []).length;
-        const newExpCount = (cloudTrip.expenses || []).length;
 
-        // Merge members & expenses from server
-        trip.members = cloudTrip.members || trip.members;
-        trip.expenses = cloudTrip.expenses || trip.expenses;
-        trip.settlements = cloudTrip.settlements || trip.settlements;
-        trip.kitty = cloudTrip.kitty || trip.kitty;
-        if (cloudTrip.theme) trip.theme = cloudTrip.theme;
+        // Perform conflict-free CRDT merge so local data is NEVER lost
+        const merged = mergeTrips(trip, cloudTrip);
+        const newExpCount = (merged.expenses || []).length;
 
-        lastCloudSyncTime = data.lastModified;
-        localStorage.setItem(STORAGE_KEYS.TRIPS, JSON.stringify(state.trips));
-        renderAll();
+        const hasNewExpensesFromFriends = newExpCount > currentExpCount;
+        const hasUnsyncedLocalExpenses = currentExpCount > (cloudTrip.expenses || []).length;
+        const hasMemberChanges = merged.members.length !== (trip.members || []).length;
 
-        if (newExpCount !== currentExpCount) {
-          SoundEffects.playCoin();
-          showToast(`🔄 Synced with friends: ${newExpCount} total expenses!`);
+        // Update active trip and storage with merged result
+        Object.assign(trip, merged);
+        const idx = state.trips.findIndex(t => t.id === trip.id);
+        if (idx !== -1) {
+          state.trips[idx] = trip;
+        }
+
+        lastCloudSyncTime = Math.max(data.lastModified || 0, Date.now());
+        localStorage.setItem('tb_last_cloud_sync_' + trip.id, lastCloudSyncTime.toString());
+        saveTripsToStorage();
+
+        if (hasNewExpensesFromFriends || hasMemberChanges) {
+          renderAll();
+          if (hasNewExpensesFromFriends) {
+            SoundEffects.playCoin();
+            showToast(`🔄 Synced with friends: ${newExpCount} total expenses!`);
+          }
         } else if (!silent) {
           showToast('✓ Everything is up to date!');
+        }
+
+        // If local had expenses not yet on cloud, upload merged trip to cloud immediately
+        if (hasUnsyncedLocalExpenses) {
+          syncActiveTripToCloud(false);
         }
       }
     }
@@ -3842,11 +3963,12 @@ async function fetchCloudUpdates(silent = true) {
 }
 
 function startRealtimeCloudPolling() {
-  // Initial sync check
+  // Push active trip state first, then fetch friend updates
   setTimeout(() => {
-    fetchCloudUpdates(true);
-    syncActiveTripToCloud(false);
-  }, 1000);
+    syncActiveTripToCloud(false).then(() => {
+      fetchCloudUpdates(true);
+    });
+  }, 600);
 
   // Poll every 5 seconds for incoming friend expenses
   setInterval(() => {
@@ -3859,11 +3981,14 @@ function startRealtimeCloudPolling() {
   window.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       fetchCloudUpdates(true);
+      syncActiveTripToCloud(false);
     }
   });
 }
 
 function queueSilentSync(item) {
+  // Immediate upload to avoid loss on refresh
+  syncActiveTripToCloud(false);
   debouncedCloudSync();
 }
 
@@ -3984,6 +4109,15 @@ async function checkUrlForJoinCode() {
   if (joinCode) {
     console.log('Detected join room code in URL:', joinCode);
     await joinTripByCode(joinCode);
+
+    // Clean hash from browser URL bar so subsequent page refreshes do not re-run join logic
+    try {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    } catch (e) {
+      console.warn('Could not clean join url parameter:', e);
+    }
   }
 }
 

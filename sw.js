@@ -1,5 +1,5 @@
 // Trip Barabar — Offline-First Service Worker
-const CACHE_NAME = 'trip-barabar-v5';
+const CACHE_NAME = 'trip-barabar-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -47,6 +47,11 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+
+  // CRITICAL: NEVER cache API sync routes! Always pass straight to the network!
+  if (url.pathname.startsWith('/api/')) {
+    return;
+  }
 
   // If same origin asset, serve from cache first, fallback to network
   if (url.origin === location.origin) {

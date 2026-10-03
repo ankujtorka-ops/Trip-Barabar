@@ -158,10 +158,16 @@ const server = http.createServer((req, res) => {
   // ==================== ⚡ REAL-TIME CLOUD SYNC API ROUTES ====================
   if (rawUrlPath.startsWith('/api/sync/')) {
     const apiRoute = rawUrlPath.replace('/api/sync/', '').toLowerCase();
+    const apiHeaders = {
+      ...corsHeaders,
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
 
     // Route: GET /api/sync/status
     if (apiRoute === 'status' && req.method === 'GET') {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
       res.end(JSON.stringify({
         success: true,
         activeRooms: Object.keys(cloudTrips).length,
@@ -174,19 +180,19 @@ const server = http.createServer((req, res) => {
     if (apiRoute === 'trip' && req.method === 'GET') {
       const code = (parsedUrl.query.code || '').toString().trim().toUpperCase();
       if (!code) {
-        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
         res.end(JSON.stringify({ success: false, message: 'Missing room code parameter' }));
         return;
       }
 
       const room = cloudTrips[code];
       if (!room || !room.trip) {
-        res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+        res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
         res.end(JSON.stringify({ success: false, message: `Room ${code} not found on server` }));
         return;
       }
 
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
       res.end(JSON.stringify({
         success: true,
         code,
@@ -197,6 +203,69 @@ const server = http.createServer((req, res) => {
       return;
     }
 
+    // Helper: Server-side CRDT Conflict-Free Trip Merger
+    function mergeServerTrips(existingTrip, incomingTrip) {
+      if (!existingTrip) return incomingTrip;
+      if (!incomingTrip) return existingTrip;
+
+      const existingExpenses = Array.isArray(existingTrip.expenses) ? existingTrip.expenses : [];
+      const incomingExpenses = Array.isArray(incomingTrip.expenses) ? incomingTrip.expenses : [];
+      const deletedIds = new Set([
+        ...(existingTrip.deletedExpenseIds || []),
+        ...(incomingTrip.deletedExpenseIds || [])
+      ]);
+
+      const expenseMap = new Map();
+      existingExpenses.forEach(e => {
+        if (e && e.id && !deletedIds.has(e.id)) {
+          expenseMap.set(e.id, e);
+        }
+      });
+
+      incomingExpenses.forEach(e => {
+        if (!e || !e.id || deletedIds.has(e.id)) return;
+        if (!expenseMap.has(e.id)) {
+          expenseMap.set(e.id, e);
+        } else {
+          const existing = expenseMap.get(e.id);
+          const incomingTime = e.updatedAt || e.createdAt || 0;
+          const existingTime = existing.updatedAt || existing.createdAt || 0;
+          if (incomingTime >= existingTime) {
+            expenseMap.set(e.id, e);
+          }
+        }
+      });
+
+      const memberMap = new Map();
+      (existingTrip.members || []).forEach(m => { if (m && m.id) memberMap.set(m.id, m); });
+      (incomingTrip.members || []).forEach(m => {
+        if (!m || !m.id) return;
+        if (!memberMap.has(m.id)) {
+          memberMap.set(m.id, m);
+        } else {
+          const existing = memberMap.get(m.id);
+          memberMap.set(m.id, { ...existing, ...m, upi: m.upi || existing.upi, phone: m.phone || existing.phone });
+        }
+      });
+
+      const settlementMap = new Map();
+      (existingTrip.settlements || []).forEach(s => { if (s && s.id) settlementMap.set(s.id, s); });
+      (incomingTrip.settlements || []).forEach(s => { if (s && s.id) settlementMap.set(s.id, s); });
+
+      return {
+        ...existingTrip,
+        ...incomingTrip,
+        name: incomingTrip.name || existingTrip.name,
+        members: Array.from(memberMap.values()),
+        expenses: Array.from(expenseMap.values()),
+        settlements: Array.from(settlementMap.values()),
+        deletedExpenseIds: Array.from(deletedIds),
+        kitty: (incomingTrip.kitty?.transactions?.length || 0) >= (existingTrip.kitty?.transactions?.length || 0)
+          ? (incomingTrip.kitty || existingTrip.kitty)
+          : existingTrip.kitty
+      };
+    }
+
     // Route: POST /api/sync/trip
     if (apiRoute === 'trip' && req.method === 'POST') {
       let bodyData = '';
@@ -205,7 +274,7 @@ const server = http.createServer((req, res) => {
       req.on('data', chunk => {
         bodyData += chunk;
         if (bodyData.length > MAX_BODY_BYTES) {
-          res.writeHead(413, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+          res.writeHead(413, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
           res.end(JSON.stringify({ success: false, message: 'Payload Too Large (Max 5MB)' }));
           req.destroy();
         }
@@ -217,20 +286,23 @@ const server = http.createServer((req, res) => {
           const rawCode = (payload.code || (payload.trip && payload.trip.code) || '').toString().trim().toUpperCase();
 
           if (!rawCode || rawCode.length < 2 || rawCode.length > 32) {
-            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
             res.end(JSON.stringify({ success: false, message: 'Invalid room code (2-32 chars required)' }));
             return;
           }
 
           if (!payload.trip || typeof payload.trip !== 'object') {
-            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
             res.end(JSON.stringify({ success: false, message: 'Invalid trip object provided' }));
             return;
           }
 
           const now = Date.now();
+          const existingRoom = cloudTrips[rawCode];
+          const mergedTrip = existingRoom ? mergeServerTrips(existingRoom.trip, payload.trip) : payload.trip;
+
           cloudTrips[rawCode] = {
-            trip: payload.trip,
+            trip: mergedTrip,
             lastModified: now,
             updatedBy: payload.sender || 'Friend',
             ip: clientIp
@@ -238,9 +310,9 @@ const server = http.createServer((req, res) => {
 
           persistTripsToDisk();
 
-          console.log(`[CloudSync] Trip room ${rawCode} updated (${(payload.trip.expenses || []).length} expenses)`);
+          console.log(`[CloudSync] Trip room ${rawCode} updated (${(mergedTrip.expenses || []).length} expenses)`);
 
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
           res.end(JSON.stringify({
             success: true,
             code: rawCode,
@@ -248,7 +320,7 @@ const server = http.createServer((req, res) => {
             serverTime: now
           }));
         } catch (parseErr) {
-          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', ...apiHeaders });
           res.end(JSON.stringify({ success: false, message: 'Malformed JSON payload' }));
         }
       });
