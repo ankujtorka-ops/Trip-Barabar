@@ -1,0 +1,928 @@
+/* Trip Barabar — Premium Mobile Travel Design System */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root {
+  --primary: #0D9488;
+  --primary-light: #14B8A6;
+  --primary-dark: #0F766E;
+  --accent: #F59E0B;
+  --accent-gold: #D97706;
+  --bg-dark: #070D18;
+  --surface-dark: #0F172A;
+  --card-dark: #1E293B;
+  --border-dark: #334155;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --danger: #EF4444;
+  --success: #10B981;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+}
+
+input, textarea, select {
+  user-select: text;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism surfaces */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-modal {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Number font */
+.font-mono-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum";
+}
+
+/* Smooth Drawer Slide Up */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Discreet mode subtle pulsing indicator */
+.stealth-pulse {
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+/* Press animation for touch devices */
+.active-press:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* Floating Action Button (FAB) */
+.fab-glow {
+  box-shadow: 0 8px 24px -4px rgba(13, 148, 136, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+}
+
+/* Avatar styling */
+.member-avatar {
+  background: linear-gradient(135deg, #0D9488, #0284C7);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Currency badge */
+.badge-currency {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #FBBF24;
+}
+
+/* Category pill selected */
+.cat-pill.selected {
+  border-color: #14B8A6;
+  background: rgba(20, 184, 166, 0.18);
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.25);
+}
+
+/* Settle up debt flow arrow */
+.debt-arrow {
+  position: relative;
+}
+.debt-arrow::after {
+  content: '➔';
+  color: #94A3B8;
+  font-size: 14px;
+  margin: 0 6px;
+}
+
+/* Friend Mini-Card in Carousel */
+.friend-mini-card {
+  min-width: 135px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.friend-mini-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(20, 184, 166, 0.4);
+  box-shadow: 0 8px 20px -6px rgba(13, 148, 136, 0.25);
+}
+
+.friend-mini-card.active-filter {
+  border-color: #14B8A6;
+  background: rgba(20, 184, 166, 0.12);
+  box-shadow: 0 0 16px rgba(20, 184, 166, 0.3);
+}
+
+/* Sleek Scalable Member Avatar Chips (Scales seamlessly 2 to 25+ friends) */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.member-chip:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(20, 184, 166, 0.45);
+  transform: translateY(-1px);
+}
+.member-chip.active {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: #14B8A6;
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.3);
+}
+.member-chip-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px dashed rgba(20, 184, 166, 0.45);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.member-chip-add:hover {
+  background: rgba(20, 184, 166, 0.18);
+  border-color: #14B8A6;
+  transform: translateY(-1px);
+}
+
+/* Compact Glanceable Vitals Pill */
+.vitals-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 0.875rem;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.vitals-pill:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Award Card in Trip Hall of Fame */
+.award-card {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.award-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.2);
+}
+
+/* Roulette Spinner Pulse */
+@keyframes rouletteSpin {
+  0% { transform: scale(0.95); filter: drop-shadow(0 0 4px #F59E0B); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 16px #F59E0B); }
+  100% { transform: scale(0.95); filter: drop-shadow(0 0 4px #F59E0B); }
+}
+
+.roulette-spin {
+  animation: rouletteSpin 0.25s infinite ease-in-out;
+}
+
+
+/* Mic Listening Animation */
+@keyframes micPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.mic-listening {
+  animation: micPulse 1.4s infinite !important;
+  background-color: #EF4444 !important;
+  color: #FFFFFF !important;
+  border-color: #F87171 !important;
+}
+
+/* Story Mode (Trip Wrapped) Animations */
+.story-progress-bar {
+  height: 3.5px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  overflow: hidden;
+  flex: 1;
+}
+.story-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #FFFFFF;
+  transition: width 0.1s linear;
+}
+.story-progress-fill.completed {
+  width: 100% !important;
+}
+
+/* Kitty Low Fund Pulse */
+@keyframes kittyAlertPulse {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(239, 68, 68, 0.9); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+}
+.kitty-low-alert {
+  animation: kittyAlertPulse 2s infinite ease-in-out;
+}
+
+/* Print View for PDF Trip Statements */
+#printTripStatement {
+  display: none;
+}
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+  }
+  header, nav, .fixed, .no-print, button, #confettiCanvas, #toastNotification {
+    display: none !important;
+  }
+  #printTripStatement {
+    display: block !important;
+    width: 100% !important;
+    padding: 24px !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  main {
+    display: none !important;
+  }
+}
+
+/* Shake animation for invalid PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* ==================== 1. DYNAMIC DESTINATION THEMES ==================== */
+/* Theme 1: Tropical Beach (Thailand / Phuket / Pattaya) */
+body[data-theme="tropical"] {
+  --primary-rgb: 13, 148, 136;
+  --theme-primary: #0D9488;
+  --theme-primary-light: #2DD4BF;
+  --theme-accent: #14B8A6;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(13, 148, 136, 0.35), rgba(245, 158, 11, 0.2));
+  --theme-button-gradient: linear-gradient(135deg, #0D9488, #14B8A6, #2DD4BF);
+  --theme-glow: 0 10px 30px -8px rgba(20, 184, 166, 0.45);
+  background-color: #070D18 !important;
+  background-image: radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.22) 0%, transparent 50%),
+                    radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.16) 0%, transparent 50%) !important;
+}
+
+/* Theme 2: Goa Coastal & Beach Party (Baga / Anjuna / Sunburn) */
+body[data-theme="goa"] {
+  --primary-rgb: 249, 115, 22;
+  --theme-primary: #F97316;
+  --theme-primary-light: #FB923C;
+  --theme-accent: #06B6D4;
+  --theme-gold: #F97316;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(6, 182, 212, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #EA580C, #F97316, #FB923C);
+  --theme-glow: 0 10px 30px -8px rgba(249, 115, 22, 0.5);
+  background-color: #0F0814 !important;
+  background-image: radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.26) 0%, transparent 55%),
+                    radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.14) 0%, transparent 50%) !important;
+}
+
+/* Theme 3: Bali Sunset (Ubud / Seminyak / Islands / Terraces) */
+body[data-theme="bali"] {
+  --primary-rgb: 225, 29, 72;
+  --theme-primary: #E11D48;
+  --theme-primary-light: #FB7185;
+  --theme-accent: #10B981;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(225, 29, 72, 0.38), rgba(16, 185, 129, 0.22));
+  --theme-button-gradient: linear-gradient(135deg, #E11D48, #F43F5E, #FB7185);
+  --theme-glow: 0 10px 30px -8px rgba(244, 63, 94, 0.5);
+  background-color: #120614 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(225, 29, 72, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(245, 158, 11, 0.22) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.16) 0%, transparent 50%) !important;
+}
+
+/* Theme 4: Glacial Peaks & Treks (Ladakh / Manali / Alps / Snow) */
+body[data-theme="mountains"] {
+  --primary-rgb: 2, 132, 199;
+  --theme-primary: #0284C7;
+  --theme-primary-light: #38BDF8;
+  --theme-accent: #38BDF8;
+  --theme-gold: #0284C7;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(2, 132, 199, 0.38), rgba(56, 189, 248, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #0284C7, #0EA5E9, #38BDF8);
+  --theme-glow: 0 10px 30px -8px rgba(56, 189, 248, 0.5);
+  background-color: #040916 !important;
+  background-image: radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 90%, rgba(56, 189, 248, 0.24) 0%, transparent 50%) !important;
+}
+
+/* Theme 5: Desert Luxury & Glamour (Dubai / Abu Dhabi / Vegas) */
+body[data-theme="dubai"] {
+  --primary-rgb: 217, 119, 6;
+  --theme-primary: #D97706;
+  --theme-primary-light: #FBBF24;
+  --theme-accent: #FBBF24;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #B45309, #D97706, #F59E0B);
+  --theme-glow: 0 10px 30px -8px rgba(245, 158, 11, 0.55);
+  background-color: #0E0903 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(217, 119, 6, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Theme 6: Tokyo Cyber Neon (Japan / Singapore / Seoul / Tech) */
+body[data-theme="cyber"] {
+  --primary-rgb: 147, 51, 234;
+  --theme-primary: #9333EA;
+  --theme-primary-light: #C084FC;
+  --theme-accent: #EC4899;
+  --theme-gold: #06B6D4;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(147, 51, 234, 0.4), rgba(236, 72, 153, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #7E22CE, #9333EA, #C084FC);
+  --theme-glow: 0 10px 30px -8px rgba(192, 132, 252, 0.55);
+  background-color: #090314 !important;
+  background-image: radial-gradient(circle at 15% 25%, rgba(147, 51, 234, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 75%, rgba(236, 72, 153, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Theme 7: European Heritage (Paris / France) */
+body[data-theme="europe"], body[data-theme="paris"] {
+  --primary-rgb: 190, 18, 60;
+  --theme-primary: #BE123C;
+  --theme-primary-light: #FB7185;
+  --theme-accent: #D97706;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(190, 18, 60, 0.4), rgba(217, 119, 6, 0.24));
+  --theme-button-gradient: linear-gradient(135deg, #9F1239, #BE123C, #FB7185);
+  --theme-glow: 0 10px 30px -8px rgba(251, 113, 133, 0.5);
+  background-color: #10040A !important;
+  background-image: radial-gradient(circle at 30% 10%, rgba(190, 18, 60, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 80%, rgba(217, 119, 6, 0.22) 0%, transparent 50%) !important;
+}
+
+/* Theme 8: London Royal (London / UK) */
+body[data-theme="london"] {
+  --primary-rgb: 29, 78, 216;
+  --theme-primary: #1D4ED8;
+  --theme-primary-light: #60A5FA;
+  --theme-accent: #EF4444;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(29, 78, 216, 0.4), rgba(239, 68, 68, 0.22));
+  --theme-button-gradient: linear-gradient(135deg, #1D4ED8, #2563EB, #60A5FA);
+  --theme-glow: 0 10px 30px -8px rgba(37, 99, 235, 0.5);
+  background-color: #060B14 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(29, 78, 216, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(220, 38, 38, 0.22) 0%, transparent 50%) !important;
+}
+
+/* Theme 9: New York Skyline (NYC / Manhattan) */
+body[data-theme="newyork"] {
+  --primary-rgb: 71, 85, 105;
+  --theme-primary: #64748B;
+  --theme-primary-light: #94A3B8;
+  --theme-accent: #F59E0B;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(71, 85, 105, 0.45), rgba(245, 158, 11, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #475569, #64748B, #94A3B8);
+  --theme-glow: 0 10px 30px -8px rgba(100, 116, 139, 0.5);
+  background-color: #05070B !important;
+  background-image: radial-gradient(circle at 25% 15%, rgba(100, 116, 139, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.2) 0%, transparent 50%) !important;
+}
+
+/* Theme 10: Rome Classical (Rome / Italy / Vatican) */
+body[data-theme="rome"] {
+  --primary-rgb: 194, 65, 12;
+  --theme-primary: #C2410C;
+  --theme-primary-light: #FB923C;
+  --theme-accent: #D97706;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(194, 65, 12, 0.4), rgba(217, 119, 6, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #9A3412, #C2410C, #EA580C);
+  --theme-glow: 0 10px 30px -8px rgba(194, 65, 12, 0.5);
+  background-color: #0F0603 !important;
+  background-image: radial-gradient(circle at 20% 20%, rgba(194, 65, 12, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 80%, rgba(217, 119, 6, 0.24) 0%, transparent 50%) !important;
+}
+
+/* Theme 11: Pyramids of Egypt (Cairo / Giza) */
+body[data-theme="egypt"] {
+  --primary-rgb: 180, 83, 9;
+  --theme-primary: #B45309;
+  --theme-primary-light: #FBBF24;
+  --theme-accent: #1D4ED8;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(180, 83, 9, 0.45), rgba(29, 78, 216, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #92400E, #B45309, #D97706);
+  --theme-glow: 0 10px 30px -8px rgba(180, 83, 9, 0.5);
+  background-color: #0E0702 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(180, 83, 9, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(29, 78, 216, 0.2) 0%, transparent 50%) !important;
+}
+
+/* Theme 12: Royal Rajasthan & Taj Mahal (Jaipur / Udaipur / Agra) */
+body[data-theme="rajasthan"] {
+  --primary-rgb: 217, 119, 6;
+  --theme-primary: #D97706;
+  --theme-primary-light: #FBBF24;
+  --theme-accent: #DB2777;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(219, 39, 119, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #B45309, #D97706, #F59E0B);
+  --theme-glow: 0 10px 30px -8px rgba(217, 119, 6, 0.5);
+  background-color: #10060A !important;
+  background-image: radial-gradient(circle at 25% 15%, rgba(219, 39, 119, 0.3) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(217, 119, 6, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Theme 13: Swiss Alps (Zermatt / Interlaken / Zurich) */
+body[data-theme="swiss"] {
+  --primary-rgb: 14, 165, 233;
+  --theme-primary: #0EA5E9;
+  --theme-primary-light: #7DD3FC;
+  --theme-accent: #EF4444;
+  --theme-gold: #0EA5E9;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(14, 165, 233, 0.4), rgba(248, 250, 252, 0.18));
+  --theme-button-gradient: linear-gradient(135deg, #0284C7, #0EA5E9, #38BDF8);
+  --theme-glow: 0 10px 30px -8px rgba(14, 165, 233, 0.5);
+  background-color: #040914 !important;
+  background-image: radial-gradient(circle at 50% 10%, rgba(14, 165, 233, 0.32) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(56, 189, 248, 0.22) 0%, transparent 50%) !important;
+}
+
+/* Theme 14: Santorini Blue (Santorini / Mykonos / Greece) */
+body[data-theme="santorini"] {
+  --primary-rgb: 37, 99, 235;
+  --theme-primary: #2563EB;
+  --theme-primary-light: #60A5FA;
+  --theme-accent: #06B6D4;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(37, 99, 235, 0.42), rgba(6, 182, 212, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #1D4ED8, #2563EB, #60A5FA);
+  --theme-glow: 0 10px 30px -8px rgba(37, 99, 235, 0.55);
+  background-color: #060B18 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(37, 99, 235, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 15: Singapore Future (Marina Bay / Sentosa) */
+body[data-theme="singapore"] {
+  --primary-rgb: 5, 150, 105;
+  --theme-primary: #059669;
+  --theme-primary-light: #34D399;
+  --theme-accent: #8B5CF6;
+  --theme-gold: #10B981;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(5, 150, 105, 0.4), rgba(139, 92, 246, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #047857, #059669, #10B981);
+  --theme-glow: 0 10px 30px -8px rgba(5, 150, 105, 0.5);
+  background-color: #030F0A !important;
+  background-image: radial-gradient(circle at 25% 15%, rgba(5, 150, 105, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(139, 92, 246, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 16: Maldives Lagoon (Maldives / Overwater Atolls) */
+body[data-theme="maldives"] {
+  --primary-rgb: 6, 182, 212;
+  --theme-primary: #06B6D4;
+  --theme-primary-light: #67E8F9;
+  --theme-accent: #14B8A6;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(6, 182, 212, 0.42), rgba(20, 184, 166, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #0891B2, #06B6D4, #22D3EE);
+  --theme-glow: 0 10px 30px -8px rgba(6, 182, 212, 0.5);
+  background-color: #030E14 !important;
+  background-image: radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 80%, rgba(20, 184, 166, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 17: Vietnam Ha Long Bay (Vietnam / Hanoi / Da Nang) */
+body[data-theme="vietnam"] {
+  --primary-rgb: 4, 120, 87;
+  --theme-primary: #047857;
+  --theme-primary-light: #34D399;
+  --theme-accent: #D97706;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(4, 120, 87, 0.4), rgba(217, 119, 6, 0.22));
+  --theme-button-gradient: linear-gradient(135deg, #065F46, #047857, #10B981);
+  --theme-glow: 0 10px 30px -8px rgba(4, 120, 87, 0.5);
+  background-color: #020F0A !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(4, 120, 87, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(217, 119, 6, 0.2) 0%, transparent 50%) !important;
+}
+
+/* Theme 18: Istanbul Heritage (Istanbul / Cappadocia / Bosphorus) */
+body[data-theme="istanbul"] {
+  --primary-rgb: 8, 145, 178;
+  --theme-primary: #0891B2;
+  --theme-primary-light: #38BDF8;
+  --theme-accent: #BE123C;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(8, 145, 178, 0.42), rgba(190, 18, 60, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #0E7490, #0891B2, #06B6D4);
+  --theme-glow: 0 10px 30px -8px rgba(8, 145, 178, 0.5);
+  background-color: #040D14 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(8, 145, 178, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 80%, rgba(190, 18, 60, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 19: Rio Carnival (Rio de Janeiro / Copacabana / Brazil) */
+body[data-theme="rio"] {
+  --primary-rgb: 234, 179, 8;
+  --theme-primary: #EAB308;
+  --theme-primary-light: #FDE047;
+  --theme-accent: #16A34A;
+  --theme-gold: #EAB308;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(234, 179, 8, 0.4), rgba(22, 163, 74, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #CA8A04, #EAB308, #FACC15);
+  --theme-glow: 0 10px 30px -8px rgba(234, 179, 8, 0.5);
+  background-color: #0A0D04 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(234, 179, 8, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(22, 163, 74, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Theme 20: Sydney Harbour (Sydney / Opera House / Australia) */
+body[data-theme="sydney"] {
+  --primary-rgb: 29, 78, 216;
+  --theme-primary: #1D4ED8;
+  --theme-primary-light: #60A5FA;
+  --theme-accent: #0284C7;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(29, 78, 216, 0.4), rgba(2, 132, 199, 0.25));
+  --theme-button-gradient: linear-gradient(135deg, #1E40AF, #1D4ED8, #3B82F6);
+  --theme-glow: 0 10px 30px -8px rgba(29, 78, 216, 0.5);
+  background-color: #040814 !important;
+  background-image: radial-gradient(circle at 25% 15%, rgba(29, 78, 216, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(2, 132, 199, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 21: Las Vegas Neon (Las Vegas / Nevada / Strip) */
+body[data-theme="vegas"] {
+  --primary-rgb: 225, 29, 72;
+  --theme-primary: #E11D48;
+  --theme-primary-light: #FB7185;
+  --theme-accent: #F59E0B;
+  --theme-gold: #F59E0B;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(225, 29, 72, 0.42), rgba(245, 158, 11, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #BE123C, #E11D48, #F43F5E);
+  --theme-glow: 0 10px 30px -8px rgba(225, 29, 72, 0.55);
+  background-color: #12030B !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(225, 29, 72, 0.38) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.25) 0%, transparent 50%) !important;
+}
+
+/* Theme 22: Iceland Aurora (Reykjavik / Northern Lights) */
+body[data-theme="iceland"] {
+  --primary-rgb: 34, 197, 94;
+  --theme-primary: #22C55E;
+  --theme-primary-light: #4ADE80;
+  --theme-accent: #A855F7;
+  --theme-gold: #06B6D4;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(34, 197, 94, 0.42), rgba(168, 85, 247, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #16A34A, #22C55E, #4ADE80);
+  --theme-glow: 0 10px 30px -8px rgba(34, 197, 94, 0.55);
+  background-color: #020C08 !important;
+  background-image: radial-gradient(circle at 30% 15%, rgba(34, 197, 94, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Theme 23: Amsterdam Canals (Amsterdam / Holland) */
+body[data-theme="amsterdam"] {
+  --primary-rgb: 234, 88, 12;
+  --theme-primary: #EA580C;
+  --theme-primary-light: #FB923C;
+  --theme-accent: #0284C7;
+  --theme-gold: #EA580C;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(234, 88, 12, 0.4), rgba(2, 132, 199, 0.22));
+  --theme-button-gradient: linear-gradient(135deg, #C2410C, #EA580C, #F97316);
+  --theme-glow: 0 10px 30px -8px rgba(234, 88, 12, 0.5);
+  background-color: #0E0703 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(234, 88, 12, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(2, 132, 199, 0.22) 0%, transparent 50%) !important;
+}
+
+/* Theme 24: African Safari (Kenya / Serengeti / Tanzania) */
+body[data-theme="safari"] {
+  --primary-rgb: 217, 119, 6;
+  --theme-primary: #D97706;
+  --theme-primary-light: #FBBF24;
+  --theme-accent: #DC2626;
+  --theme-gold: #D97706;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(217, 119, 6, 0.42), rgba(220, 38, 38, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #B45309, #D97706, #F59E0B);
+  --theme-glow: 0 10px 30px -8px rgba(217, 119, 6, 0.55);
+  background-color: #120404 !important;
+  background-image: radial-gradient(circle at 25% 15%, rgba(220, 38, 38, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 80% 85%, rgba(217, 119, 6, 0.3) 0%, transparent 50%) !important;
+}
+
+/* Theme 25: Varanasi Ghats (Varanasi / Kashi / Ganga) */
+body[data-theme="varanasi"] {
+  --primary-rgb: 234, 88, 12;
+  --theme-primary: #EA580C;
+  --theme-primary-light: #FB923C;
+  --theme-accent: #F59E0B;
+  --theme-gold: #EA580C;
+  --theme-hero-gradient: linear-gradient(135deg, rgba(234, 88, 12, 0.42), rgba(245, 158, 11, 0.28));
+  --theme-button-gradient: linear-gradient(135deg, #C2410C, #EA580C, #F97316);
+  --theme-glow: 0 10px 30px -8px rgba(234, 88, 12, 0.55);
+  background-color: #100602 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(234, 88, 12, 0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.28) 0%, transparent 50%) !important;
+}
+
+/* Destination Atmosphere Glow Card & Components */
+.theme-glow-card {
+  box-shadow: var(--theme-glow, 0 10px 30px -8px rgba(13, 148, 136, 0.45)) !important;
+  border-color: var(--theme-primary, rgba(20, 184, 166, 0.4)) !important;
+  transition: all 0.35s ease;
+}
+
+/* Dynamic Destination Scenic Horizon Artwork */
+.scenic-art-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem; /* rounded-3xl */
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.48;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scenic-art-container svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.theme-btn-gradient {
+  background: var(--theme-button-gradient, linear-gradient(135deg, #0D9488, #14B8A6)) !important;
+  color: #070D18 !important;
+  font-weight: 800 !important;
+  box-shadow: var(--theme-glow, 0 4px 15px rgba(13, 148, 136, 0.3)) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.theme-btn-gradient:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.theme-btn-gradient:active {
+  transform: scale(0.97);
+}
+
+.theme-badge {
+  background: rgba(var(--primary-rgb, 13, 148, 136), 0.2) !important;
+  color: var(--theme-primary-light, #2DD4BF) !important;
+  border: 1px solid var(--theme-primary, #0D9488) !important;
+  box-shadow: 0 0 14px rgba(var(--primary-rgb, 13, 148, 136), 0.25) !important;
+}
+
+.theme-text {
+  color: var(--theme-primary-light, #2DD4BF) !important;
+}
+
+.theme-ambient-blob {
+  background: var(--theme-hero-gradient, linear-gradient(135deg, rgba(13, 148, 136, 0.35), rgba(245, 158, 11, 0.2))) !important;
+  transition: background 0.4s ease !important;
+}
+
+/* ==================== 2. DIGITAL PASSPORT & VINTAGE VISA STAMPS ==================== */
+.passport-cover {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.passport-page {
+  background: #0B1120;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.passport-stamp {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 3px double currentColor;
+  border-radius: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+.passport-stamp:hover {
+  transform: scale(1.05) rotate(0deg) !important;
+}
+
+.stamp-emerald {
+  color: #10B981;
+  border-color: #10B981;
+  background: rgba(16, 185, 129, 0.06);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.stamp-gold {
+  color: #F59E0B;
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.06);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+
+.stamp-cyan {
+  color: #06B6D4;
+  border-color: #06B6D4;
+  background: rgba(6, 182, 212, 0.06);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+.stamp-crimson {
+  color: #F43F5E;
+  border-color: #F43F5E;
+  background: rgba(244, 63, 94, 0.06);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.15);
+}
+
+/* Rubber stamp thud animation */
+@keyframes stampThud {
+  0% { transform: scale(2.2) rotate(15deg); opacity: 0; }
+  60% { transform: scale(0.92) rotate(-4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-2deg); opacity: 1; }
+}
+.animate-stamp {
+  animation: stampThud 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* ==================== 3. EXPENSE REACTION MICRO-PILLS ==================== */
+.reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  font-weight: 700;
+  color: #CBD5E1;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reaction-pill:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.reaction-pill.active {
+  background: rgba(13, 148, 136, 0.25);
+  border-color: rgba(13, 148, 136, 0.6);
+  color: #2DD4BF;
+  transform: scale(1.05);
+}
+.reaction-pill:active {
+  transform: scale(0.92);
+}
+
+/* ==================== 4. VINTAGE POLAROID CARDS ==================== */
+.polaroid-card {
+  background: #F8FAFC;
+  padding: 8px 8px 16px 8px;
+  border-radius: 4px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 0, 0, 0.2);
+  color: #0F172A;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.polaroid-card:hover {
+  transform: translateY(-4px) rotate(1deg) scale(1.02);
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.7);
+}
+.polaroid-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== 5. BOLLYWOOD KARZ-MUKT CERTIFICATE ==================== */
+.certificate-frame {
+  background: radial-gradient(circle at center, #1E293B 0%, #0F172A 100%);
+  border: 3px solid #F59E0B;
+  box-shadow: inset 0 0 30px rgba(245, 158, 11, 0.15), 0 20px 50px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+.certificate-frame::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+  pointer-events: none;
+  border-radius: 18px;
+}
+

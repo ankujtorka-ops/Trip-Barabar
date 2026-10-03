@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="50%" stop-color="#091E32"/>
+      <stop offset="100%" stop-color="#042F2E"/>
+    </linearGradient>
+    
+    <!-- Outer Glow -->
+    <radialGradient id="ambGlow1" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#0D9488" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Suitcase Body Gradient -->
+    <linearGradient id="caseBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="40%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+
+    <!-- Leather / Gold Straps -->
+    <linearGradient id="goldStrap" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="35%" stop-color="#F59E0B"/>
+      <stop offset="70%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+
+    <!-- Brass Corners -->
+    <linearGradient id="brassCorner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="50%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="shadow3D" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#FBBF24" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Squircle Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad1)"/>
+  <rect width="512" height="512" rx="112" fill="url(#ambGlow1)"/>
+  <rect x="2" y="2" width="508" height="508" rx="110" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+
+  <!-- Main Suitcase Group -->
+  <g filter="url(#shadow3D)">
+    <!-- Suitcase Handle Top -->
+    <path d="M 206,120 L 206,92 C 206,78 218,66 232,66 L 280,66 C 294,66 306,78 306,92 L 306,120" 
+          fill="none" stroke="url(#goldStrap)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Handle Brass Mounts -->
+    <rect x="194" y="112" width="24" height="18" rx="4" fill="url(#brassCorner)"/>
+    <rect x="294" y="112" width="24" height="18" rx="4" fill="url(#brassCorner)"/>
+
+    <!-- Suitcase Main Shell -->
+    <rect x="76" y="120" width="360" height="270" rx="36" fill="url(#caseBody)"/>
+    <!-- Suitcase Inner Shadow/Bevel -->
+    <rect x="84" y="128" width="344" height="254" rx="28" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3"/>
+    
+    <!-- Central Seam Split (Zip / Hinge) -->
+    <line x1="76" y1="255" x2="436" y2="255" stroke="#042F2E" stroke-width="5" stroke-opacity="0.6"/>
+
+    <!-- 🌟 THE 'BARABAR' EQUAL SIGN STRAPS (2 Parallel Horizontal Leather Straps) -->
+    <!-- Top Equal Bar Strap -->
+    <g filter="url(#neonGlow)">
+      <rect x="66" y="180" width="380" height="34" rx="10" fill="url(#goldStrap)"/>
+      <rect x="66" y="180" width="380" height="34" rx="10" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+      <!-- Brass Buckles -->
+      <rect x="146" y="174" width="30" height="46" rx="6" fill="url(#brassCorner)"/>
+      <rect x="153" y="184" width="16" height="26" rx="3" fill="#042F2E"/>
+      <rect x="336" y="174" width="30" height="46" rx="6" fill="url(#brassCorner)"/>
+      <rect x="343" y="184" width="16" height="26" rx="3" fill="#042F2E"/>
+    </g>
+
+    <!-- Bottom Equal Bar Strap -->
+    <g filter="url(#neonGlow)">
+      <rect x="66" y="296" width="380" height="34" rx="10" fill="url(#goldStrap)"/>
+      <rect x="66" y="296" width="380" height="34" rx="10" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+      <!-- Brass Buckles -->
+      <rect x="146" y="290" width="30" height="46" rx="6" fill="url(#brassCorner)"/>
+      <rect x="153" y="300" width="16" height="26" rx="3" fill="#042F2E"/>
+      <rect x="336" y="290" width="30" height="46" rx="6" fill="url(#brassCorner)"/>
+      <rect x="343" y="300" width="16" height="26" rx="3" fill="#042F2E"/>
+    </g>
+
+    <!-- 4 Reinforced Brass Corners -->
+    <path d="M 76,156 L 76,136 C 76,127 83,120 92,120 L 112,120 C 112,140 96,156 76,156 Z" fill="url(#brassCorner)"/>
+    <path d="M 436,156 L 436,136 C 436,127 429,120 420,120 L 400,120 C 400,140 416,156 436,156 Z" fill="url(#brassCorner)"/>
+    <path d="M 76,354 L 76,374 C 76,383 83,390 92,390 L 112,390 C 112,370 96,354 76,354 Z" fill="url(#brassCorner)"/>
+    <path d="M 436,354 L 436,374 C 436,383 429,390 420,390 L 400,390 C 400,370 416,354 436,354 Z" fill="url(#brassCorner)"/>
+
+    <!-- 🌴 Travel Destination Stickers on Luggage -->
+    <!-- 1. Beach Palm Sticker -->
+    <g transform="translate(200, 226) rotate(-8)">
+      <circle cx="28" cy="28" r="26" fill="#F43F5E" stroke="#FFFFFF" stroke-width="2"/>
+      <text x="28" y="34" font-size="22" text-anchor="middle">🌴</text>
+    </g>
+    <!-- 2. Flight Jet Sticker -->
+    <g transform="translate(262, 222) rotate(12)">
+      <rect x="0" y="0" width="56" height="34" rx="8" fill="#0284C7" stroke="#FFFFFF" stroke-width="2"/>
+      <text x="28" y="24" font-size="18" text-anchor="middle">✈️</text>
+    </g>
+
+    <!-- Luggage Tag Hanging Off Handle -->
+    <g transform="translate(300, 118) rotate(22)">
+      <line x1="0" y1="0" x2="0" y2="28" stroke="#FDE047" stroke-width="3"/>
+      <polygon points="-16,28 16,28 22,64 -22,64" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+      <circle cx="0" cy="34" r="3" fill="#D97706"/>
+      <text x="0" y="52" font-family="system-ui, sans-serif" font-size="9" font-weight="900" fill="#78350F" text-anchor="middle">BARABAR</text>
+    </g>
+  </g>
+
+  <!-- Bottom Brand Ribbon -->
+  <text x="256" y="446" font-family="system-ui, sans-serif" font-size="28" font-weight="900" letter-spacing="3" fill="#FFFFFF" text-anchor="middle">
+    TRIP BARABAR
+  </text>
+  <text x="256" y="472" font-family="system-ui, sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#2DD4BF" text-anchor="middle">
+    HISAAB SORTED • =
+  </text>
+</svg>

@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Titanium Black -->
+    <linearGradient id="wayfinderBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050914"/>
+      <stop offset="50%" stop-color="#0B1326"/>
+      <stop offset="100%" stop-color="#03060B"/>
+    </linearGradient>
+
+    <!-- Glowing Cyber Rim -->
+    <linearGradient id="wayfinderBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <!-- North Needle (Electric Cyan / Ice Blue) -->
+    <linearGradient id="needleNorthLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <linearGradient id="needleNorthRight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0369A1"/>
+    </linearGradient>
+
+    <!-- South Needle (Sunset Coral / Amber) -->
+    <linearGradient id="needleSouthLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#C2410C"/>
+    </linearGradient>
+    <linearGradient id="needleSouthRight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#9A3412"/>
+    </linearGradient>
+
+    <!-- Gold Equal Core -->
+    <linearGradient id="goldBarabar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="25%" stop-color="#FEF08A"/>
+      <stop offset="60%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="neonCompassGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="needleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- App Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#wayfinderBg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="url(#wayfinderBorder)" stroke-width="3.5"/>
+
+  <!-- Subtle Precision Dial Geometry -->
+  <g opacity="0.3" stroke="#38BDF8" stroke-width="1.5">
+    <circle cx="256" cy="256" r="185" fill="none" stroke-dasharray="4,8"/>
+    <circle cx="256" cy="256" r="145" fill="none"/>
+    <line x1="256" y1="50" x2="256" y2="462" stroke="#FFFFFF" opacity="0.2"/>
+    <line x1="50" y1="256" x2="462" y2="256" stroke="#FFFFFF" opacity="0.2"/>
+  </g>
+
+  <!-- Cardinal Markers: N E S W in Clean Cyber Typography -->
+  <text x="256" y="88" font-family="system-ui, sans-serif" font-size="20" font-weight="900" fill="#00F2FE" text-anchor="middle" filter="url(#neonCompassGlow)">N</text>
+  <text x="256" y="440" font-family="system-ui, sans-serif" font-size="18" font-weight="900" fill="#F97316" text-anchor="middle">S</text>
+  <text x="430" y="262" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#64748B" text-anchor="middle">E</text>
+  <text x="82" y="262" font-family="system-ui, sans-serif" font-size="16" font-weight="800" fill="#64748B" text-anchor="middle">W</text>
+
+  <!-- Outer Cyan Glowing Ring -->
+  <circle cx="256" cy="256" r="145" fill="none" stroke="url(#wayfinderBorder)" stroke-width="3" opacity="0.6"/>
+
+  <!-- 🧭 3D SLEEK FACETED DIRECTIONAL NEEDLE -->
+  <g filter="url(#needleShadow)">
+    
+    <!-- NORTH NEEDLE (Pointing Up - High-Tech Ice Cyan) -->
+    <g>
+      <!-- Left Facet -->
+      <polygon points="256,105 212,256 256,256" fill="url(#needleNorthLeft)"/>
+      <!-- Right Facet -->
+      <polygon points="256,105 256,256 300,256" fill="url(#needleNorthRight)"/>
+      <!-- Center Ridge Shimmer Line -->
+      <line x1="256" y1="105" x2="256" y2="256" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9"/>
+    </g>
+
+    <!-- SOUTH NEEDLE (Pointing Down - Warm Amber) -->
+    <g>
+      <!-- Left Facet -->
+      <polygon points="256,407 212,256 256,256" fill="url(#needleSouthLeft)"/>
+      <!-- Right Facet -->
+      <polygon points="256,407 256,256 300,256" fill="url(#needleSouthRight)"/>
+      <!-- Center Ridge Shimmer Line -->
+      <line x1="256" y1="407" x2="256" y2="256" stroke="#FEF08A" stroke-width="2" opacity="0.6"/>
+    </g>
+
+    <!-- 🌟 THE CENTRAL EQUAL SIGN CORE ("BARABAR" =) -->
+    <!-- Heavy Dark Pivot Disc to lift Equal bars -->
+    <circle cx="256" cy="256" r="54" fill="#0B1326" stroke="#38BDF8" stroke-width="2.5"/>
+    <circle cx="256" cy="256" r="48" fill="#060B14"/>
+
+    <!-- Top Equal Bar -->
+    <g filter="url(#neonCompassGlow)">
+      <rect x="220" y="234" width="72" height="15" rx="7.5" fill="url(#goldBarabar)"/>
+      <rect x="224" y="236" width="64" height="7" rx="3.5" fill="#FFFFFF" opacity="0.85"/>
+    </g>
+
+    <!-- Bottom Equal Bar -->
+    <g filter="url(#neonCompassGlow)">
+      <rect x="220" y="263" width="72" height="15" rx="7.5" fill="url(#goldBarabar)"/>
+      <rect x="224" y="265" width="64" height="7" rx="3.5" fill="#FFFFFF" opacity="0.85"/>
+    </g>
+
+  </g>
+
+  <!-- Glowing North Polaris Star Tip -->
+  <g transform="translate(256, 105)" filter="url(#neonCompassGlow)">
+    <circle cx="0" cy="0" r="10" fill="#00F2FE"/>
+    <circle cx="0" cy="0" r="5" fill="#FFFFFF"/>
+  </g>
+</svg>

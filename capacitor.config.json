@@ -1,0 +1,20 @@
+{
+  "appId": "com.tripbarabar.app",
+  "appName": "Trip Barabar",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#0B1320",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0B1320"
+    }
+  }
+}

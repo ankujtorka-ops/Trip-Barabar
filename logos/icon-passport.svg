@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#021B35"/>
+      <stop offset="50%" stop-color="#052E54"/>
+      <stop offset="100%" stop-color="#0B1528"/>
+    </linearGradient>
+
+    <!-- Navy Leather Passport -->
+    <linearGradient id="navyLeather" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="40%" stop-color="#172554"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+
+    <!-- Foil Gold -->
+    <linearGradient id="foilGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="30%" stop-color="#FACC15"/>
+      <stop offset="70%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+
+    <!-- Boarding Pass Gradient -->
+    <linearGradient id="ticketGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="100%" stop-color="#FEF3C7"/>
+    </linearGradient>
+
+    <filter id="passShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad4)"/>
+  <rect x="2" y="2" width="508" height="508" rx="110" fill="none" stroke="rgba(250,204,21,0.25)" stroke-width="3"/>
+
+  <!-- Tilted Boarding Pass sticking out behind Passport -->
+  <g transform="translate(180, 100) rotate(16)" filter="url(#passShadow)">
+    <rect x="0" y="0" width="220" height="130" rx="16" fill="url(#ticketGrad)" stroke="#F59E0B" stroke-width="2"/>
+    <!-- Flight Cutout Notches -->
+    <circle cx="0" cy="65" r="10" fill="#052E54"/>
+    <circle cx="220" cy="65" r="10" fill="#052E54"/>
+    <!-- Flight Route -->
+    <text x="24" y="40" font-family="system-ui, sans-serif" font-size="14" font-weight="900" fill="#1E293B">DEL ➔ GOA / BKK</text>
+    <text x="24" y="60" font-family="monospace" font-size="10" font-weight="700" fill="#64748B">CLASS: FIRST • SEAT 01A</text>
+    <text x="24" y="85" font-family="system-ui, sans-serif" font-size="18" font-weight="900" fill="#D97706">₹ BARABAR</text>
+    <!-- Barcode -->
+    <line x1="160" y1="20" x2="160" y2="70" stroke="#1E293B" stroke-width="3"/>
+    <line x1="166" y1="20" x2="166" y2="70" stroke="#1E293B" stroke-width="2"/>
+    <line x1="172" y1="20" x2="172" y2="70" stroke="#1E293B" stroke-width="4"/>
+    <line x1="180" y1="20" x2="180" y2="70" stroke="#1E293B" stroke-width="1.5"/>
+    <line x1="186" y1="20" x2="186" y2="70" stroke="#1E293B" stroke-width="3"/>
+    <line x1="194" y1="20" x2="194" y2="70" stroke="#1E293B" stroke-width="2"/>
+  </g>
+
+  <!-- Main Passport Booklet (Tilted -6deg) -->
+  <g transform="translate(100, 110) rotate(-6)" filter="url(#passShadow)">
+    <rect x="0" y="0" width="230" height="300" rx="20" fill="url(#navyLeather)"/>
+    <!-- Gold Embossed Border -->
+    <rect x="12" y="12" width="206" height="276" rx="14" fill="none" stroke="url(#foilGold)" stroke-width="2.5" opacity="0.85"/>
+    
+    <!-- Golden Globe Emblem -->
+    <circle cx="115" cy="115" r="44" fill="none" stroke="url(#foilGold)" stroke-width="3"/>
+    <ellipse cx="115" cy="115" rx="44" ry="18" fill="none" stroke="url(#foilGold)" stroke-width="2"/>
+    <ellipse cx="115" cy="115" rx="18" ry="44" fill="none" stroke="url(#foilGold)" stroke-width="2"/>
+    <line x1="71" y1="115" x2="159" y2="115" stroke="url(#foilGold)" stroke-width="2"/>
+
+    <!-- Foil Text -->
+    <text x="115" y="48" font-family="system-ui, sans-serif" font-size="12" font-weight="900" letter-spacing="4" fill="url(#foilGold)" text-anchor="middle">
+      PASSPORT
+    </text>
+    <text x="115" y="195" font-family="system-ui, sans-serif" font-size="15" font-weight="900" letter-spacing="2" fill="url(#foilGold)" text-anchor="middle">
+      TRIP BARABAR
+    </text>
+
+    <!-- 🌟 THE EQUAL EMBOSS BAR (=) -->
+    <rect x="80" y="215" width="70" height="7" rx="3.5" fill="url(#foilGold)"/>
+    <rect x="80" y="228" width="70" height="7" rx="3.5" fill="url(#foilGold)"/>
+
+    <!-- Biometric Chip Symbol -->
+    <rect x="100" y="255" width="30" height="18" rx="4" fill="none" stroke="url(#foilGold)" stroke-width="2"/>
+    <line x1="94" y1="264" x2="136" y2="264" stroke="url(#foilGold)" stroke-width="2"/>
+    <circle cx="115" cy="264" r="4" fill="url(#navyLeather)" stroke="url(#foilGold)" stroke-width="2"/>
+  </g>
+
+  <!-- 🔴 Red Official "VISA APPROVED / HISAAB 100%" Stamp Stamped On Top -->
+  <g transform="translate(320, 260) rotate(14)">
+    <circle cx="0" cy="0" r="54" fill="none" stroke="#F43F5E" stroke-width="4.5" stroke-dasharray="6,3"/>
+    <circle cx="0" cy="0" r="45" fill="none" stroke="#F43F5E" stroke-width="2"/>
+    <text x="0" y="-12" font-family="system-ui, sans-serif" font-size="9.5" font-weight="900" letter-spacing="2" fill="#F43F5E" text-anchor="middle">OFFICIAL VISA</text>
+    <text x="0" y="8" font-family="system-ui, sans-serif" font-size="14" font-weight="900" fill="#F43F5E" text-anchor="middle">✓ BARABAR</text>
+    <text x="0" y="24" font-family="monospace" font-size="8.5" font-weight="700" fill="#F43F5E" text-anchor="middle">100% AUDITED</text>
+  </g>
+
+  <!-- Typography -->
+  <text x="256" y="446" font-family="system-ui, sans-serif" font-size="28" font-weight="900" letter-spacing="3" fill="#FFFFFF" text-anchor="middle">
+    TRIP BARABAR
+  </text>
+  <text x="256" y="472" font-family="system-ui, sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#FACC15" text-anchor="middle">
+    PASSPORT & FLIGHTS • =
+  </text>
+</svg>

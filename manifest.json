@@ -1,0 +1,37 @@
+{
+  "name": "Trip Barabar — Hisaab Sorted",
+  "short_name": "TripBarabar",
+  "description": "Universal group trip expense sharing & debt simplification app. Trip Sorted. Hisaab Barabar.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1320",
+  "theme_color": "#0D9488",
+  "categories": ["finance", "travel", "utilities"],
+  "icons": [
+    {
+      "src": "logos/kool-jet.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

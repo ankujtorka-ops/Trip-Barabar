@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient (Sunset Desert / Mountain Glow) -->
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B"/>
+      <stop offset="50%" stop-color="#311042"/>
+      <stop offset="100%" stop-color="#4C1D24"/>
+    </linearGradient>
+
+    <!-- Backpack Canvas Material -->
+    <linearGradient id="packOrange" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C"/>
+      <stop offset="40%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+
+    <linearGradient id="packTeal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+
+    <!-- Equal Webbing Straps -->
+    <linearGradient id="equalStrapGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="50%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <filter id="packShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad3)"/>
+  <rect x="2" y="2" width="508" height="508" rx="110" fill="none" stroke="rgba(251,146,60,0.25)" stroke-width="3"/>
+
+  <!-- Sleeping Mat Rolled at Top -->
+  <g transform="translate(126, 74)">
+    <rect x="0" y="0" width="260" height="42" rx="21" fill="#0D9488" stroke="#042F2E" stroke-width="3"/>
+    <ellipse cx="21" cy="21" rx="14" ry="18" fill="#14B8A6" stroke="#042F2E" stroke-width="2"/>
+    <ellipse cx="239" cy="21" rx="14" ry="18" fill="#0F766E"/>
+    <!-- Mat Straps -->
+    <rect x="65" y="-2" width="16" height="46" rx="4" fill="#F59E0B"/>
+    <rect x="175" y="-2" width="16" height="46" rx="4" fill="#F59E0B"/>
+  </g>
+
+  <!-- Main Rucksack Group -->
+  <g filter="url(#packShadow)">
+    <!-- Backpack Main Teardrop Body -->
+    <path d="M 166,110 L 346,110 C 390,110 410,160 406,280 C 402,360 376,385 346,385 L 166,385 C 136,385 110,360 106,280 C 102,160 122,110 166,110 Z" 
+          fill="url(#packOrange)"/>
+    
+    <!-- Top Flap Lid -->
+    <path d="M 156,110 L 356,110 C 376,110 380,140 370,180 L 142,180 C 132,140 136,110 156,110 Z" 
+          fill="url(#packTeal)"/>
+
+    <!-- Front Cargo Pouch -->
+    <rect x="156" y="210" width="200" height="150" rx="24" fill="#C2410C"/>
+
+    <!-- 🌟 THE EQUAL SIGN CHEST STRAPS (=) -->
+    <!-- Top Strap -->
+    <g>
+      <rect x="110" y="235" width="292" height="28" rx="8" fill="url(#equalStrapGrad)"/>
+      <!-- Quick-Release Plastic Buckle -->
+      <rect x="236" y="227" width="40" height="44" rx="8" fill="#1E293B"/>
+      <rect x="246" y="235" width="20" height="28" rx="4" fill="#475569"/>
+    </g>
+    <!-- Bottom Strap -->
+    <g>
+      <rect x="110" y="300" width="292" height="28" rx="8" fill="url(#equalStrapGrad)"/>
+      <!-- Quick-Release Plastic Buckle -->
+      <rect x="236" y="292" width="40" height="44" rx="8" fill="#1E293B"/>
+      <rect x="246" y="300" width="20" height="28" rx="4" fill="#475569"/>
+    </g>
+
+    <!-- 🕶️ Cool Dark Aviator Sunglasses Hooked on Top Flap -->
+    <g transform="translate(206, 160)">
+      <!-- Left Lens -->
+      <path d="M 12,0 C 2,0 -4,12 -2,24 C 0,36 12,42 26,40 C 38,38 42,26 40,12 C 38,0 26,0 12,0 Z" fill="#0F172A" stroke="#FDE047" stroke-width="4"/>
+      <!-- Right Lens -->
+      <path d="M 68,0 C 58,0 52,12 54,24 C 56,36 68,42 82,40 C 94,38 98,26 96,12 C 94,0 82,0 68,0 Z" fill="#0F172A" stroke="#FDE047" stroke-width="4"/>
+      <!-- Bridge -->
+      <path d="M 38,10 Q 47,4 56,10" fill="none" stroke="#FDE047" stroke-width="4"/>
+      <!-- Palm Reflection in Glasses -->
+      <text x="20" y="28" font-size="14" opacity="0.6">🌴</text>
+      <text x="76" y="28" font-size="14" opacity="0.6">🌴</text>
+    </g>
+  </g>
+
+  <!-- Typography -->
+  <text x="256" y="446" font-family="system-ui, sans-serif" font-size="28" font-weight="900" letter-spacing="3" fill="#FFFFFF" text-anchor="middle">
+    TRIP BARABAR
+  </text>
+  <text x="256" y="472" font-family="system-ui, sans-serif" font-size="13" font-weight="700" letter-spacing="4" fill="#FB923C" text-anchor="middle">
+    TREKS & GETAWAYS • =
+  </text>
+</svg>

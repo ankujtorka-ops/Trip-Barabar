@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Midnight Obsidian -->
+    <linearGradient id="jetBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080F1E"/>
+      <stop offset="50%" stop-color="#0E1D38"/>
+      <stop offset="100%" stop-color="#050A14"/>
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="jetBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#38BDF8" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F43F5E" stop-opacity="0.7"/>
+    </linearGradient>
+
+    <!-- Neon Cyan Equal Trail -->
+    <linearGradient id="trailCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7" stop-opacity="0.1"/>
+      <stop offset="30%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#00F2FE"/>
+    </linearGradient>
+
+    <!-- Neon Coral Equal Trail -->
+    <linearGradient id="trailCoral" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#BE123C" stop-opacity="0.1"/>
+      <stop offset="30%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#FB7185"/>
+    </linearGradient>
+
+    <!-- Jet Chrome Body Shading -->
+    <linearGradient id="jetBodyGrad" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#F1F5F9"/>
+      <stop offset="70%" stop-color="#CBD5E1"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+
+    <linearGradient id="jetWingLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E2E8F0"/>
+    </linearGradient>
+
+    <linearGradient id="jetWingRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+
+    <!-- Neon Glow Filter -->
+    <filter id="glowHigh" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="jetDrop" x="-30%" y="-30%" width="170%" height="170%">
+      <feDropShadow dx="12" dy="20" stdDeviation="18" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+
+    <radialGradient id="centerGlow" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#00F2FE" stop-opacity="0.22"/>
+      <stop offset="50%" stop-color="#0284C7" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- App Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#jetBg)"/>
+  <rect width="512" height="512" rx="116" fill="url(#centerGlow)"/>
+
+  <!-- Sleek Glowing Squircle Rim -->
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="url(#jetBorderGrad)" stroke-width="4"/>
+
+  <!-- Radar / Flight Vector Lines -->
+  <g opacity="0.14" stroke="#FFFFFF" stroke-width="1.5">
+    <circle cx="256" cy="256" r="200" fill="none" stroke-dasharray="8,8"/>
+    <circle cx="256" cy="256" r="120" fill="none"/>
+    <line x1="256" y1="36" x2="256" y2="476"/>
+    <line x1="36" y1="256" x2="476" y2="256"/>
+  </g>
+
+  <!-- 🌟 BOLD NEON EQUAL SIGN (=) CONTRAILS -->
+  <!-- Top Equal Bar (Cyan Beam) -->
+  <g filter="url(#glowHigh)">
+    <rect x="60" y="196" width="280" height="34" rx="17" fill="url(#trailCyan)"/>
+    <rect x="70" y="202" width="260" height="22" rx="11" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+
+  <!-- Bottom Equal Bar (Neon Coral Beam) -->
+  <g filter="url(#glowHigh)">
+    <rect x="60" y="282" width="280" height="34" rx="17" fill="url(#trailCoral)"/>
+    <rect x="70" y="288" width="260" height="22" rx="11" fill="#FFFFFF" opacity="0.8"/>
+  </g>
+
+  <!-- ✈️ BOLD SUPERSONIC JET CUTTING THROUGH THE EQUAL BEAMS -->
+  <g transform="translate(325, 256) rotate(-38)" filter="url(#jetDrop)">
+    
+    <!-- Intense Afterburner Engine Plume -->
+    <ellipse cx="-85" cy="0" rx="45" ry="16" fill="#00F2FE" opacity="0.9" filter="url(#glowHigh)"/>
+    <ellipse cx="-95" cy="0" rx="25" ry="8" fill="#FFFFFF" filter="url(#glowHigh)"/>
+
+    <!-- Left Wing (Top in perspective) -->
+    <polygon points="-45,0 -95,-110 35,-15 15,0" fill="url(#jetWingLeft)"/>
+    
+    <!-- Right Wing (Bottom in perspective) -->
+    <polygon points="-45,0 -85,110 35,15 15,0" fill="url(#jetWingRight)"/>
+
+    <!-- Fuselage Main Body -->
+    <polygon points="135,0 -80,-24 -70,0 -80,24" fill="url(#jetBodyGrad)"/>
+
+    <!-- Center Spine Highlight -->
+    <line x1="130" y1="0" x2="-65" y2="0" stroke="#FFFFFF" stroke-width="3.5" opacity="0.95"/>
+
+    <!-- Aerodynamic Glass Canopy -->
+    <polygon points="55,0 20,-6 -15,0 20,6" fill="#00F2FE"/>
+    <polygon points="50,0 22,-3 -5,0 22,3" fill="#FFFFFF"/>
+
+    <!-- Tail Stabilizer Fins -->
+    <polygon points="-50,-3 -85,-44 -65,-3" fill="#64748B"/>
+    <polygon points="-50,3 -85,44 -65,3" fill="#1E293B"/>
+  </g>
+
+  <!-- Glowing Corner Destination Pin Sparkle -->
+  <g transform="translate(420, 92)" filter="url(#glowHigh)">
+    <circle cx="0" cy="0" r="14" fill="#00F2FE"/>
+    <circle cx="0" cy="0" r="7" fill="#FFFFFF"/>
+  </g>
+</svg>

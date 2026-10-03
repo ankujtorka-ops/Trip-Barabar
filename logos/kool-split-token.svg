@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Slate to Royal Midnight -->
+    <linearGradient id="tokenBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="50%" stop-color="#1E1B4B"/>
+      <stop offset="100%" stop-color="#090D16"/>
+    </linearGradient>
+
+    <!-- Border Glow -->
+    <linearGradient id="tokenBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <!-- 3D Coin Outer Bezel -->
+    <linearGradient id="coinBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="25%" stop-color="#94A3B8"/>
+      <stop offset="50%" stop-color="#334155"/>
+      <stop offset="75%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <!-- Coin Face Top Half (Travel Sky) -->
+    <linearGradient id="skyHalf" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+
+    <!-- Coin Face Bottom Half (Golden Sunset Hisaab) -->
+    <linearGradient id="goldHalf" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <!-- Equal Sign Gold Metallic -->
+    <linearGradient id="equalGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="50%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+
+    <!-- Glow & Shadow -->
+    <filter id="tokenGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="tokenShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- App Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#tokenBg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="url(#tokenBorder)" stroke-width="3.5"/>
+
+  <!-- Ambient Light Core -->
+  <circle cx="256" cy="256" r="180" fill="#38BDF8" opacity="0.12" filter="url(#tokenGlow)"/>
+
+  <!-- 🪙 3D FLOATING TRAVEL & SPLIT TOKEN -->
+  <g filter="url(#tokenShadow)">
+    
+    <!-- Outer Heavy Beveled Coin Rim -->
+    <circle cx="256" cy="256" r="172" fill="url(#coinBezel)"/>
+    <circle cx="256" cy="256" r="162" fill="#0B132B"/>
+    <circle cx="256" cy="256" r="156" fill="none" stroke="url(#equalGold)" stroke-width="3" stroke-dasharray="8,6" opacity="0.8"/>
+
+    <!-- Inner Coin Disk -->
+    <g clip-path="url(#coinClip)">
+      <clipPath id="coinClip">
+        <circle cx="256" cy="256" r="148"/>
+      </clipPath>
+
+      <!-- Background: Dark Dual Hemispheres -->
+      <rect x="100" y="100" width="312" height="312" fill="#070E1E"/>
+
+      <!-- Top Sky Flare Arc -->
+      <path d="M 108,256 A 148,148 0 0,1 404,256 Z" fill="url(#skyHalf)" opacity="0.9"/>
+      
+      <!-- Bottom Sunset Wealth Flare Arc -->
+      <path d="M 108,256 A 148,148 0 0,0 404,256 Z" fill="url(#goldHalf)" opacity="0.9"/>
+
+      <!-- Stylized Mountain & Ocean Horizon Curve -->
+      <path d="M 108,256 Q 180,230 256,256 T 404,256 L 404,404 L 108,404 Z" fill="#0F172A" opacity="0.6"/>
+
+      <!-- Sun Setting on Horizon -->
+      <circle cx="256" cy="256" r="45" fill="#FEF08A" opacity="0.4"/>
+    </g>
+
+    <!-- 🌟 THE EQUAL "BARABAR" SIGN (=) FLOATING AT CENTER -->
+    <!-- Top Bar -->
+    <g filter="url(#tokenGlow)">
+      <rect x="160" y="210" width="192" height="32" rx="16" fill="url(#equalGold)"/>
+      <rect x="168" y="216" width="176" height="20" rx="10" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- Bottom Bar -->
+    <g filter="url(#tokenGlow)">
+      <rect x="160" y="270" width="192" height="32" rx="16" fill="url(#equalGold)"/>
+      <rect x="168" y="276" width="176" height="20" rx="10" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- ✈️ Sleek Jet Silhouette in Top Flight Path -->
+    <g transform="translate(256, 175) scale(0.85)">
+      <polygon points="0,-25 -20,15 -5,10 0,18 5,10 20,15" fill="#FFFFFF"/>
+      <polygon points="0,-25 0,18 20,15" fill="#CBD5E1"/>
+    </g>
+
+    <!-- 🤝 "Split / Settlement" Rupee & Balance Dots -->
+    <circle cx="200" cy="340" r="10" fill="#FEF08A"/>
+    <text x="200" y="344" font-family="system-ui, sans-serif" font-size="11" font-weight="900" fill="#78350F" text-anchor="middle">₹</text>
+
+    <circle cx="312" cy="340" r="10" fill="#FEF08A"/>
+    <text x="312" y="344" font-family="system-ui, sans-serif" font-size="11" font-weight="900" fill="#78350F" text-anchor="middle">₹</text>
+
+    <line x1="220" y1="340" x2="292" y2="340" stroke="#FEF08A" stroke-width="2.5" stroke-dasharray="4,4"/>
+  </g>
+</svg>

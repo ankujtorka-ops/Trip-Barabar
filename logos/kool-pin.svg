@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Deep Electric Violet-Navy -->
+    <linearGradient id="pinBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090A1A"/>
+      <stop offset="50%" stop-color="#141133"/>
+      <stop offset="100%" stop-color="#060712"/>
+    </linearGradient>
+
+    <!-- Glowing Border -->
+    <linearGradient id="pinBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+
+    <!-- 3D Pin Shading -->
+    <linearGradient id="pinGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="35%" stop-color="#0284C7"/>
+      <stop offset="70%" stop-color="#0369A1"/>
+      <stop offset="100%" stop-color="#0C4A6E"/>
+    </linearGradient>
+
+    <!-- Pin Inner Core -->
+    <linearGradient id="pinCoreGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#082F49"/>
+      <stop offset="100%" stop-color="#021B2E"/>
+    </linearGradient>
+
+    <!-- Equal Gold -->
+    <linearGradient id="pinEqualGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="30%" stop-color="#FDE047"/>
+      <stop offset="70%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <!-- Orbit Trail -->
+    <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899" stop-opacity="0.1"/>
+      <stop offset="60%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#FFA07A"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="pinGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="pinShadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="24" stdDeviation="20" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- App Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#pinBg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="url(#pinBorder)" stroke-width="3.5"/>
+
+  <!-- Ambient Ground Shadow under Pin Point -->
+  <ellipse cx="256" cy="425" rx="80" ry="22" fill="#000000" opacity="0.6" filter="url(#pinGlow)"/>
+  <ellipse cx="256" cy="425" rx="40" ry="12" fill="#00F2FE" opacity="0.4" filter="url(#pinGlow)"/>
+
+  <!-- Orbiting Flight Ring wrapping around Pin -->
+  <g filter="url(#pinGlow)">
+    <ellipse cx="256" cy="270" rx="190" ry="60" fill="none" stroke="url(#orbitGrad)" stroke-width="6" 
+             transform="rotate(-20 256 270)"/>
+  </g>
+
+  <!-- 📍 3D GLOSSY LOCATION PIN -->
+  <g filter="url(#pinShadow)">
+    
+    <!-- Pin Teardrop Body -->
+    <path d="M 256,90 C 185,90 130,145 130,215 C 130,285 220,380 256,415 C 292,380 382,285 382,215 C 382,145 327,90 256,90 Z" 
+          fill="url(#pinGrad)"/>
+
+    <!-- Left Highlight Rim for 3D Volume -->
+    <path d="M 256,94 C 190,94 136,148 136,215 C 136,280 222,370 256,408" 
+          fill="none" stroke="#BAE6FD" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+
+    <!-- Inner Core Cutout Disc -->
+    <circle cx="256" cy="215" r="76" fill="url(#pinCoreGrad)"/>
+    <circle cx="256" cy="215" r="76" fill="none" stroke="url(#pinEqualGold)" stroke-width="3" opacity="0.6"/>
+
+    <!-- 🌟 THE EQUAL "BARABAR" SIGN (=) FLOATING INSIDE THE PIN -->
+    <!-- Top Bar -->
+    <g filter="url(#pinGlow)">
+      <rect x="206" y="186" width="100" height="20" rx="10" fill="url(#pinEqualGold)"/>
+      <rect x="212" y="190" width="88" height="10" rx="5" fill="#FFFFFF" opacity="0.85"/>
+    </g>
+
+    <!-- Bottom Bar -->
+    <g filter="url(#pinGlow)">
+      <rect x="206" y="224" width="100" height="20" rx="10" fill="url(#pinEqualGold)"/>
+      <rect x="212" y="228" width="88" height="10" rx="5" fill="#FFFFFF" opacity="0.85"/>
+    </g>
+
+  </g>
+
+  <!-- ✈️ Jet Orbiting Over the Front of the Pin -->
+  <g transform="translate(385, 230) rotate(-15) scale(0.9)" filter="url(#pinShadow)">
+    <!-- Jet Afterburner Plume -->
+    <ellipse cx="-40" cy="0" rx="20" ry="7" fill="#F43F5E" filter="url(#pinGlow)"/>
+    <!-- Wings -->
+    <polygon points="-20,0 -40,-45 10,-5 5,0" fill="#FFFFFF"/>
+    <polygon points="-20,0 -35,45 10,5 5,0" fill="#94A3B8"/>
+    <!-- Body -->
+    <polygon points="45,0 -35,-10 -30,0 -35,10" fill="#F1F5F9"/>
+    <!-- Cockpit -->
+    <polygon points="15,0 0,-3 -8,0 0,3" fill="#00F2FE"/>
+  </g>
+
+  <!-- Sparkle at Top Apex -->
+  <g transform="translate(256, 90)">
+    <polygon points="0,-12 3,-3 12,0 3,3 0,12 -3,3 -12,0 -3,-3" fill="#BAE6FD" filter="url(#pinGlow)"/>
+  </g>
+</svg>

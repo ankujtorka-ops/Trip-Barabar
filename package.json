@@ -1,0 +1,21 @@
+{
+  "name": "trip-barabar",
+  "version": "1.0.0",
+  "description": "Trip Barabar — Universal Group Trip Expense Sharing & Debt Simplification App",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "cap:sync": "npx.cmd cap sync",
+    "cap:android": "npx.cmd cap open android",
+    "cap:ios": "npx.cmd cap open ios"
+  },
+  "keywords": ["trip-expenses", "splitwise-alternative", "hisaab-barabar", "multi-currency", "debt-simplification"],
+  "author": "Ankuj",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2"
+  }
+}

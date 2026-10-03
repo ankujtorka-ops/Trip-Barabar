@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient: Ultra Modern Miami / Goa Sunset -->
+    <linearGradient id="aviatorBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#180B2E"/>
+      <stop offset="40%" stop-color="#2D124D"/>
+      <stop offset="75%" stop-color="#701A75"/>
+      <stop offset="100%" stop-color="#9A3412"/>
+    </linearGradient>
+
+    <!-- Glowing Rim -->
+    <linearGradient id="aviatorBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="50%" stop-color="#A855F7"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <!-- Gold Metallic Frame -->
+    <linearGradient id="goldFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="30%" stop-color="#FACC15"/>
+      <stop offset="70%" stop-color="#CA8A04"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+
+    <!-- Polarized Mirror Lens Reflection -->
+    <linearGradient id="lensReflect" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="35%" stop-color="#6366F1"/>
+      <stop offset="65%" stop-color="#EC4899"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <!-- Glow & Shadows -->
+    <filter id="aviatorGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="aviatorDrop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="20" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- App Squircle Base -->
+  <rect width="512" height="512" rx="116" fill="url(#aviatorBg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="url(#aviatorBorder)" stroke-width="3.5"/>
+
+  <!-- Ambient Glowing Sunset Sun in Sky -->
+  <circle cx="256" cy="190" r="140" fill="#F43F5E" opacity="0.3" filter="url(#aviatorGlow)"/>
+  <circle cx="256" cy="190" r="85" fill="#FBBF24" opacity="0.4" filter="url(#aviatorGlow)"/>
+
+  <!-- 🕶️ THE KOOL AVIATOR GLASSES WITH EQUAL SIGN (=) NOSE BRIDGE -->
+  <g transform="translate(0, 15)" filter="url(#aviatorDrop)">
+
+    <!-- Top Brow Bar Frame (Gold Wire) -->
+    <path d="M 90,210 Q 256,190 422,210" fill="none" stroke="url(#goldFrame)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- LEFT LENS -->
+    <g>
+      <!-- Teardrop Lens Shape -->
+      <path id="leftLensShape" d="M 100,225 C 90,225 80,245 80,285 C 80,335 110,365 155,365 C 205,365 225,325 225,275 C 225,240 215,225 200,225 Z" 
+            fill="url(#lensReflect)"/>
+      
+      <!-- Frame Rim -->
+      <path d="M 100,225 C 90,225 80,245 80,285 C 80,335 110,365 155,365 C 205,365 225,325 225,275 C 225,240 215,225 200,225 Z" 
+            fill="none" stroke="url(#goldFrame)" stroke-width="6"/>
+
+      <!-- Palm Tree Reflection Silhouette in Left Lens -->
+      <g opacity="0.85">
+        <!-- Trunk -->
+        <path d="M 180,365 Q 165,310 150,270" stroke="#0F172A" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <!-- Palm Fronds -->
+        <path d="M 150,270 Q 130,250 115,260" stroke="#0F172A" stroke-width="3.5" fill="none"/>
+        <path d="M 150,270 Q 125,270 120,285" stroke="#0F172A" stroke-width="3" fill="none"/>
+        <path d="M 150,270 Q 145,245 160,240" stroke="#0F172A" stroke-width="3.5" fill="none"/>
+        <path d="M 150,270 Q 170,255 185,265" stroke="#0F172A" stroke-width="3.5" fill="none"/>
+      </g>
+      
+      <!-- Lens Glare Highlight -->
+      <path d="M 105,240 Q 120,290 135,340" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+    </g>
+
+    <!-- RIGHT LENS -->
+    <g>
+      <!-- Teardrop Lens Shape -->
+      <path id="rightLensShape" d="M 412,225 C 422,225 432,245 432,285 C 432,335 402,365 357,365 C 307,365 287,325 287,275 C 287,240 297,225 312,225 Z" 
+            fill="url(#lensReflect)"/>
+      
+      <!-- Frame Rim -->
+      <path d="M 412,225 C 422,225 432,245 432,285 C 432,335 402,365 357,365 C 307,365 287,325 287,275 C 287,240 297,225 312,225 Z" 
+            fill="none" stroke="url(#goldFrame)" stroke-width="6"/>
+
+      <!-- Supersonic Jet Silhouette Reflection in Right Lens -->
+      <g transform="translate(365, 290) rotate(-30) scale(0.7)" opacity="0.9">
+        <polygon points="0,-30 -25,20 -5,12 0,22 5,12 25,20" fill="#0F172A"/>
+      </g>
+      
+      <!-- Lens Glare Highlight -->
+      <path d="M 317,240 Q 332,290 347,340" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+    </g>
+
+    <!-- 🌟 THE EQUAL "BARABAR" BRIDGE CONNECTING THE TWO LENSES (=) -->
+    <!-- Top Bridge Bar -->
+    <g filter="url(#aviatorGlow)">
+      <rect x="220" y="244" width="72" height="14" rx="7" fill="url(#goldFrame)"/>
+      <rect x="224" y="246" width="64" height="6" rx="3" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+    <!-- Bottom Bridge Bar -->
+    <g filter="url(#aviatorGlow)">
+      <rect x="220" y="272" width="72" height="14" rx="7" fill="url(#goldFrame)"/>
+      <rect x="224" y="274" width="64" height="6" rx="3" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- Temple Hinges -->
+    <circle cx="82" cy="235" r="7" fill="url(#goldFrame)"/>
+    <circle cx="430" cy="235" r="7" fill="url(#goldFrame)"/>
+  </g>
+
+  <!-- Cool Sparkle Flares -->
+  <g transform="translate(256, 120)">
+    <polygon points="0,-16 4,-4 16,0 4,4 0,16 -4,4 -16,0 -4,-4" fill="#FEF08A" filter="url(#aviatorGlow)"/>
+  </g>
+</svg>
