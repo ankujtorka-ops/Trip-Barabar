@@ -171,6 +171,12 @@ const server = http.createServer((req, res) => {
       res.end(JSON.stringify({
         success: true,
         activeRooms: Object.keys(cloudTrips).length,
+        rooms: Object.keys(cloudTrips).map(code => ({
+          code,
+          name: cloudTrips[code]?.trip?.name,
+          expensesCount: (cloudTrips[code]?.trip?.expenses || []).length,
+          lastModified: cloudTrips[code]?.lastModified
+        })),
         serverTime: Date.now()
       }));
       return;
