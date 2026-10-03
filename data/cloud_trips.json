@@ -1,0 +1,320 @@
+{
+  "THAI59": {
+    "trip": {
+      "id": "trip-1791013568433",
+      "name": "Thailand Vows",
+      "destination": "Bangkok, Pataya",
+      "dates": "7th Oct - 13th Oct",
+      "code": "THAI59",
+      "theme": "tropical",
+      "baseCurrency": "THB",
+      "currencySymbol": "฿",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 2.48,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        },
+        {
+          "id": "m2",
+          "name": "Shwaan",
+          "phone": "",
+          "upi": "",
+          "color": "#0284C7"
+        },
+        {
+          "id": "m3",
+          "name": "Shubu",
+          "phone": "",
+          "upi": "",
+          "color": "#7C3AED"
+        },
+        {
+          "id": "m4",
+          "name": "Thard",
+          "phone": "",
+          "upi": "",
+          "color": "#D97706"
+        },
+        {
+          "id": "m5",
+          "name": "Amit",
+          "phone": "",
+          "upi": "",
+          "color": "#E11D48"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [
+        {
+          "id": "exp-1791013791367",
+          "title": "Return Flight booking",
+          "amount": 65600,
+          "currency": "INR",
+          "convertedAmount": 65600,
+          "categoryId": "flight",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 65600
+            }
+          ],
+          "sharedWith": [
+            "m1",
+            "m4"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-03",
+          "receipt": null,
+          "createdAt": 1791013791367
+        },
+        {
+          "id": "exp-1791017403350",
+          "title": "Flight",
+          "amount": 27000,
+          "currency": "INR",
+          "convertedAmount": 27000,
+          "categoryId": "flight",
+          "paidBy": [
+            {
+              "memberId": "m2",
+              "amount": 27000
+            }
+          ],
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-03",
+          "receipt": null,
+          "createdAt": 1791017403350
+        }
+      ],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 625000,
+        "days": 7,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "log-1791017403350-608",
+          "timestamp": 1791017403350,
+          "type": "expense",
+          "memberName": "Shwaan",
+          "text": "Added \"Flight\" (INR 27000)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1791013791367",
+          "timestamp": 1791013791367,
+          "type": "expense",
+          "memberName": "Ankuj",
+          "text": "Added \"Return Flight booking\" (INR 65600)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1791013568433",
+          "action": "create_trip",
+          "text": "Created new trip \"Thailand Vows\" (Bangkok, Pataya)",
+          "timestamp": 1791013568433,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1791017403951,
+    "updatedBy": "SyncEngine",
+    "ip": "127.0.0.1"
+  },
+  "THAI83": {
+    "trip": {
+      "id": "trip-1791013568433",
+      "name": "Thailand Vows",
+      "destination": "Bangkok, Pataya",
+      "dates": "7th Oct - 13th Oct",
+      "code": "THAI59",
+      "theme": "tropical",
+      "baseCurrency": "THB",
+      "currencySymbol": "฿",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 2.48,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        },
+        {
+          "id": "m2",
+          "name": "Shwaan",
+          "phone": "",
+          "upi": "",
+          "color": "#0284C7"
+        },
+        {
+          "id": "m3",
+          "name": "Shubu",
+          "phone": "",
+          "upi": "",
+          "color": "#7C3AED"
+        },
+        {
+          "id": "m4",
+          "name": "Thard",
+          "phone": "",
+          "upi": "",
+          "color": "#D97706"
+        },
+        {
+          "id": "m5",
+          "name": "Amit",
+          "phone": "",
+          "upi": "",
+          "color": "#E11D48"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [
+        {
+          "id": "exp-1791013791367",
+          "title": "Return Flight booking",
+          "amount": 65600,
+          "currency": "INR",
+          "convertedAmount": 65600,
+          "categoryId": "flight",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 65600
+            }
+          ],
+          "sharedWith": [
+            "m1",
+            "m4"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-03",
+          "receipt": null,
+          "createdAt": 1791013791367
+        },
+        {
+          "id": "exp-1791017403350",
+          "title": "Flight",
+          "amount": 27000,
+          "currency": "INR",
+          "convertedAmount": 27000,
+          "categoryId": "flight",
+          "paidBy": [
+            {
+              "memberId": "m2",
+              "amount": 27000
+            }
+          ],
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-03",
+          "receipt": null,
+          "createdAt": 1791017403350
+        }
+      ],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 625000,
+        "days": 7,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "log-1791017403350-608",
+          "timestamp": 1791017403350,
+          "type": "expense",
+          "memberName": "Shwaan",
+          "text": "Added \"Flight\" (INR 27000)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1791013791367",
+          "timestamp": 1791013791367,
+          "type": "expense",
+          "memberName": "Ankuj",
+          "text": "Added \"Return Flight booking\" (INR 65600)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1791013568433",
+          "action": "create_trip",
+          "text": "Created new trip \"Thailand Vows\" (Bangkok, Pataya)",
+          "timestamp": 1791013568433,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1791017403951,
+    "updatedBy": "SyncEngine",
+    "ip": "127.0.0.1"
+  }
+}
