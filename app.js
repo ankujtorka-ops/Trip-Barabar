@@ -3645,7 +3645,7 @@ async function joinTripByCode(directCode) {
 
   showToast(`⏳ Connecting to trip room ${code}...`);
   try {
-    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(code)}`, {
+    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(code)}&_t=${Date.now()}`, {
       cache: 'no-store'
     });
     if (res.ok) {
@@ -3870,7 +3870,7 @@ async function syncActiveTripToCloud(forceToast = false) {
   updateSyncStatusUI('syncing');
 
   try {
-    const res = await fetch('/api/sync/trip', {
+    const res = await fetch(`/api/sync/trip?_t=${Date.now()}`, {
       method: 'POST',
       cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
@@ -3913,7 +3913,7 @@ async function fetchCloudUpdates(silent = true) {
   if (!trip || !trip.code || !navigator.onLine || isSyncingToCloud) return;
 
   try {
-    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(trip.code)}`, {
+    const res = await fetch(`/api/sync/trip?code=${encodeURIComponent(trip.code)}&_t=${Date.now()}`, {
       cache: 'no-store'
     });
     if (res.ok) {
