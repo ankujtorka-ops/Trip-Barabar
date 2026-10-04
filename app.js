@@ -5012,48 +5012,172 @@ function calculateAndRefundKitty() {
 }
 
 // ==================== 4. DAILY BUDGET PACE ENGINE ====================
+function isFixedBookingExpense(exp) {
+  if (!exp) return false;
+  const cat = String(exp.categoryId || '').toLowerCase();
+  const title = String(exp.title || '').toLowerCase();
+
+  // Categories that represent fixed upfront bookings
+  if (cat === 'flight' || cat === 'stay' || cat === 'visa') return true;
+
+  // Title keywords indicating upfront fixed costs rather than daily variable spend
+  const fixedKeywords = [
+    'flight', 'airline', 'airfare', 'indigo', 'air asia', 'ticket', 'boarding',
+    'hotel', 'villa', 'resort', 'stay', 'airbnb', 'hostel', 'room booking',
+    'visa', 'advance', 'deposit', 'package'
+  ];
+  return fixedKeywords.some(kw => title.includes(kw));
+}
+
+function parseTripStart(datesStr) {
+  if (!datesStr) return null;
+  try {
+    const cleaned = String(datesStr).replace(/(\d+)(st|nd|rd|th)/gi, (_, p1) => p1);
+    const parts = cleaned.split(/[-–—to]+/i).map(s => s.trim());
+    if (!parts[0]) return null;
+    const nowYear = new Date().getFullYear();
+    let start = new Date(parts[0] + ' ' + nowYear);
+    if (isNaN(start.getTime())) {
+      start = new Date(parts[0]);
+    }
+    return isNaN(start.getTime()) ? null : start;
+  } catch (e) {
+    return null;
+  }
+}
+
 function renderBudgetPaceCard() {
   const trip = state.activeTrip;
   const ratioEl = document.getElementById('budgetPaceTotalRatio');
   const barEl = document.getElementById('budgetPaceProgressBar');
   const forecastEl = document.getElementById('budgetPaceForecastText');
+  const subtextEl = document.getElementById('budgetPaceSubtext');
+  const paceLabelEl = document.getElementById('budgetPacePaceLabel');
   if (!trip || !ratioEl) return;
 
-  const budget = trip.budget || { total: 100000, days: 8, currency: 'INR' };
+  const sym = trip.homeCurrencySymbol || '₹';
+  const budget = trip.budget || { total: 100000, days: 7, currency: trip.homeCurrency || 'INR' };
   const totalBudget = Number(budget.total) || 100000;
-  const totalDays = Number(budget.days) || 8;
+  const totalDays = Math.max(1, Number(budget.days) || 7);
 
-  const totalSpentHome = (trip.expenses || []).reduce((sum, exp) => {
-    return sum + (Number(exp.convertedAmount) || (Number(exp.amount) * (trip.forexRate || 1)));
-  }, 0);
+  let fixedSpent = 0;
+  let dailySpent = 0;
+  const dailyDates = new Set();
 
-  ratioEl.textContent = `₹${Math.round(totalSpentHome).toLocaleString('en-IN')} / ₹${totalBudget.toLocaleString('en-IN')}`;
-
-  const pct = Math.max(0, Math.min(100, (totalSpentHome / totalBudget) * 100));
-  if (barEl) {
-    barEl.style.width = `${pct}%`;
-    if (pct > 90) barEl.className = 'bg-red-500 h-1.5 rounded-full transition-all duration-300';
-    else if (pct > 70) barEl.className = 'bg-amber-400 h-1.5 rounded-full transition-all duration-300';
-    else barEl.className = 'bg-brand-500 h-1.5 rounded-full transition-all duration-300';
-  }
-
-  const distinctDays = Math.max(1, new Set((trip.expenses || []).map(e => e.date)).size);
-  const burnRate = Math.round(totalSpentHome / distinctDays);
-  const projected = Math.round(burnRate * totalDays);
-  const diff = projected - totalBudget;
-
-  if (forecastEl) {
-    if (diff > 500) {
-      forecastEl.innerHTML = `
-        <span class="text-slate-400">Burn rate: ₹${burnRate.toLocaleString('en-IN')}/day</span>
-        <span class="text-amber-400 font-semibold">Projected +₹${diff.toLocaleString('en-IN')} over budget ⚠️</span>
-      `;
+  (trip.expenses || []).forEach(exp => {
+    const amt = Number(exp.convertedAmount) || (Number(exp.amount) * (trip.forexRate || 1));
+    if (isFixedBookingExpense(exp)) {
+      fixedSpent += amt;
     } else {
-      const under = Math.abs(diff);
-      forecastEl.innerHTML = `
-        <span class="text-slate-400">Burn rate: ₹${burnRate.toLocaleString('en-IN')}/day</span>
-        <span class="text-emerald-400 font-semibold">On Track (₹${under.toLocaleString('en-IN')} under) 🎉</span>
-      `;
+      dailySpent += amt;
+      if (exp.date) dailyDates.add(exp.date);
+    }
+  });
+
+  const totalSpentHome = fixedSpent + dailySpent;
+  const remainingBudget = totalBudget - totalSpentHome;
+  const pct = Math.max(0, Math.min(100, (totalSpentHome / totalBudget) * 100));
+
+  // Update ratio
+  ratioEl.textContent = `${sym}${Math.round(totalSpentHome).toLocaleString('en-IN')} / ${sym}${totalBudget.toLocaleString('en-IN')} (${pct.toFixed(0)}%)`;
+
+  // Determine if trip has started or is in pre-trip booking phase
+  const tripStartDate = parseTripStart(trip.dates);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPreTrip = (tripStartDate && tripStartDate > today) || dailyDates.size === 0;
+  const distinctDailyDays = dailyDates.size;
+
+  if (isPreTrip || distinctDailyDays === 0) {
+    // ---------------- 1. PRE-TRIP / BOOKINGS PHASE ----------------
+    // All current expenses are fixed pre-trip bookings (flights, stays, etc.)
+    const dailyPool = Math.round(Math.max(0, remainingBudget) / totalDays);
+    const dailyPoolK = dailyPool >= 1000 ? `${(dailyPool / 1000).toFixed(1)}k` : `${dailyPool}`;
+
+    if (totalSpentHome > totalBudget) {
+      const overAmt = Math.round(totalSpentHome - totalBudget);
+      if (forecastEl) {
+        forecastEl.className = 'text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-semibold inline-flex items-center gap-1';
+        forecastEl.innerHTML = '<span>Over Budget</span><span>⚠️</span>';
+      }
+      if (subtextEl) {
+        subtextEl.className = 'text-[10px] text-rose-400 font-medium truncate mt-0.5';
+        subtextEl.textContent = `Pre-trip bookings exceeded budget by ${sym}${overAmt.toLocaleString('en-IN')}`;
+      }
+      if (paceLabelEl) paceLabelEl.textContent = 'Exceeded';
+      if (barEl) {
+        barEl.style.width = '100%';
+        barEl.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
+      }
+    } else if (pct > 85) {
+      if (forecastEl) {
+        forecastEl.className = 'text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold inline-flex items-center gap-1';
+        forecastEl.innerHTML = '<span>Tight Pool</span><span>⚠️</span>';
+      }
+      if (subtextEl) {
+        subtextEl.className = 'text-[10px] text-amber-400/90 font-medium truncate mt-0.5';
+        subtextEl.textContent = `${sym}${Math.round(remainingBudget).toLocaleString('en-IN')} left • ${sym}${dailyPool.toLocaleString('en-IN')}/day for ${totalDays} days`;
+      }
+      if (paceLabelEl) paceLabelEl.textContent = `${sym}${dailyPoolK}/d left`;
+      if (barEl) {
+        barEl.style.width = `${pct}%`;
+        barEl.className = 'bg-amber-400 h-1.5 rounded-full transition-all duration-300';
+      }
+    } else {
+      // Completely healthy & on track! (14.8% used)
+      if (forecastEl) {
+        forecastEl.className = 'text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold inline-flex items-center gap-1';
+        forecastEl.innerHTML = '<span>On Track</span><span>🎉</span>';
+      }
+      if (subtextEl) {
+        subtextEl.className = 'text-[10px] text-slate-400 font-medium truncate mt-0.5';
+        subtextEl.textContent = `${sym}${Math.round(remainingBudget).toLocaleString('en-IN')} left • ${sym}${dailyPool.toLocaleString('en-IN')}/day for ${totalDays} days`;
+      }
+      if (paceLabelEl) paceLabelEl.textContent = `${sym}${dailyPoolK}/d pool`;
+      if (barEl) {
+        barEl.style.width = `${pct}%`;
+        barEl.className = 'bg-brand-500 h-1.5 rounded-full transition-all duration-300';
+      }
+    }
+  } else {
+    // ---------------- 2. ACTIVE ON-TRIP VARIABLE SPENDING PHASE ----------------
+    // Calculate burn rate ONLY on variable daily spending, so flights don't skew the rate!
+    const dailyBurnRate = Math.round(dailySpent / distinctDailyDays);
+    const projectedTotal = Math.round(fixedSpent + (dailyBurnRate * totalDays));
+    const diff = projectedTotal - totalBudget;
+    const remainingDays = Math.max(1, totalDays - distinctDailyDays);
+    const safeDailyTarget = Math.round(Math.max(0, remainingBudget) / remainingDays);
+    const burnK = dailyBurnRate >= 1000 ? `${(dailyBurnRate / 1000).toFixed(1)}k` : `${dailyBurnRate}`;
+
+    if (diff > 500) {
+      if (forecastEl) {
+        forecastEl.className = 'text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold inline-flex items-center gap-1';
+        forecastEl.innerHTML = '<span>Watch Pace</span><span>⚠️</span>';
+      }
+      if (subtextEl) {
+        subtextEl.className = 'text-[10px] text-amber-400/90 font-medium truncate mt-0.5';
+        subtextEl.textContent = `Daily burn: ${sym}${dailyBurnRate.toLocaleString('en-IN')}/d (Target: ${sym}${safeDailyTarget.toLocaleString('en-IN')}/d)`;
+      }
+      if (paceLabelEl) paceLabelEl.textContent = `${sym}${burnK}/d burn`;
+      if (barEl) {
+        barEl.style.width = `${Math.min(100, pct)}%`;
+        barEl.className = 'bg-amber-400 h-1.5 rounded-full transition-all duration-300';
+      }
+    } else {
+      const under = Math.round(Math.abs(diff));
+      if (forecastEl) {
+        forecastEl.className = 'text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold inline-flex items-center gap-1';
+        forecastEl.innerHTML = '<span>On Track</span><span>🎉</span>';
+      }
+      if (subtextEl) {
+        subtextEl.className = 'text-[10px] text-slate-400 font-medium truncate mt-0.5';
+        subtextEl.textContent = `Burn: ${sym}${dailyBurnRate.toLocaleString('en-IN')}/d • Under by ${sym}${under.toLocaleString('en-IN')}`;
+      }
+      if (paceLabelEl) paceLabelEl.textContent = `${sym}${burnK}/d burn`;
+      if (barEl) {
+        barEl.style.width = `${pct}%`;
+        barEl.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-300';
+      }
     }
   }
 }
@@ -5061,10 +5185,56 @@ function renderBudgetPaceCard() {
 function openBudgetModal() {
   const trip = state.activeTrip;
   if (!trip) return;
-  const budget = trip.budget || { total: 100000, days: 8 };
+  const budget = trip.budget || { total: 100000, days: 7 };
+  const sym = trip.homeCurrencySymbol || '₹';
 
-  document.getElementById('inputTripBudgetTarget').value = budget.total || 100000;
-  document.getElementById('inputTripDurationDays').value = budget.days || 8;
+  const inputTarget = document.getElementById('inputTripBudgetTarget');
+  const inputDays = document.getElementById('inputTripDurationDays');
+  if (inputTarget) inputTarget.value = budget.total || 100000;
+  if (inputDays) inputDays.value = budget.days || 7;
+
+  // Render intelligence summary inside modal
+  const vitalsEl = document.getElementById('budgetModalVitals');
+  if (vitalsEl) {
+    const totalBudget = Number(budget.total) || 100000;
+    const totalDays = Math.max(1, Number(budget.days) || 7);
+
+    let fixedSpent = 0;
+    let dailySpent = 0;
+    (trip.expenses || []).forEach(exp => {
+      const amt = Number(exp.convertedAmount) || (Number(exp.amount) * (trip.forexRate || 1));
+      if (isFixedBookingExpense(exp)) fixedSpent += amt;
+      else dailySpent += amt;
+    });
+
+    const totalSpent = fixedSpent + dailySpent;
+    const remaining = totalBudget - totalSpent;
+    const dailyPool = Math.round(Math.max(0, remaining) / totalDays);
+    const pct = Math.min(100, (totalSpent / totalBudget) * 100);
+
+    vitalsEl.innerHTML = `
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <span class="text-slate-400">Total Spent So Far</span>
+        <span class="font-bold text-white font-mono">${sym}${Math.round(totalSpent).toLocaleString('en-IN')} <span class="text-slate-400 font-normal">(${pct.toFixed(1)}%)</span></span>
+      </div>
+      <div class="flex items-center justify-between text-slate-300">
+        <span class="flex items-center gap-1.5"><span>✈️</span><span>Pre-Trip Bookings (Flights/Stays):</span></span>
+        <span class="font-mono font-semibold text-sky-400">${sym}${Math.round(fixedSpent).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="flex items-center justify-between text-slate-300">
+        <span class="flex items-center gap-1.5"><span>🍔</span><span>Daily On-Trip Expenses:</span></span>
+        <span class="font-mono font-semibold text-amber-400">${sym}${Math.round(dailySpent).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-slate-200">
+        <span class="font-semibold">Remaining Trip Pool:</span>
+        <span class="font-mono font-black text-emerald-400 text-sm">${sym}${Math.round(remaining).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center justify-between">
+        <span class="flex items-center gap-1.5 font-medium"><span>🎯</span><span>Daily Spending Target:</span></span>
+        <span class="font-mono font-black">${sym}${dailyPool.toLocaleString('en-IN')}/day</span>
+      </div>
+    `;
+  }
 
   openModal('modalBudgetSettings');
 }
@@ -5074,9 +5244,9 @@ function saveTripBudgetSettings() {
   if (!trip) return;
 
   const total = Number(document.getElementById('inputTripBudgetTarget').value) || 100000;
-  const days = Number(document.getElementById('inputTripDurationDays').value) || 8;
+  const days = Number(document.getElementById('inputTripDurationDays').value) || 7;
 
-  trip.budget = { total, days, currency: 'INR' };
+  trip.budget = { total, days, currency: trip.homeCurrency || 'INR' };
   saveTripsToStorage();
   closeModal('modalBudgetSettings');
   renderAll();

@@ -313,7 +313,7 @@
     <!-- ==================== TAB 1: EXPENSES (LEDGER) ==================== -->
     <section id="tab-expenses" class="space-y-3">
       
-      <!-- ⚡ TRIP BUDGET VITALS (Clean, Legible Full-Width Progress Card) -->
+      <!-- 🎯 TRIP BUDGET VITALS (Clean, Legible Full-Width Progress Card) -->
       <div id="dailyBudgetPaceCard" onclick="openBudgetModal()" 
         class="p-2.5 sm:p-3 rounded-2xl glass-card border border-slate-800/90 hover:border-brand-500/40 cursor-pointer active-press transition-all flex items-center justify-between gap-3 group shadow-sm">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -323,15 +323,16 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2">
               <span class="text-xs font-bold text-white">Trip Budget</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold" id="budgetPaceForecastText">On Track</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold inline-flex items-center gap-1" id="budgetPaceForecastText">On Track</span>
             </div>
             <div class="text-xs font-black text-slate-200 font-mono-num truncate mt-0.5" id="budgetPaceTotalRatio">₹0 / ₹0</div>
+            <div id="budgetPaceSubtext" class="text-[10px] text-slate-400 truncate mt-0.5"></div>
           </div>
         </div>
 
         <div class="w-24 sm:w-32 shrink-0 space-y-1 text-right">
           <div class="text-[10px] text-slate-400 flex items-center justify-end gap-1">
-            <span>Pace</span>
+            <span id="budgetPacePaceLabel">Pace</span>
             <i class="fa-solid fa-chevron-right text-[8px] text-slate-500 group-hover:text-white transition-colors"></i>
           </div>
           <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
@@ -2528,6 +2529,9 @@
           <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
+
+      <!-- Live Budget Breakdown & Safe Daily Allowance -->
+      <div id="budgetModalVitals" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2"></div>
 
       <div class="space-y-3">
         <div>
