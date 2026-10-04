@@ -1202,26 +1202,15 @@ function selectThemeFromModal(themeKey) {
 function initApp() {
   loadDiscreetMode();
 
-  // One-time automatic clean-slate purge of all legacy demo/mock data
-  const CLEAN_KEY = 'trip_barabar_clean_slate_2026';
-  if (localStorage.getItem(CLEAN_KEY) !== 'v4_empty_zero_trips') {
-    localStorage.removeItem(STORAGE_KEYS.TRIPS);
-    localStorage.removeItem(STORAGE_KEYS.ACTIVE_TRIP_ID);
-    localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
-    localStorage.setItem(CLEAN_KEY, 'v4_empty_zero_trips');
-    state.trips = [];
-    state.activeTrip = null;
-  }
-
   loadTripsFromStorage();
 
-  // Start with completely EMPTY state if no trips exist (user creates own trip!)
-  if (!state.trips || state.trips.length === 0) {
-    state.trips = [];
-    state.activeTrip = null;
-  } else {
+  // If trips exist, select saved active trip
+  if (state.trips && state.trips.length > 0) {
     const savedActiveId = localStorage.getItem(STORAGE_KEYS.ACTIVE_TRIP_ID);
     state.activeTrip = state.trips.find(t => t.id === savedActiveId) || state.trips[0] || null;
+  } else {
+    state.trips = [];
+    state.activeTrip = null;
   }
 
   // Register Service Worker for Offline-First PWA
@@ -4106,17 +4095,52 @@ async function checkUrlForJoinCode() {
     joinCode = searchParams.get('join') || searchParams.get('code');
   }
 
+  // AUTO-RESTORE: If no code in URL, and device has no active trip or 0 expenses:
+  if (!joinCode && (!state.activeTrip || (state.activeTrip.expenses || []).length === 0)) {
+    // 1. Try last stored room code
+    joinCode = localStorage.getItem('tb_last_room_code');
+
+    // 2. If none, check server for active room with highest expenses
+    if (!joinCode) {
+      try {
+        const res = await fetch(`/api/sync/status?_t=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.rooms && data.rooms.length > 0) {
+            const bestRoom = data.rooms.sort((a, b) => (b.expensesCount || 0) - (a.expensesCount || 0))[0];
+            if (bestRoom && bestRoom.code) {
+              joinCode = bestRoom.code;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Auto-detect active room from server error:', err);
+      }
+    }
+
+    // 3. Fallback to THAI59
+    if (!joinCode) {
+      joinCode = 'THAI59';
+    }
+  }
+
   if (joinCode) {
-    console.log('Detected join room code in URL:', joinCode);
+    console.log('Connecting to trip room code:', joinCode);
     await joinTripByCode(joinCode);
 
-    // Clean hash from browser URL bar so subsequent page refreshes do not re-run join logic
-    try {
-      if (window.history && window.history.replaceState) {
-        window.history.replaceState(null, '', window.location.pathname);
+    if (state.activeTrip && state.activeTrip.code) {
+      localStorage.setItem('tb_last_room_code', state.activeTrip.code);
+    }
+
+    if (hashMatch) {
+      // Clean hash from browser URL bar so subsequent page refreshes do not re-run join logic
+      try {
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      } catch (e) {
+        console.warn('Could not clean join url parameter:', e);
       }
-    } catch (e) {
-      console.warn('Could not clean join url parameter:', e);
     }
   }
 }
