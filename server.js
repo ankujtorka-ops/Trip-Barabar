@@ -421,9 +421,30 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('   ✓ Persistent Disk Storage for Trip Rooms            ');
   console.log('   ✓ CSP + Anti-Clickjacking (X-Frame-Options: DENY)   ');
   console.log('   ✓ In-Memory IP Rate Limiter (300 req/min)           ');
+  console.log('   ✓ 24/7 Cloud Keep-Alive Heartbeat (Zero Cold Starts)');
   console.log('========================================================');
   console.log(`Server running securely at:`);
   console.log(`- PC / Laptop URL : http://localhost:${PORT}`);
   console.log(`- Mobile Phone URL: http://${localIp}:${PORT}`);
   console.log('========================================================');
 });
+
+// ==================== ⚡ 24/7 CLOUD KEEP-ALIVE PINGER ====================
+// Render's free tier sleeps after 15 minutes of inactivity.
+// Pinging its own public URL every 10 minutes keeps the service awake 24/7 permanently.
+const RENDER_PUBLIC_URL = process.env.RENDER_EXTERNAL_URL || 'https://trip-barabar.onrender.com';
+const KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
+setInterval(() => {
+  const pingUrl = `${RENDER_PUBLIC_URL}/api/sync/status?_heartbeat=${Date.now()}`;
+  const https = require('https');
+  const http = require('http');
+  const client = pingUrl.startsWith('https') ? https : http;
+
+  client.get(pingUrl, (res) => {
+    // Self-ping success - keeps container warm
+  }).on('error', (err) => {
+    // Ignore transient network hiccups
+  });
+}, KEEP_ALIVE_INTERVAL_MS);
+
