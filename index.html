@@ -873,9 +873,9 @@
           </p>
         </div>
 
-        <button onclick="openCloudConfigModal()" class="w-full py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white active-press flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-plug text-xs text-brand-400"></i>
-          <span>Configure Supabase / Cloudflare Sync Engine</span>
+        <button onclick="openCloudConfigModal()" class="w-full py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white active-press flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up text-xs text-sky-400"></i>
+          <span>24/7 Cloud Sync & Live Room Status</span>
         </button>
       </div>
 
@@ -3279,6 +3279,65 @@
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CLOUD SYNC & LIVE RELAY STATUS ==================== -->
+  <div id="modalCloudConfig" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalCloudConfig')">
+    <div class="glass-modal w-full max-w-sm rounded-3xl border border-sky-500/30 p-5 space-y-4 text-xs shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-sm font-bold border border-sky-500/30">
+            ☁️
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">24/7 Cloud Sync Relay</h3>
+            <span class="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live & Synced Everywhere
+            </span>
+          </div>
+        </div>
+        <button onclick="closeModal('modalCloudConfig')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center active-press">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Active Room Code:</span>
+          <span class="font-mono font-black text-brand-400 text-sm tracking-wider" id="cloudModalRoomCode">THAI59</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Cloud Relay:</span>
+          <span class="text-slate-300 font-mono text-[11px]">Render 24/7 (Global Edge)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Keep-Alive Engine:</span>
+          <span class="text-emerald-400 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-heart-pulse text-xs"></i> Active (Zero Sleep)
+          </span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Sync Polling:</span>
+          <span class="text-slate-300">Live Auto-Update</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="triggerSyncManual(); closeModal('modalCloudConfig');" class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold active-press flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate text-xs"></i>
+          <span>Sync Now with Cloud</span>
+        </button>
+        <button onclick="copyTripShareLink(); closeModal('modalCloudConfig');" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold active-press flex items-center justify-center gap-2">
+          <i class="fa-solid fa-share-nodes text-xs text-sky-400"></i>
+          <span>Copy WhatsApp Invite Link</span>
+        </button>
+        <button onclick="closeModal('modalCloudConfig'); openInviteFriendsModal();" class="w-full py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-semibold active-press flex items-center justify-center gap-2">
+          <i class="fa-solid fa-qrcode text-xs text-amber-400"></i>
+          <span>Show QR Code for Friends</span>
+        </button>
+      </div>
     </div>
   </div>
 

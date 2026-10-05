@@ -3722,6 +3722,15 @@ function openAppStoreInfoModal() {
   openModal('modalAppStoreInfo');
 }
 
+function openCloudConfigModal() {
+  const trip = state.activeTrip;
+  const codeEl = document.getElementById('cloudModalRoomCode');
+  if (codeEl && trip) {
+    codeEl.textContent = trip.code || 'THAI59';
+  }
+  openModal('modalCloudConfig');
+}
+
 // ==================== REALTIME MULTI-FRIEND CLOUD SYNC ENGINE ====================
 let lastCloudSyncTime = 0;
 let cloudSyncTimer = null;
@@ -5255,10 +5264,31 @@ function saveTripBudgetSettings() {
 
 // ==================== 5. BILATERAL UPI SETTLEMENT HANDSHAKE ====================
 function handleUpiPayClick(fromId, toId, amount, upiUrl) {
+  const trip = state.activeTrip;
+  const toMember = trip?.members.find(m => m.id === toId);
+
+  // If receiver does not have a real UPI ID set, prompt to set it
+  if (!toMember?.upi || toMember.upi === 'payment@upi' || !toMember.upi.includes('@')) {
+    const entered = prompt(`Enter ${toMember?.name || 'Friend'}'s UPI ID (e.g. name@okaxis or 9876543210@paytm):`);
+    if (!entered || !entered.trim()) {
+      showToast('⚠️ Valid UPI ID required to launch GPay/PhonePe');
+      return;
+    }
+    toMember.upi = entered.trim();
+    saveTripsToStorage();
+    const cleanPa = encodeURIComponent(toMember.upi).replace(/%40/g, '@');
+    upiUrl = `upi://pay?pa=${cleanPa}&pn=${encodeURIComponent(toMember.name)}&am=${Number(amount).toFixed(2)}&tn=${encodeURIComponent(`TripBarabar-${trip.name}`)}&cu=INR`;
+  }
+
+  // Ensure @ is not escaped as %40 in UPI URL for maximum UPI app compatibility
+  if (upiUrl && upiUrl.includes('%40')) {
+    upiUrl = upiUrl.replace(/%40/g, '@');
+  }
+
   window.location.href = upiUrl;
 
   setTimeout(() => {
-    if (confirm(`Did you complete your UPI payment of ₹${amount}?\n\nTap OK to record "I Have Paid" so the receiver can verify and confirm receipt.`)) {
+    if (confirm(`Did you complete your UPI payment of ₹${amount}?\n\nTap OK to record "I Have Paid" so ${toMember?.name || 'the receiver'} can verify and confirm receipt.`)) {
       recordPendingUpiSettlement(fromId, toId, amount);
     }
   }, 1000);
@@ -6265,7 +6295,7 @@ function pushItineraryToExpenses(itinId) {
     amount: amtToPush,
     currency: trip.baseCurrency,
     convertedAmount: Math.round(amtToPush * (trip.forexRate || 1)),
-    categoryId: booking.category === 'stay' ? 'hotel' : 'transport',
+    categoryId: booking.category === 'stay' ? 'stay' : (booking.category === 'flight' ? 'flight' : 'cabs'),
     paidBy: [{ memberId: booking.bookedBy, amount: amtToPush }],
     sharedWith: booking.splitWith || trip.members.map(m => m.id),
     splitMode: 'equal',
