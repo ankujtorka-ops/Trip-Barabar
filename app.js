@@ -7595,8 +7595,20 @@ window.EMBEDDED_LOGOS = EMBEDDED_LOGOS;
 const APP_LOGOS = {
   'kool-jet': {
     name: 'The Neon Equal Jet',
-    file: EMBEDDED_LOGOS['kool-jet'],
+    file: 'logos/kool-neon-equal.png',
     fallbackFile: 'logos/kool-jet.png',
+    sound: 'victory'
+  },
+  'kool-coral-cyan': {
+    name: 'Electric Coral & Cyan Jet',
+    file: 'logos/kool-coral-cyan.png',
+    fallbackFile: 'logos/kool-coral-cyan.png',
+    sound: 'victory'
+  },
+  'kool-sunset-gold': {
+    name: 'Sunset Mango & Gold Barabar',
+    file: 'logos/kool-sunset-gold.png',
+    fallbackFile: 'logos/kool-sunset-gold.png',
     sound: 'victory'
   },
   'kool-wayfinder': {

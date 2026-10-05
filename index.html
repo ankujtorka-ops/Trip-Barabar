@@ -11,8 +11,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self' blob:; img-src 'self' data: https: blob:; connect-src 'self' https: ws: wss: blob:; font-src 'self' https://cdnjs.cloudflare.com;">
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="logos/kool-jet.png">
-  <link rel="icon" type="image/png" href="logos/kool-jet.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="shortcut icon" href="icon-192.png">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -3149,7 +3151,7 @@
       <!-- Interactive Logo Grid (5 New Modern & Kool Options) -->
       <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="logoOptionsContainer">
         
-        <!-- OPTION 1: The Neon Equal Jet (SUPERSONIC & MODERN FINTECH) -->
+        <!-- OPTION 1: The Neon Equal Jet (SUPERSONIC & MODERN FINTECH - DEFAULT) -->
         <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 transition-all flex items-center justify-between gap-3 relative overflow-hidden group">
           <div class="flex items-center gap-3">
             <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-xl border border-slate-700 group-hover:scale-105 group-hover:rotate-3 transition-transform shrink-0 cursor-pointer bg-slate-950 p-1" onclick="previewLogoEffect('kool-jet')">
@@ -3158,13 +3160,53 @@
             <div class="space-y-1">
               <div class="flex items-center gap-1.5">
                 <span class="font-extrabold text-white text-xs">✈️ The Neon Equal Jet</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">TOP PICK</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">TRENDY</span>
               </div>
-              <p class="text-[11px] text-slate-400 leading-tight">Supersonic jet climbing at 45° with glowing electric cyan & coral equal contrail beams (=). Slices through expenses!</p>
+              <p class="text-[11px] text-slate-400 leading-tight">Vibrant electric royal blue & magenta squircle with glowing neon equal sign bars (=) and 3D white supersonic jet.</p>
               <div class="text-[10px] text-cyan-400 font-medium">Concept: Fast Group Travel + Equal Real-Time Split</div>
             </div>
           </div>
           <button onclick="selectAppLogo('kool-jet')" id="btnSelectLogo-kool-jet" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-slate-950 font-black text-xs shrink-0 transition-all active-press border border-slate-700">
+            Set Icon
+          </button>
+        </div>
+
+        <!-- OPTION 1B: The Electric Coral & Cyan Sunrise (ULTRA-BRIGHT & POPPY) -->
+        <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-500/50 transition-all flex items-center justify-between gap-3 relative overflow-hidden group">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-xl border border-slate-700 group-hover:scale-105 group-hover:rotate-3 transition-transform shrink-0 cursor-pointer bg-slate-950 p-1" onclick="previewLogoEffect('kool-coral-cyan')">
+              <img src="logos/kool-coral-cyan.png" alt="" class="w-full h-full object-contain">
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-extrabold text-white text-xs">🌅 Electric Coral & Cyan Jet</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">SUNRISE</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight">Radiant tropical coral-orange and electric cyan gradient with 3D jet and laser contrails. High energy!</p>
+              <div class="text-[10px] text-amber-400 font-medium">Concept: Tropical Vacation + High Contrast Eye-Catcher</div>
+            </div>
+          </div>
+          <button onclick="selectAppLogo('kool-coral-cyan')" id="btnSelectLogo-kool-coral-cyan" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-slate-950 font-black text-xs shrink-0 transition-all active-press border border-slate-700">
+            Set Icon
+          </button>
+        </div>
+
+        <!-- OPTION 1C: The Sunset Mango & Gold Barabar (MAX VISIBILITY) -->
+        <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-pink-500/50 transition-all flex items-center justify-between gap-3 relative overflow-hidden group">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden shadow-xl border border-slate-700 group-hover:scale-105 group-hover:rotate-3 transition-transform shrink-0 cursor-pointer bg-slate-950 p-1" onclick="previewLogoEffect('kool-sunset-gold')">
+              <img src="logos/kool-sunset-gold.png" alt="" class="w-full h-full object-contain">
+            </div>
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-extrabold text-white text-xs">🥭 Sunset Mango & Gold</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-pink-500/20 text-pink-300 border border-pink-500/30">MAX POP</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight">Punchy warm mango orange to coral pink gradient with 3D white jet and twin 3D gold "=" equal bars.</p>
+              <div class="text-[10px] text-pink-400 font-medium">Concept: Swiggy/CRED Visibility Level on Black Screens</div>
+            </div>
+          </div>
+          <button onclick="selectAppLogo('kool-sunset-gold')" id="btnSelectLogo-kool-sunset-gold" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-brand-500 hover:text-slate-950 font-black text-xs shrink-0 transition-all active-press border border-slate-700">
             Set Icon
           </button>
         </div>

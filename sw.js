@@ -1,5 +1,5 @@
 // Trip Barabar — Offline-First Service Worker
-const CACHE_NAME = 'trip-barabar-v10';
+const CACHE_NAME = 'trip-barabar-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,6 +10,9 @@ const ASSETS_TO_CACHE = [
   './icon-512.png',
   './apple-touch-icon.png',
   './logos/kool-jet.png',
+  './logos/kool-neon-equal.png',
+  './logos/kool-coral-cyan.png',
+  './logos/kool-sunset-gold.png',
   './logos/kool-wayfinder.png',
   './logos/kool-pin.png',
   './logos/kool-aviators.png',
