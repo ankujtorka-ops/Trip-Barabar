@@ -2044,6 +2044,21 @@ function renderHeroCard() {
     else heroForexPillBtn.classList.remove('hidden');
   }
 
+  // Dynamic context-aware placeholders for Personal vs Group mode
+  const inputHinglish = document.getElementById('inputHinglishMagic');
+  if (inputHinglish) {
+    inputHinglish.placeholder = isPersonal 
+      ? "🎙️ Type or speak: '500 petrol cash' or '250 coffee upi'..."
+      : "🎙️ Type or speak: 'Rohan 1200 dinner sabme'...";
+  }
+
+  const inputSearch = document.getElementById('expenseSearchInput');
+  if (inputSearch) {
+    inputSearch.placeholder = isPersonal
+      ? "Search expenses (e.g. Groceries, Fuel, Coffee, Bills)..."
+      : "Search expenses (e.g. Grab, Seafood, VIP Club)...";
+  }
+
   // Atmosphere badge
   const activeThemeKey = trip.theme || detectThemeFromTrip(trip);
   const themeInfo = DESTINATION_THEMES[activeThemeKey] || DESTINATION_THEMES.tropical;
@@ -2226,7 +2241,15 @@ function renderCategoryFilterChips() {
   const container = document.getElementById('categoryFilterChips');
   if (!container) return;
 
-  const allCats = [{ id: 'all', emoji: '✨', name: 'All' }, ...DEFAULT_CATEGORIES];
+  const trip = state.activeTrip;
+  const isPersonal = trip && trip.type === 'personal';
+
+  let catsToUse = DEFAULT_CATEGORIES;
+  if (isPersonal) {
+    catsToUse = DEFAULT_CATEGORIES.filter(c => !c.isAdult && c.id !== 'stay' && c.id !== 'boat');
+  }
+
+  const allCats = [{ id: 'all', emoji: '✨', name: 'All' }, ...catsToUse];
 
   container.innerHTML = allCats.map(cat => {
     const isSelected = state.selectedFilterCategory === cat.id;
@@ -2353,8 +2376,8 @@ function renderExpensesList() {
     }
   }
 
-  // In personal mode: limit visible list to 2 items if not expanded
-  const isCapped = isPersonal && !state.showAllTransactions && list.length > 2;
+  // Limit visible list to 2 items if not expanded (for BOTH personal & group trips)
+  const isCapped = !state.showAllTransactions && list.length > 2;
   const visibleList = isCapped ? list.slice(0, 2) : list;
 
   if (isPersonal) {
@@ -2413,8 +2436,8 @@ function renderExpensesList() {
     return;
   }
 
-  // Classic Group Trip cards
-  container.innerHTML = list.map(exp => {
+  // Classic Group Trip cards (now capped at top 2 with accordion toggle)
+  let groupRowsHtml = visibleList.map(exp => {
     const cat = getCategoryInfo(exp.categoryId);
     const expCur = exp.currency || trip.baseCurrency;
     let convertedHome = exp.convertedAmount;
@@ -2446,6 +2469,7 @@ function renderExpensesList() {
     const hasReceipt = Boolean(exp.receipt);
     const reactions = exp.reactions || { '🔥': 0, '🍻': 0, '💀': 0, '💸': 0 };
     const isReacted = (k) => localStorage.getItem(`tb_reaction_${exp.id}_${k}`) === 'true';
+    const payBadge = exp.paymentMethod ? getPaymentMethodBadge(exp.paymentMethod) : '';
 
     return `
       <div class="glass-card rounded-2xl p-3.5 border border-slate-800/90 shadow-sm space-y-2 hover:border-slate-700 transition-all">
@@ -2457,8 +2481,9 @@ function renderExpensesList() {
             </div>
             <div class="min-w-0">
               <h4 class="text-xs font-bold text-white truncate">${escapeHtml(exp.title)}</h4>
-              <div class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5 flex-wrap">
                 <span class="text-brand-400 font-medium">${paidByText}</span>
+                ${payBadge ? `<span>•</span>${payBadge}` : ''}
                 <span>•</span>
                 ${sharedBadge}
                 ${hasReceipt ? '<i class="fa-solid fa-paperclip text-[10px] text-emerald-400" title="Receipt attached"></i>' : ''}
@@ -2517,6 +2542,19 @@ function renderExpensesList() {
       </div>
     `;
   }).join('');
+
+  if (list.length > 2) {
+    groupRowsHtml += `
+      <div class="pt-1">
+        <button type="button" onclick="toggleShowAllTransactions()" class="w-full py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-brand-500/40 text-xs font-bold text-brand-400 inline-flex items-center justify-center gap-2 active-press shadow-sm transition-all">
+          <i class="fa-solid ${state.showAllTransactions ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px]"></i>
+          <span>${state.showAllTransactions ? '▲ Show Less (Top 2 Transactions)' : `▼ Show ${list.length - 2} More Transactions (${list.length} Total)`}</span>
+        </button>
+      </div>
+    `;
+  }
+
+  container.innerHTML = groupRowsHtml;
 }
 
 // ==================== DEBT SIMPLIFICATION & SETTLEMENT ENGINE ====================
