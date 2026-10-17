@@ -53,7 +53,7 @@
     "location": {
       "city": "Local",
       "country": "India",
-      "ip": "192.168.1.9"
+      "ip": "127.0.0.1"
     },
     "device": {
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36",
@@ -62,7 +62,7 @@
     },
     "isAdmin": true,
     "createdAt": 1792160027566,
-    "lastActive": 1792265430922,
+    "lastActive": 1792266446109,
     "tripsCount": 0
   },
   "phone_9819377649": {

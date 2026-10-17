@@ -906,9 +906,9 @@
       ],
       "deletedExpenseIds": []
     },
-    "lastModified": 1792265483623,
+    "lastModified": 1792267560372,
     "updatedBy": "Ankuj Torka",
-    "ip": "192.168.1.9"
+    "ip": "127.0.0.1"
   },
   "SOLO38": {
     "trip": {
@@ -966,6 +966,179 @@
     },
     "lastModified": 1792182160291,
     "updatedBy": "Ankuj A Torka",
+    "ip": "127.0.0.1"
+  },
+  "SOLO41": {
+    "trip": {
+      "id": "space-1792266477512",
+      "type": "personal",
+      "name": "Daily Expenses",
+      "destination": "Personal Wallet",
+      "dates": "Daily / Ongoing",
+      "code": "SOLO41",
+      "theme": "cyber",
+      "baseCurrency": "INR",
+      "currencySymbol": "₹",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 1,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj Torka",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [
+        {
+          "id": "exp-1792266522912",
+          "title": "Lunch powai",
+          "amount": 950,
+          "currency": "INR",
+          "convertedAmount": 950,
+          "categoryId": "food",
+          "paymentMethod": "cash",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 950
+            }
+          ],
+          "paidByName": "Ankuj Torka",
+          "sharedWith": [
+            "m1"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-17",
+          "receipt": null,
+          "createdAt": 1792266522912,
+          "createdBy": "phone_9819990962",
+          "createdByName": "Ankuj Torka",
+          "updatedAt": 1792266522913,
+          "integrityHash": "33461ba9628354526e7a442f883977bac27c003d5289fed699db7de8c8ccf9f1"
+        },
+        {
+          "id": "exp-1792266541423",
+          "title": "Tip to valet",
+          "amount": 20,
+          "currency": "INR",
+          "convertedAmount": 20,
+          "categoryId": "tips",
+          "paymentMethod": "cash",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 20
+            }
+          ],
+          "paidByName": "Ankuj Torka",
+          "sharedWith": [
+            "m1"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-17",
+          "receipt": null,
+          "createdAt": 1792266541423,
+          "createdBy": "phone_9819990962",
+          "createdByName": "Ankuj Torka",
+          "updatedAt": 1792266541423,
+          "integrityHash": "1c2cf1668498dd7fb57b6b1007cb639b7c1fb69ceb33c4f8f97020da2d51e4ab"
+        },
+        {
+          "id": "exp-1792267660952",
+          "title": "Ice cream",
+          "amount": 155,
+          "currency": "INR",
+          "convertedAmount": 155,
+          "categoryId": "food",
+          "paymentMethod": "upi",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 155
+            }
+          ],
+          "paidByName": "Ankuj Torka",
+          "sharedWith": [
+            "m1"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-17",
+          "receipt": null,
+          "createdAt": 1792267660952,
+          "createdBy": "phone_9819990962",
+          "createdByName": "Ankuj Torka",
+          "updatedAt": 1792267660952,
+          "integrityHash": "3cb64bc2830fd4a0639e8b151e960ab97768599a5e7722a6a923f664694d861b"
+        }
+      ],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 0,
+        "days": 30,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "log-1792267660952-832",
+          "timestamp": 1792267660952,
+          "type": "expense",
+          "memberName": "Ankuj Torka",
+          "text": "Added \"Ice cream\" (INR 155)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "log-1792266541423-470",
+          "timestamp": 1792266541423,
+          "type": "expense",
+          "memberName": "Ankuj Torka",
+          "text": "Added \"Tip to valet\" (INR 20)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "log-1792266522913-689",
+          "timestamp": 1792266522913,
+          "type": "expense",
+          "memberName": "Ankuj Torka",
+          "text": "Added \"Lunch powai\" (INR 950)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1792266477512",
+          "action": "create_space",
+          "text": "Created Personal Expense Tracker \"Daily Expenses\"",
+          "timestamp": 1792266477512,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1792267946428,
+    "updatedBy": "Ankuj Torka",
     "ip": "127.0.0.1"
   }
 }

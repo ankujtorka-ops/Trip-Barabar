@@ -203,3 +203,30 @@ npx.cmd cap open ios
 * Interactive `modalPerkLauncher` with coupon code copying and affiliate deep links.
 
 
+
+### 19. Personal Daily Expense Tracker & Month-Wise Audit Engine (October 2026)
+* **Distortion-Free Hero Card**: Eliminated trip-specific jargon (`AVG / PERSON`, `Trip Friends`, `+ Invite/Share`, `Hisaab Barabar` banner, and forced `Trip Budget` progress bar) in Personal Tracker mode. Casual users are no longer intimidated by guilt-inducing budget bars or lumpy daily run-rate distortions.
+* **Month Navigation & Historical Auditing**:
+  * Sleek `[ ◀ ] Month Year [ ▶ ]` month bar directly above the hero card with live status badges (`CURRENT` vs `ARCHIVE`).
+  * Instant timeline browsing: tapping `◀` shifts to previous months (e.g. September), recalculating spends, filtering transaction history, and updating analytics strictly for that calendar month.
+  * 1-Tap Month Grid Picker modal for rapid multi-year navigation with `Jump to Current Month` shortcut.
+  * Smart default date pre-fill: logging an expense while viewing a past month automatically pre-fills the date within that selected month.
+
+### 20. 1-Tap Payment Methods Architecture
+* **5 Primary Payment Modes**: ⚡ `UPI / QR`, 💳 `Credit Card`, 🏧 `Debit Card`, 💵 `Cash`, 🏦 `Net Banking`.
+* **Add Expense Integration**: 1-tap pills with active states and local storage memory of last used payment method.
+* **Badges on Transactions**: Compact visual badges rendered on all transaction rows across Personal and Group spaces.
+* **Voice & Hinglish Auto-Detection**: Natural speech/text parser detects payment keywords (`cash`, `upi`, `gpay`, `phonepe`, `card`, `credit`, `debit`, `net banking`) and automatically pre-selects the corresponding mode.
+* **Personal Analytics Breakdown**: Replaces the member leaderboard in Personal mode with a **Payment Methods Breakdown** calculating exact spend totals and percentage bars per payment instrument.
+
+### 21. Clutter-Free Transaction Lists (Capped at Top 2 with Smooth Inline Accordion)
+* **Unified Clutter Reduction across All Spaces**:
+  * In **Personal Mode**: Displays strictly the latest 2 transactions in slim 48px rows (CRED / Apple Pay style).
+  * In **Group Trip Mode (e.g. Bali 55)**: Capped at the latest 2 transactions by default, preventing endless vertical scrolling.
+  * Smooth inline accordion button: `▼ Show N More Transactions` / `▲ Show Less (Top 2)` smoothly expands and collapses without page jumps or modals.
+
+### 22. Contextualized Inputs & Everyday Category Filtering
+* Dynamic context-aware placeholders:
+  * In Personal Mode: Quick input suggests `"500 petrol cash" or "250 coffee upi"`, and search suggests `"Groceries, Fuel, Coffee, Bills"`.
+  * In Group Mode: Quick input suggests `"Rohan 1200 dinner sabme"`, and search suggests `"Grab, Seafood, VIP Club"`.
+* Everyday Category Cleaning: Adult and nightlife categories (`lapdance`, `adult`, `oral`, `ladydrinks`, `dispensary`) are automatically filtered out in Personal mode.
