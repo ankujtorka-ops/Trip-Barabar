@@ -555,8 +555,135 @@ When opening the mobile link, Chrome showed:
      - Added auto-join detection in `initApp()` via `#join=CODE` and `?join=CODE`.
      - Implemented real-time background polling every 5 seconds with automatic merging and visual/audio toast notifications when friends add expenses.
 
+### H. Level 1 App Lobby, Workspace Routing & Sound System Resilience (Turn 15)
+- **User Directives**:
+  - Prevent user overwhelm by avoiding throwing them directly into a complex expense table on first open.
+  - Implement a clean "Zero-Brain" landing experience.
+- **Architectural Implementation**:
+  - Dual-level UI hierarchy:
+    - **Level 1 (App Lobby `#viewAppLobby`)**: Shows active ongoing trip hero card, "+ Create Space" and "Join Code" buttons, and an accordion of all user trips/spaces with spend totals.
+    - **Level 2 (Workspace `#viewTripWorkspace`)**: Dedicated trip workspace with Expenses, Hisaab/Settle Up, Hub, and Friends tabs.
+  - Fixed audio system with a fail-safe ES6 `Proxy` on `window.SoundEffects` to ensure no clicks, errors, or settlements ever throw a runtime exception.
+
+---
+
+### I. Founder Telemetry, Auth & Bi-Directional Customer Helpdesk (Turn 16)
+- **User Directives**:
+  - Founder Ankuj asked: *"will i get the data of the concern person who has logged in and from where, will be able to save that data to maintain the list of users? If the customer is leaving any review or feedback for the app, will i be able to reply to it?"*
+- **Architectural Implementation**:
+  - **Authentication Client (`auth-client.js`)**:
+    - Supports Google Sign-In and mobile phone OTP simulator.
+    - Collects non-intrusive client telemetry: device OS, browser, screen resolution, local IP/country, first login timestamp, last active timestamp.
+  - **Server-Side Persistence**:
+    - `POST /api/users/track` stores active sessions and user profiles in `data/users.json`.
+    - `POST /api/feedback` stores user reviews, questions, and feature suggestions in `data/feedback.json`.
+    - `POST /api/feedback/reply` allows founder Ankuj to respond directly to customer inquiries.
+  - **Founder Admin Console (`#modalFounderConsole`)**:
+    - Protected dashboard visible only to the founder (`Ankuj`).
+    - Live counters: Total registered users, feedback tickets, pending queries.
+    - Export user lists and customer feedback to CSV.
+
+---
+
+### J. Default Payer Auto-Assignment & Anti-Tampering Engine (Turn 17)
+- **User Directives**:
+  - Ensure the person adding the bill is automatically pre-selected as the payer without requiring manual dropdown selection.
+  - Prevent unauthorized friends from deleting or tampering with other members' logged expenses.
+- **Architectural Implementation**:
+  - In `openAddExpenseModal()`, automatically detects logged-in user (`localStorage.getItem('tb_user_name')`) and auto-selects them as the primary payer.
+  - Created author-based security: each expense object stores `createdBy` and `createdByName`.
+  - Non-authors see a locked "View Only" state. Only the creator of the expense (or the space creator/founder) has permission to edit or delete.
+
+---
+
+### K. 3-Space Mode Engine: Travel, Daily Expense Tracker & Flatmates (Turn 18)
+- **User Directives**:
+  - User asked: *"Can this app also be used as a daily expense maintainer or tracker app also? Or will it confuse the user if we add daily expense tracker within this app?"*
+- **Architectural Implementation**:
+  - Introduced the **3-Space Mode Engine** in `selectSpaceType(type)`:
+    1. **✈️ Group Trip**: Full travel suite, multi-currency conversion, selective splitting, debt simplification, and itineraries.
+    2. **👤 Personal Tracker**: Dedicated solo expense diary (1 member: You).
+       - Automatically hides "Who Paid" and "Split With" dropdowns (3-second quick logging).
+       - Replaces "Hisaab" bottom tab with an **Analytics & Budget** tab.
+       - Shows daily spend pace, monthly burn rate, and category pie charts.
+    3. **🏠 Flat / Home**: For roommates sharing recurring apartment bills (rent, electricity, groceries, Wi-Fi).
+  - Smart creation modal dynamically reconfigures its fields based on the selected mode.
+
+---
+
+### L. Solo Founder Test Lab & Stress Test Validation (Turn 19)
+- **User Directives**:
+  - User stated: *"I don't have anyone with me to try the application, so what should we do next?"*
+- **Architectural Implementation**:
+  - Built the **1-Click Solo Founder Test Lab** (`loadDemoTripSimulator()`):
+    - Injected realistic 5-person getaway: **🌴 Bali Dream Getaway** (Ankuj, Kabir, Neha, Rahul, Simran).
+    - Injected 12 diverse real-world expenses:
+      - Luxury Seminyak Pool Villa (₹45,000, equal 5-way split)
+      - Airport VIP Van (₹3,500, Kabir paid)
+      - Potato Head Beach Club Sunset Dinner (₹12,500, Neha paid)
+      - Nusa Penida Snorkeling Boat (₹15,000, selective split: Ankuj, Kabir, Rahul only; Neha & Simran opted out)
+      - Royal Balinese Herbal Spa (₹6,000, selective split: Simran, Neha, Ankuj only; Kabir & Rahul opted out)
+      - Circle-K Beer & Snacks (₹2,800, Rahul paid)
+      - Mt. Batur Sunrise 4x4 Trek (₹14,000, Kabir paid)
+      - Clear Cafe Ubud Brunch (₹4,500, Neha paid)
+      - 3x NMAX Scooters (₹5,200, Rahul paid)
+      - Rock Bar Cocktails (₹9,000, Simran paid)
+      - Luwak Coffee & Souvenirs (₹3,000, exact custom rupee split: Ankuj ₹1,500, Kabir ₹1,000, Rahul ₹500)
+      - Pre-trip Flight Coordination Advance (₹7,500, Rahul paid)
+    - Injected 1 recorded mid-trip settlement (Kabir sent Ankuj ₹5,000 via GPay).
+  - **Validation & Proof**:
+    - Greedy Min-Cash-Flow algorithm simplified all 12 multi-party transactions into **exactly 4 direct transfers**:
+      - Rahul $\rightarrow$ Ankuj: ₹10,800
+      - Simran $\rightarrow$ Ankuj: ₹7,800
+      - Neha $\rightarrow$ Ankuj: ₹5,800
+      - Kabir $\rightarrow$ Ankuj: ₹4,300
+    - Total Debts = ₹28,700 | Ankuj Net Credit = Exactly +₹28,700.00 (Zero discrepancy).
+    - Verified by user screenshot on 2026-10-17.
+
+---
+
+### M. Native Android Packaging & Automated Cloud APK CI/CD (Turn 20)
+- **User Directives**:
+  - Proceed with Option B (Packaging Trip Barabar into an installable Android `.apk` file).
+- **Architectural Implementation**:
+  - Installed `@capacitor/core`, `@capacitor/cli`, and `@capacitor/android` (`^6.1.2`).
+  - Created `build.js` compiler: collects and cleans all static assets into `/www` to keep APK bundle size ultra-compact (<5MB).
+  - Configured `capacitor.config.json` with `"appId": "com.tripbarabar.app"` and `"webDir": "www"`.
+  - Generated native Android Gradle project in `android/` and ran `npx cap sync android`.
+  - Added automated GitHub Actions cloud build workflow (`.github/workflows/build-apk.yml`):
+    - Uses Java 17 Temurin and Node 20.
+    - Compiles `./android/gradlew assembleDebug` in the cloud.
+    - Generates downloadable `app-debug.apk` artifact without requiring 3GB+ Android Studio locally.
+
+---
+
+### N. Smart Lifestyle & Travel Perks Engine (Option 3 Monetization) (Turn 21)
+- **User Directives**:
+  - User asked: *"how will you integrate that with this app? do we need to pay any fees for that? why they will advertise in our app when nothing is sure about the app now?"*
+  - User also asked: *"do you think is it a good idea to add blinkit or zepto in instamart something like that in daily expense tracker, if any body wants to order something from these platforms, can we earn from here too?"*
+- **Architectural Implementation**:
+  - **Monetization Mechanics**: Zero upfront cost ($0/₹0). Affiliate networks (CueLinks, Airalo Partners, Agoda Partner Center) approve new apps instantly on a Cost-Per-Action (CPA) / Commission basis (4% to 15%).
+  - **Dynamic Context-Aware Perks Engine (`renderSmartPerks()`)**:
+    - Integrated directly into the **Trip Hub** (`#tab-settings`):
+      1. **In Personal Tracker Mode**:
+         - ⚡ **10-Min Groceries & Essentials** (*Zepto • Blinkit • Swiggy Instamart* — Up to ₹100 Off first order).
+         - 💳 **5% Daily Cashback Card** (*Zero-fee cards for dining & fuel*).
+         - 📈 **High-Yield FDs & Savings** (*8.5% interest on idle monthly budgets via RBI-insured liquid funds*).
+      2. **In Flat / Roommate Mode**:
+         - 🥛 **Shared Flat Restock** (*Blinkit & Zepto* — 20L water cans, milk crates, eggs, cleaning supplies).
+         - 💡 **Flat Utility Bills Cashback** (*Electricity, Wi-Fi & gas bill payments*).
+         - 🧹 **Flat Deep Cleaning & AC Service** (*Urban Company verified pros*).
+      3. **In Group Trip Mode (e.g. Bali)**:
+         - 🏨 **Agoda / Booking.com** (*Best group villas & beachfront stays, up to 15% off*).
+         - 🎟️ **Klook Experiences** (*Island speedboats, snorkeling passes & Mt. Batur sunrise tours*).
+         - 📱 **Airalo International eSIM** (*4G/5G data in 200+ countries with promo code `TRIP10`*).
+         - 💳 **Zero-Forex Travel Card** (*0% markup on international ATM & POS payments*).
+    - Built **Smart Perk Launcher Modal (`modalPerkLauncher`)**: Clean native sheet with partner badge, exclusive promo codes (with 1-tap copy), and verified deep-links.
+  - Documented onboarding guide for publisher signups on **CueLinks** (India master affiliate network) and **Airalo Partners / Impact.com** (Global eSIM network).
+
 ---
 
 *End of Master Vault Document. Maintained exclusively for Trip Barabar.*
+
 
 

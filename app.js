@@ -71,6 +71,7 @@ const DEFAULT_FOREX_RATES_TO_INR = {
 };
 
 // App Master State
+const _initNowDate = new Date();
 let state = {
   trips: [],
   activeTrip: null,
@@ -78,6 +79,12 @@ let state = {
   activeTab: 'expenses',
   selectedFilterCategory: 'all',
   searchQuery: '',
+  selectedMonth: {
+    year: _initNowDate.getFullYear(),
+    month: _initNowDate.getMonth()
+  },
+  pickerYear: _initNowDate.getFullYear(),
+  showAllTransactions: false,
   cloudConfig: {
     supabaseUrl: '',
     supabaseKey: '',
@@ -87,6 +94,7 @@ let state = {
   splitMode: 'equal', // 'equal', 'exact', 'shares'
   isMultiPayer: false
 };
+window.state = state;
 
 // ==================== 🔊 WEBAUDIO SOUND EFFECTS ENGINE ====================
 const SoundEffects = {
@@ -179,8 +187,50 @@ const SoundEffects = {
       osc.start(now);
       osc.stop(now + 0.08);
     } catch (e) {}
+  },
+  playClick() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } catch (e) {}
+  },
+  playSuccess() {
+    if (!this.enabled) return;
+    try {
+      this.playVictory();
+    } catch (e) {}
+  },
+  playError() {
+    if (!this.enabled) return;
+    try {
+      this.playStamp();
+    } catch (e) {}
   }
 };
+
+// Safe Proxy wrapper: Prevents any missing SoundEffects call from ever throwing an error
+window.SoundEffects = new Proxy(SoundEffects, {
+  get(target, prop) {
+    if (prop in target) return target[prop];
+    if (typeof prop === 'string' && prop.startsWith('play')) {
+      return () => {}; // Safe fallback no-op
+    }
+    return target[prop];
+  }
+});
 
 function toggleSoundEffects() {
   SoundEffects.enabled = !SoundEffects.enabled;
@@ -204,6 +254,182 @@ function updateSoundUI() {
     }
   }
 }
+
+// ==================== 📅 MONTH SWITCHER & SELECTOR UTILITIES ====================
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+const MONTH_SHORT_NAMES = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
+function getExpenseYearMonth(exp) {
+  if (exp && exp.date) {
+    const parts = String(exp.date).split('-');
+    if (parts.length >= 2) {
+      const y = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10) - 1;
+      if (!isNaN(y) && !isNaN(m)) return { year: y, month: m };
+    }
+  }
+  const d = new Date(exp?.createdAt || Date.now());
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
+
+function changePersonalMonth(delta) {
+  let m = state.selectedMonth.month + delta;
+  let y = state.selectedMonth.year;
+  if (m < 0) {
+    m = 11;
+    y -= 1;
+  } else if (m > 11) {
+    m = 0;
+    y += 1;
+  }
+  state.selectedMonth = { year: y, month: m };
+  state.showAllTransactions = false;
+  renderAll();
+  SoundEffects.playClick();
+}
+window.changePersonalMonth = changePersonalMonth;
+
+function openMonthPickerModal() {
+  state.pickerYear = state.selectedMonth.year;
+  renderMonthPickerGrid();
+  openModal('modalMonthPicker');
+}
+window.openMonthPickerModal = openMonthPickerModal;
+
+function changePickerYear(delta) {
+  state.pickerYear += delta;
+  renderMonthPickerGrid();
+}
+window.changePickerYear = changePickerYear;
+
+function renderMonthPickerGrid() {
+  const displayEl = document.getElementById('pickerYearDisplay');
+  if (displayEl) displayEl.textContent = state.pickerYear;
+
+  const grid = document.getElementById('monthPickerGrid');
+  if (!grid) return;
+
+  const now = new Date();
+  const currentRealYear = now.getFullYear();
+  const currentRealMonth = now.getMonth();
+
+  grid.innerHTML = MONTH_SHORT_NAMES.map((mName, idx) => {
+    const isSelected = (state.selectedMonth.year === state.pickerYear && state.selectedMonth.month === idx);
+    const isCurrent = (currentRealYear === state.pickerYear && currentRealMonth === idx);
+
+    return `
+      <button type="button" onclick="selectPickerMonth(${idx})" 
+        class="p-2.5 rounded-2xl border text-center transition-all active-press ${
+          isSelected 
+            ? 'bg-brand-500/25 border-brand-400 text-brand-300 font-black shadow-sm' 
+            : isCurrent 
+              ? 'bg-slate-900 border-amber-500/50 text-amber-300 font-bold' 
+              : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+        }">
+        <div class="text-xs font-bold">${mName}</div>
+        ${isCurrent ? '<span class="text-[8px] font-bold px-1 rounded bg-amber-500/20 text-amber-400 mt-0.5 inline-block">NOW</span>' : ''}
+      </button>
+    `;
+  }).join('');
+}
+
+function selectPickerMonth(monthIndex) {
+  state.selectedMonth = {
+    year: state.pickerYear,
+    month: monthIndex
+  };
+  state.showAllTransactions = false;
+  closeModal('modalMonthPicker');
+  renderAll();
+  SoundEffects.playClick();
+}
+window.selectPickerMonth = selectPickerMonth;
+
+function jumpToCurrentMonth() {
+  const now = new Date();
+  state.selectedMonth = {
+    year: now.getFullYear(),
+    month: now.getMonth()
+  };
+  state.pickerYear = now.getFullYear();
+  state.showAllTransactions = false;
+  closeModal('modalMonthPicker');
+  renderAll();
+  SoundEffects.playVictory();
+}
+window.jumpToCurrentMonth = jumpToCurrentMonth;
+
+// ==================== 💳 PAYMENT METHOD UTILITIES ====================
+function setExpensePaymentMethod(method) {
+  const methods = ['upi', 'credit_card', 'debit_card', 'cash', 'net_banking'];
+  const input = document.getElementById('inputPaymentMethod');
+  if (input) input.value = method;
+  localStorage.setItem('tb_last_payment_method', method);
+
+  methods.forEach(m => {
+    const btn = document.getElementById(`btnPayMethod-${m}`);
+    if (btn) {
+      if (m === method) {
+        btn.className = 'pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-brand-500/20 border-brand-500/50 text-brand-300 font-bold';
+      } else {
+        btn.className = 'pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-slate-900 border-slate-700/80 text-slate-400 hover:text-slate-200';
+      }
+    }
+  });
+}
+window.setExpensePaymentMethod = setExpensePaymentMethod;
+
+function getPaymentMethodBadge(method) {
+  const m = (method || 'upi').toLowerCase();
+  switch (m) {
+    case 'credit_card':
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1"><span>💳</span><span>Credit Card</span></span>`;
+    case 'debit_card':
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30 flex items-center gap-1"><span>🏧</span><span>Debit Card</span></span>`;
+    case 'cash':
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1"><span>💵</span><span>Cash</span></span>`;
+    case 'net_banking':
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 flex items-center gap-1"><span>🏦</span><span>Net Banking</span></span>`;
+    case 'upi':
+    default:
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1"><span>⚡</span><span>UPI</span></span>`;
+  }
+}
+
+function formatExpenseDateShort(dateStrOrTs) {
+  if (!dateStrOrTs) return 'Today';
+  let d;
+  if (typeof dateStrOrTs === 'string' && dateStrOrTs.includes('-')) {
+    const parts = dateStrOrTs.split('-');
+    d = new Date(parts[0], parseInt(parts[1], 10) - 1, parts[2]);
+  } else {
+    d = new Date(dateStrOrTs);
+  }
+  if (isNaN(d.getTime())) return 'Recently';
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round((today - target) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  const mShort = MONTH_SHORT_NAMES[d.getMonth()] || '';
+  return `${d.getDate()} ${mShort}`;
+}
+
+function toggleShowAllTransactions() {
+  state.showAllTransactions = !state.showAllTransactions;
+  renderExpensesList();
+}
+window.toggleShowAllTransactions = toggleShowAllTransactions;
+
 
 // ==================== 🎨 DESTINATION ATMOSPHERE THEMES ENGINE ====================
 const DESTINATION_THEMES = {
@@ -1243,8 +1469,19 @@ function initApp() {
   updateSoundUI();
   applyAppLogo(getActiveAppLogoKey());
 
-  // Initial UI Render
-  renderAll();
+  // Initialize Auth Client & Profile Sync
+  if (window.AuthClient) {
+    window.AuthClient.init();
+    if (!window.AuthClient.isLoggedIn()) {
+      setTimeout(() => {
+        openModal('modalAuthLogin');
+      }, 400);
+    }
+  }
+
+  // Initial UI Render - Start in Level 1 Clean App Lobby
+  state.currentView = 'lobby';
+  showAppLobby();
   updateSyncStatus();
 
   if (window.SecurityVault) {
@@ -1382,25 +1619,190 @@ function getCategoryInfo(catId) {
 }
 
 // ==================== RENDERING ENGINE ====================
-function renderAll() {
-  const welcomeView = document.getElementById('welcomeNoTripView');
-  const activeTripView = document.getElementById('activeTripMainView');
+// State View Routing: 'lobby' (Level 1) or 'workspace' (Level 2)
+state.currentView = state.currentView || 'lobby';
+
+function showAppLobby() {
+  state.currentView = 'lobby';
+  const lobbyView = document.getElementById('viewAppLobby');
+  const workspaceView = document.getElementById('viewTripWorkspace');
+  const lobbyHeader = document.getElementById('headerLobbyView');
+  const workspaceHeader = document.getElementById('headerWorkspaceView');
   const bottomNav = document.getElementById('bottomNavBar');
   const fab = document.getElementById('fabContainer');
 
+  if (lobbyView) lobbyView.classList.remove('hidden');
+  if (workspaceView) workspaceView.classList.add('hidden');
+  if (lobbyHeader) lobbyHeader.classList.remove('hidden');
+  if (workspaceHeader) workspaceHeader.classList.add('hidden');
+  if (bottomNav) bottomNav.classList.add('hidden');
+  if (fab) fab.classList.add('hidden');
+
+  renderLobbyView();
+  if (window.AuthClient) window.AuthClient.updateProfileDom();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function enterActiveTripWorkspace(tripId = null) {
+  if (tripId) {
+    const target = state.trips.find(t => t.id === tripId);
+    if (target) {
+      state.activeTrip = target;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TRIP_ID, target.id);
+    }
+  }
+
+  if (!state.activeTrip && state.trips.length > 0) {
+    state.activeTrip = state.trips[0];
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_TRIP_ID, state.activeTrip.id);
+  }
+
   if (!state.activeTrip) {
-    if (welcomeView) welcomeView.classList.remove('hidden');
-    if (activeTripView) activeTripView.classList.add('hidden');
-    if (bottomNav) bottomNav.classList.add('hidden');
-    if (fab) fab.classList.add('hidden');
-    renderHeaderNoTrip();
+    openTripSwitcherModal('create');
     return;
   }
 
-  if (welcomeView) welcomeView.classList.add('hidden');
-  if (activeTripView) activeTripView.classList.remove('hidden');
+  state.currentView = 'workspace';
+  const lobbyView = document.getElementById('viewAppLobby');
+  const workspaceView = document.getElementById('viewTripWorkspace');
+  const lobbyHeader = document.getElementById('headerLobbyView');
+  const workspaceHeader = document.getElementById('headerWorkspaceView');
+  const bottomNav = document.getElementById('bottomNavBar');
+  const fab = document.getElementById('fabContainer');
+
+  if (lobbyView) lobbyView.classList.add('hidden');
+  if (workspaceView) workspaceView.classList.remove('hidden');
+  if (lobbyHeader) lobbyHeader.classList.add('hidden');
+  if (workspaceHeader) workspaceHeader.classList.remove('hidden');
   if (bottomNav) bottomNav.classList.remove('hidden');
   if (fab) fab.classList.remove('hidden');
+
+  switchTab(state.activeTab || 'expenses');
+  renderAll();
+  if (window.AuthClient) window.AuthClient.updateProfileDom();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderLobbyView() {
+  const activeTrip = state.activeTrip;
+  const activeCard = document.getElementById('lobbyActiveTripCard');
+  const nameEl = document.getElementById('lobbyActiveTripName');
+  const datesEl = document.getElementById('lobbyActiveTripDates');
+  const codeEl = document.getElementById('lobbyActiveTripCode');
+  const membersEl = document.getElementById('lobbyActiveTripMembers');
+  const totalEl = document.getElementById('lobbyActiveTripTotal');
+  const homeTotalEl = document.getElementById('lobbyActiveTripHomeTotal');
+  const countBadge = document.getElementById('lobbyAllTripsCount');
+  const container = document.getElementById('lobbyTripsContainer');
+
+  if (countBadge) countBadge.textContent = (state.trips || []).length;
+
+  if (activeTrip && activeCard) {
+    activeCard.classList.remove('hidden');
+    if (nameEl) nameEl.textContent = activeTrip.name;
+    
+    if (activeTrip.type === 'personal') {
+      if (datesEl) datesEl.textContent = 'Personal Spends • Daily Expense Tracker';
+      if (codeEl) codeEl.textContent = 'SOLO';
+      if (membersEl) membersEl.textContent = 'Solo Diary';
+    } else if (activeTrip.type === 'flat') {
+      if (datesEl) datesEl.textContent = `${activeTrip.dates || 'Monthly'} • ${activeTrip.destination || 'Home'}`;
+      if (codeEl) codeEl.textContent = activeTrip.code || 'FLAT';
+      if (membersEl) membersEl.textContent = `${(activeTrip.members || []).length} Roommates`;
+    } else {
+      if (datesEl) datesEl.textContent = `${activeTrip.dates || 'Active Dates'} • ${activeTrip.destination || 'Universal'}`;
+      if (codeEl) codeEl.textContent = activeTrip.code || 'TRIP';
+      if (membersEl) membersEl.textContent = `${(activeTrip.members || []).length} Friends`;
+    }
+
+    // Compute total spend
+    const expenses = activeTrip.expenses || [];
+    const totalBase = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+    const forex = parseFloat(activeTrip.forexRate) || 1;
+    const totalHome = totalBase * forex;
+
+    if (totalEl) totalEl.textContent = `${activeTrip.currencySymbol || ''}${Math.round(totalBase).toLocaleString('en-IN')}`;
+    if (homeTotalEl) homeTotalEl.textContent = `≈ ${activeTrip.homeCurrencySymbol || '₹'}${Math.round(totalHome).toLocaleString('en-IN')}`;
+  } else if (activeCard) {
+    activeCard.classList.add('hidden');
+  }
+
+  // Render All Trips / Spaces in Lobby
+  if (container) {
+    if (!state.trips || state.trips.length === 0) {
+      container.innerHTML = `
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-1">
+          <p class="text-xs text-slate-400">No spaces created yet.</p>
+          <button onclick="openTripSwitcherModal('create')" class="text-xs font-bold text-brand-400 underline">Tap here to create a Trip or Personal Tracker</button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = state.trips.map(t => {
+        const isActive = activeTrip && activeTrip.id === t.id;
+        const total = (t.expenses || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+        
+        let spaceEmoji = '✈️';
+        let spaceTag = `${escapeHtml(t.destination || 'Trip')} • ${(t.members || []).length} Friends`;
+        let badgeType = '';
+
+        if (t.type === 'personal') {
+          spaceEmoji = '👤';
+          spaceTag = `Personal Tracker • Solo Mode`;
+          badgeType = '<span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">SOLO</span>';
+        } else if (t.type === 'flat') {
+          spaceEmoji = '🏠';
+          spaceTag = `${escapeHtml(t.destination || 'Home')} • ${(t.members || []).length} Roommates`;
+          badgeType = '<span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">FLAT</span>';
+        } else {
+          if (t.theme === 'thailand' || t.name.toLowerCase().includes('thai')) spaceEmoji = '🌴';
+          else if (t.theme === 'dubai') spaceEmoji = '🏜️';
+          else if (t.theme === 'europe') spaceEmoji = '🏰';
+        }
+
+        return `
+          <div onclick="enterActiveTripWorkspace('${t.id}')" 
+            class="p-3.5 rounded-2xl ${isActive ? 'bg-slate-900 border-brand-500/50' : 'bg-slate-900/80 border-slate-800'} border hover:border-brand-500/40 cursor-pointer active-press transition-all flex items-center justify-between gap-3 group">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500/20 to-teal-400/20 text-brand-400 flex items-center justify-center text-lg shrink-0">
+                ${spaceEmoji}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <h4 class="text-xs sm:text-sm font-bold text-white group-hover:text-brand-300 truncate">${escapeHtml(t.name)}</h4>
+                  ${badgeType}
+                  ${isActive ? '<span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ACTIVE</span>' : ''}
+                </div>
+                <div class="text-[10px] text-slate-400 truncate mt-0.5">${spaceTag}</div>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs font-black text-white font-mono-num">${t.currencySymbol || '₹'}${Math.round(total).toLocaleString('en-IN')}</div>
+              <span class="text-[9px] text-brand-400 font-semibold group-hover:underline">Open ➔</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+function renderAll() {
+  if (state.currentView === 'lobby' || !state.activeTrip) {
+    showAppLobby();
+    return;
+  }
+
+  const lobbyView = document.getElementById('viewAppLobby');
+  const workspaceView = document.getElementById('viewTripWorkspace');
+  const bottomNav = document.getElementById('bottomNavBar');
+  const fab = document.getElementById('fabContainer');
+
+  if (lobbyView) lobbyView.classList.add('hidden');
+  if (workspaceView) workspaceView.classList.remove('hidden');
+  if (bottomNav) bottomNav.classList.remove('hidden');
+  if (fab) fab.classList.remove('hidden');
+
+  updateBottomNavForSpaceType();
 
   applyDestinationTheme(state.activeTrip.theme || detectThemeFromTrip(state.activeTrip));
   renderHeader();
@@ -1415,6 +1817,52 @@ function renderAll() {
   renderAnalyticsTab();
   renderSettingsTab();
 }
+
+function updateBottomNavForSpaceType() {
+  const trip = state.activeTrip;
+  const isPersonal = trip && trip.type === 'personal';
+  const navGrid = document.querySelector('#bottomNavBar > div');
+  const navBtnSettle = document.getElementById('nav-btn-settle') || document.getElementById('nav-btn-analytics');
+  const navBtnFriends = document.getElementById('nav-btn-friends');
+  const navBtnHub = document.getElementById('nav-btn-hub');
+
+  if (isPersonal) {
+    if (navBtnSettle) {
+      navBtnSettle.onclick = () => switchTab('analytics');
+      navBtnSettle.id = 'nav-btn-analytics';
+      navBtnSettle.innerHTML = `
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span class="text-[11px] mt-1">Analytics</span>
+      `;
+    }
+    if (navBtnHub) {
+      navBtnHub.innerHTML = `
+        <i class="fa-solid fa-gear text-lg"></i>
+        <span class="text-[11px] mt-1">Settings</span>
+      `;
+    }
+    if (navBtnFriends) navBtnFriends.classList.add('hidden');
+    if (navGrid) navGrid.className = 'max-w-xl mx-auto grid grid-cols-3 gap-1 text-center';
+  } else {
+    if (navBtnSettle) {
+      navBtnSettle.onclick = () => switchTab('settle');
+      navBtnSettle.id = 'nav-btn-settle';
+      navBtnSettle.innerHTML = `
+        <i class="fa-solid fa-scale-balanced text-lg"></i>
+        <span class="text-[11px] mt-1">Settle Up</span>
+      `;
+    }
+    if (navBtnHub) {
+      navBtnHub.innerHTML = `
+        <i class="fa-solid fa-toolbox text-lg"></i>
+        <span class="text-[11px] mt-1">Trip Hub</span>
+      `;
+    }
+    if (navBtnFriends) navBtnFriends.classList.remove('hidden');
+    if (navGrid) navGrid.className = 'max-w-xl mx-auto grid grid-cols-4 gap-1 text-center';
+  }
+}
+window.updateBottomNavForSpaceType = updateBottomNavForSpaceType;
 
 function renderHeaderNoTrip() {
   const nameEl = document.getElementById('headerTripName');
@@ -1436,11 +1884,25 @@ function renderHeader() {
   const trip = state.activeTrip;
   if (!trip) return;
 
-  document.getElementById('headerTripName').innerHTML = `
-    <span>${escapeHtml(trip.name)}</span>
-    <i class="fa-solid fa-chevron-down text-xs text-brand-400"></i>
-  `;
-  document.getElementById('headerTripDates').textContent = trip.dates || 'Ongoing';
+  const isDemo = trip.id === 'trip-bali-demo';
+  const demoBadge = isDemo ? '<span class="text-[8px] font-black px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 uppercase shrink-0">TEST LAB</span>' : '';
+
+  const nameEl = document.getElementById('headerTripName');
+  if (nameEl) {
+    nameEl.innerHTML = `
+      <span>${escapeHtml(trip.name)}</span>
+      ${demoBadge}
+      <i class="fa-solid fa-chevron-down text-xs text-brand-400"></i>
+    `;
+  }
+  const datesEl = document.getElementById('headerTripDates');
+  if (datesEl) {
+    datesEl.textContent = trip.dates || 'Ongoing';
+  }
+  const codeBadge = document.getElementById('headerTripCodeBadge');
+  if (codeBadge) {
+    codeBadge.textContent = trip.code || 'TRIP';
+  }
 
   // Discreet Mode button UI
   const btnDiscreet = document.getElementById('btnToggleDiscreet');
@@ -1465,7 +1927,18 @@ function renderHeroCard() {
   const trip = state.activeTrip;
   if (!trip) return;
 
-  const totalHome = (trip.expenses || []).reduce((sum, exp) => {
+  const isPersonal = trip.type === 'personal';
+
+  // In personal mode, calculate spends strictly for the selected month
+  let activeExpenses = trip.expenses || [];
+  if (isPersonal) {
+    activeExpenses = activeExpenses.filter(exp => {
+      const ym = getExpenseYearMonth(exp);
+      return ym.year === state.selectedMonth.year && ym.month === state.selectedMonth.month;
+    });
+  }
+
+  const totalHome = activeExpenses.reduce((sum, exp) => {
     let converted = exp.convertedAmount;
     if (converted === undefined || converted === null) {
       const expCur = exp.currency || trip.baseCurrency;
@@ -1489,11 +1962,101 @@ function renderHeroCard() {
   const heroTotalHomeSpend = document.getElementById('heroTotalHomeSpend');
   if (heroTotalHomeSpend) heroTotalHomeSpend.textContent = formatCurrency(totalHome, trip.homeCurrency);
 
+  const heroHomeCurrencyWrap = document.getElementById('heroHomeCurrencyWrap');
+  if (heroHomeCurrencyWrap) {
+    if (isPersonal || trip.baseCurrency === trip.homeCurrency) heroHomeCurrencyWrap.classList.add('hidden');
+    else heroHomeCurrencyWrap.classList.remove('hidden');
+  }
+
+  // Label for Spend Amount
+  const heroTotalSpendLabel = document.getElementById('heroTotalSpendLabel');
+  if (heroTotalSpendLabel) {
+    if (isPersonal) {
+      const now = new Date();
+      const isThisMonth = (state.selectedMonth.year === now.getFullYear() && state.selectedMonth.month === now.getMonth());
+      const mName = MONTH_NAMES[state.selectedMonth.month] || 'Month';
+      heroTotalSpendLabel.textContent = isThisMonth ? `Total Spent This Month (${mName})` : `Total Spent in ${mName} ${state.selectedMonth.year}`;
+    } else {
+      heroTotalSpendLabel.textContent = 'Total Trip Expenses';
+    }
+  }
+
+  // Month Switcher Bar for Personal Mode
+  const monthBar = document.getElementById('personalMonthSwitcherBar');
+  if (monthBar) {
+    if (isPersonal) {
+      monthBar.classList.remove('hidden');
+      const monthTextEl = document.getElementById('personalSelectedMonthText');
+      if (monthTextEl) {
+        monthTextEl.innerHTML = `<i class="fa-regular fa-calendar text-brand-400 text-xs"></i> <span>${MONTH_NAMES[state.selectedMonth.month]} ${state.selectedMonth.year}</span>`;
+      }
+      const badgeEl = document.getElementById('personalCurrentMonthBadge');
+      if (badgeEl) {
+        const now = new Date();
+        const isThisMonth = (state.selectedMonth.year === now.getFullYear() && state.selectedMonth.month === now.getMonth());
+        if (isThisMonth) {
+          badgeEl.textContent = 'CURRENT';
+          badgeEl.className = 'text-[10px] font-bold px-1.5 py-0.2 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30';
+        } else {
+          badgeEl.textContent = 'ARCHIVE';
+          badgeEl.className = 'text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+      }
+    } else {
+      monthBar.classList.add('hidden');
+    }
+  }
+
+  // Personal mode visibility guards: hide unwanted cards & jargon
+  const heroAvgBox = document.getElementById('heroAvgBox');
+  if (heroAvgBox) {
+    if (isPersonal) heroAvgBox.classList.add('hidden');
+    else heroAvgBox.classList.remove('hidden');
+  }
+
+  const heroStandingRibbon = document.getElementById('heroStandingRibbon');
+  if (heroStandingRibbon) {
+    if (isPersonal) heroStandingRibbon.classList.add('hidden');
+    else heroStandingRibbon.classList.remove('hidden');
+  }
+
+  const friendsSec = document.getElementById('friendsBreakdownSection');
+  if (friendsSec) {
+    if (isPersonal) friendsSec.classList.add('hidden');
+    else friendsSec.classList.remove('hidden');
+  }
+
+  const budgetCard = document.getElementById('dailyBudgetPaceCard');
+  if (budgetCard) {
+    if (isPersonal) budgetCard.classList.add('hidden');
+    else budgetCard.classList.remove('hidden');
+  }
+
+  const btnRecap = document.getElementById('btnWhatsAppRecap');
+  if (btnRecap) {
+    if (isPersonal) btnRecap.classList.add('hidden');
+    else btnRecap.classList.remove('hidden');
+  }
+
+  const heroForexPillBtn = document.getElementById('heroForexPillBtn');
+  if (heroForexPillBtn) {
+    if (isPersonal) heroForexPillBtn.classList.add('hidden');
+    else heroForexPillBtn.classList.remove('hidden');
+  }
+
   // Atmosphere badge
   const activeThemeKey = trip.theme || detectThemeFromTrip(trip);
   const themeInfo = DESTINATION_THEMES[activeThemeKey] || DESTINATION_THEMES.tropical;
   const atmosphereText = document.getElementById('heroTripAtmosphereText');
-  if (atmosphereText) atmosphereText.textContent = themeInfo.badge || themeInfo.name;
+  if (atmosphereText) {
+    if (trip.type === 'personal') {
+      atmosphereText.textContent = '👤 Personal Tracker';
+    } else if (trip.type === 'flat') {
+      atmosphereText.textContent = '🏠 Flatmates Home';
+    } else {
+      atmosphereText.textContent = themeInfo.badge || themeInfo.name;
+    }
+  }
 
   // Ensure scenic artwork is loaded in hero card
   const scenicContainer = document.getElementById('heroScenicArtContainer');
@@ -1505,13 +2068,15 @@ function renderHeroCard() {
     }
   }
 
-  // Per-person average & total spends count
+  // Per-person average (for group trips)
   const memberCount = (trip.members || []).length;
-  const avgPerPerson = memberCount > 0 ? (totalHome / memberCount) : 0;
   const avgEl = document.getElementById('heroAvgPerPerson');
-  if (avgEl) avgEl.textContent = formatCurrency(avgPerPerson, trip.homeCurrency);
+  if (avgEl && !isPersonal) {
+    const avgPerPerson = memberCount > 0 ? (totalHome / memberCount) : 0;
+    avgEl.textContent = formatCurrency(avgPerPerson, trip.homeCurrency);
+  }
 
-  const billsCount = (trip.expenses || []).length;
+  const billsCount = activeExpenses.length;
   const billsEl = document.getElementById('heroTotalBillsCount');
   if (billsEl) billsEl.textContent = `${billsCount} Spends`;
   const billsElMobile = document.getElementById('heroTotalBillsCountMobile');
@@ -1519,37 +2084,35 @@ function renderHeroCard() {
 
   // Forex rate pill
   const heroForexRateText = document.getElementById('heroForexRateText');
-  if (heroForexRateText) {
+  if (heroForexRateText && !isPersonal) {
     heroForexRateText.textContent = `1 ${trip.baseCurrency} = ${trip.homeCurrencySymbol}${Number(trip.forexRate || 1).toFixed(2)}`;
   }
-  const forexBaseCode = document.getElementById('forexBaseCode');
-  if (forexBaseCode) forexBaseCode.textContent = trip.baseCurrency;
-  const forexTargetCode = document.getElementById('forexTargetCode');
-  if (forexTargetCode) forexTargetCode.textContent = trip.homeCurrency;
 
-  // Current user's net balance
-  const savedUserName = (localStorage.getItem('tb_user_name') || '').toLowerCase();
-  const myMember = (trip.myMemberId ? trip.members.find(m => m.id === trip.myMemberId) : null) 
-    || (savedUserName ? trip.members.find(m => m.name.toLowerCase() === savedUserName) : null)
-    || trip.members[0] 
-    || { name: 'Me' };
-  const avatarCircle = document.getElementById('myAvatarCircle');
-  if (avatarCircle) avatarCircle.textContent = myMember.name.charAt(0);
-  
-  const balances = calculateNetBalances(trip);
-  const myNet = balances[myMember.id] || 0;
-  const myBalanceEl = document.getElementById('heroMyBalanceText');
+  // Current user's net balance (group trips only)
+  if (!isPersonal) {
+    const savedUserName = (localStorage.getItem('tb_user_name') || '').toLowerCase();
+    const myMember = (trip.myMemberId ? trip.members.find(m => m.id === trip.myMemberId) : null) 
+      || (savedUserName ? trip.members.find(m => m.name.toLowerCase() === savedUserName) : null)
+      || trip.members[0] 
+      || { name: 'Me' };
+    const avatarCircle = document.getElementById('myAvatarCircle');
+    if (avatarCircle) avatarCircle.textContent = myMember.name.charAt(0);
+    
+    const balances = calculateNetBalances(trip);
+    const myNet = balances[myMember.id] || 0;
+    const myBalanceEl = document.getElementById('heroMyBalanceText');
 
-  if (myBalanceEl) {
-    if (myNet > 0.01) {
-      myBalanceEl.textContent = `+${formatCurrency(myNet, trip.homeCurrency)} (You get back)`;
-      myBalanceEl.className = 'font-bold font-mono-num text-emerald-400';
-    } else if (myNet < -0.01) {
-      myBalanceEl.textContent = `${formatCurrency(myNet, trip.homeCurrency)} (You owe)`;
-      myBalanceEl.className = 'font-bold font-mono-num text-rose-400';
-    } else {
-      myBalanceEl.textContent = `All Settled (Barabar)`;
-      myBalanceEl.className = 'font-bold font-mono-num text-slate-300';
+    if (myBalanceEl) {
+      if (myNet > 0.01) {
+        myBalanceEl.textContent = `+${formatCurrency(myNet, trip.homeCurrency)} (You get back)`;
+        myBalanceEl.className = 'font-bold font-mono-num text-emerald-400';
+      } else if (myNet < -0.01) {
+        myBalanceEl.textContent = `${formatCurrency(myNet, trip.homeCurrency)} (You owe)`;
+        myBalanceEl.className = 'font-bold font-mono-num text-rose-400';
+      } else {
+        myBalanceEl.textContent = `All Settled (Barabar)`;
+        myBalanceEl.className = 'font-bold font-mono-num text-slate-300';
+      }
     }
   }
 }
@@ -1563,6 +2126,10 @@ function renderFriendsBreakdown() {
   const countBadge = document.getElementById('memberBreakdownCount');
   const clearBtn = document.getElementById('btnClearMemberFilter');
   if (!trip || !container) return;
+
+  if (trip.type === 'personal') {
+    return;
+  }
 
   if (countBadge) countBadge.textContent = trip.members.length;
   if (clearBtn) {
@@ -1690,17 +2257,27 @@ function renderExpensesList() {
   const trip = state.activeTrip;
   const container = document.getElementById('expenseListContainer');
   const countBadge = document.getElementById('expenseCountBadge');
+  const titleEl = document.getElementById('recentTransactionsTitle');
   if (!trip || !container) return;
 
+  const isPersonal = trip.type === 'personal';
   let list = [...(trip.expenses || [])];
+
+  // In personal mode, filter by selected month
+  if (isPersonal) {
+    list = list.filter(e => {
+      const ym = getExpenseYearMonth(e);
+      return ym.year === state.selectedMonth.year && ym.month === state.selectedMonth.month;
+    });
+  }
 
   // Filter by category
   if (state.selectedFilterCategory !== 'all') {
     list = list.filter(e => e.categoryId === state.selectedFilterCategory);
   }
 
-  // Filter by selected friend if active
-  if (selectedMemberFilter) {
+  // Filter by selected friend if active (group trips only)
+  if (!isPersonal && selectedMemberFilter) {
     list = list.filter(e => {
       const isPayer = Array.isArray(e.paidBy)
         ? e.paidBy.some(p => p.memberId === selectedMemberFilter)
@@ -1719,33 +2296,124 @@ function renderExpensesList() {
   // Sort by date descending
   list.sort((a, b) => b.createdAt - a.createdAt);
 
-  countBadge.textContent = list.length;
+  if (countBadge) countBadge.textContent = list.length;
+  if (titleEl) {
+    if (isPersonal) {
+      const mName = MONTH_NAMES[state.selectedMonth.month] || 'Month';
+      titleEl.textContent = `${mName} Spends`;
+    } else {
+      titleEl.textContent = 'Recent Transactions';
+    }
+  }
 
   if (list.length === 0) {
-    container.innerHTML = `
-      <div class="p-6 sm:p-8 rounded-3xl glass-card border border-slate-800 text-center space-y-3.5 my-2">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-amber-500/20 text-brand-400 flex items-center justify-center mx-auto text-2xl shadow-inner">
-          ✈️
+    if (isPersonal) {
+      const mName = MONTH_NAMES[state.selectedMonth.month] || 'Month';
+      container.innerHTML = `
+        <div class="p-6 rounded-3xl glass-card border border-slate-800 text-center space-y-3 my-2">
+          <div class="w-12 h-12 rounded-2xl bg-brand-500/15 text-brand-400 flex items-center justify-center mx-auto text-xl">
+            📅
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-sm font-bold text-white">No Spends Recorded for ${mName} ${state.selectedMonth.year}</h4>
+            <p class="text-xs text-slate-400 max-w-xs mx-auto">Your personal expense diary is clear for this month. Tap below to log an expense or use the month switcher above to check past months.</p>
+          </div>
+          <div class="pt-1">
+            <button onclick="openAddExpenseModal()" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 active-press shadow-lg shadow-brand-500/20 transition-all">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>+ Add Expense for ${mName}</span>
+            </button>
+          </div>
         </div>
-        <div class="space-y-1">
-          <h4 class="text-sm font-bold text-white">Your Trip Ledger is Clean & Ready</h4>
-          <p class="text-xs text-slate-400 max-w-sm mx-auto">No expenses recorded yet. Tap below to log your first spend, or invite your friends to start splitting together.</p>
+      `;
+      return;
+    } else {
+      container.innerHTML = `
+        <div class="p-6 sm:p-8 rounded-3xl glass-card border border-slate-800 text-center space-y-3.5 my-2">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-amber-500/20 text-brand-400 flex items-center justify-center mx-auto text-2xl shadow-inner">
+            ✈️
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-sm font-bold text-white">Your Trip Ledger is Clean & Ready</h4>
+            <p class="text-xs text-slate-400 max-w-sm mx-auto">No expenses recorded yet. Tap below to log your first spend, or invite your friends to start splitting together.</p>
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <button onclick="openAddExpenseModal()" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 active-press shadow-lg shadow-brand-500/20 transition-all">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>+ Add First Expense</span>
+            </button>
+            <button onclick="openInviteFriendsModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs inline-flex items-center gap-2 active-press border border-slate-700 transition-all">
+              <i class="fa-solid fa-user-plus text-emerald-400 text-xs"></i>
+              <span>Invite Friends</span>
+            </button>
+          </div>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <button onclick="openAddExpenseModal()" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 active-press shadow-lg shadow-brand-500/20 transition-all">
-            <i class="fa-solid fa-plus text-xs"></i>
-            <span>+ Add First Expense</span>
+      `;
+      return;
+    }
+  }
+
+  // In personal mode: limit visible list to 2 items if not expanded
+  const isCapped = isPersonal && !state.showAllTransactions && list.length > 2;
+  const visibleList = isCapped ? list.slice(0, 2) : list;
+
+  if (isPersonal) {
+    let rowsHtml = visibleList.map(exp => {
+      const cat = getCategoryInfo(exp.categoryId);
+      const payBadge = getPaymentMethodBadge(exp.paymentMethod || 'upi');
+      const dateText = formatExpenseDateShort(exp.date || exp.createdAt);
+
+      return `
+        <div class="glass-card rounded-2xl px-3.5 py-2.5 border border-slate-800/90 shadow-sm flex items-center justify-between gap-3 hover:border-slate-700 transition-all">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0" style="background: ${cat.color}20; border: 1px solid ${cat.color}40;">
+              ${cat.displayEmoji}
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-bold text-white truncate">${escapeHtml(exp.title)}</h4>
+              <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                ${payBadge}
+                <span>•</span>
+                <span>${dateText}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5 shrink-0">
+            <div class="text-right">
+              <div class="text-xs sm:text-sm font-black text-white font-mono-num">
+                ${formatCurrency(exp.amount, exp.currency || 'INR')}
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="editExpense('${exp.id}')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-600 text-slate-400 hover:text-brand-300 flex items-center justify-center active-press" title="Edit">
+                <i class="fa-solid fa-pen text-[9px]"></i>
+              </button>
+              <button onclick="deleteExpense('${exp.id}')" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:border-rose-500/40 text-slate-500 hover:text-rose-400 flex items-center justify-center active-press" title="Delete">
+                <i class="fa-solid fa-trash text-[9px]"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (list.length > 2) {
+      rowsHtml += `
+        <div class="pt-1">
+          <button type="button" onclick="toggleShowAllTransactions()" class="w-full py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-brand-500/40 text-xs font-bold text-brand-400 inline-flex items-center justify-center gap-2 active-press shadow-sm transition-all">
+            <i class="fa-solid ${state.showAllTransactions ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px]"></i>
+            <span>${state.showAllTransactions ? '▲ Show Less (Top 2 Spends)' : `▼ Show ${list.length - 2} More Transactions (${list.length} Total)`}</span>
           </button>
-          <button onclick="openInviteFriendsModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs inline-flex items-center gap-2 active-press border border-slate-700 transition-all">
-            <i class="fa-solid fa-user-plus text-emerald-400 text-xs"></i>
-            <span>Invite Friends</span>
-          </button>
         </div>
-      </div>
-    `;
+      `;
+    }
+
+    container.innerHTML = rowsHtml;
     return;
   }
 
+  // Classic Group Trip cards
   container.innerHTML = list.map(exp => {
     const cat = getCategoryInfo(exp.categoryId);
     const expCur = exp.currency || trip.baseCurrency;
@@ -1812,15 +2480,22 @@ function renderExpensesList() {
                 ≈ ${formatCurrency(convertedHome, trip.homeCurrency)}
               </div>
             `}
-            <!-- Edit / Delete Buttons -->
-            <div class="flex items-center justify-end gap-2 mt-1">
-              <button onclick="editExpense('${exp.id}')" class="text-[10px] text-slate-400 hover:text-brand-300" title="Edit">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button onclick="deleteExpense('${exp.id}')" class="text-[10px] text-slate-500 hover:text-red-400" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
+            <!-- Edit / Delete Buttons with Anti-Tampering Permission Guard -->
+            ${canUserModifyExpense(exp) ? `
+              <div class="flex items-center justify-end gap-2 mt-1">
+                <button onclick="editExpense('${exp.id}')" class="text-[10px] text-slate-400 hover:text-brand-300" title="Edit Expense">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="deleteExpense('${exp.id}')" class="text-[10px] text-slate-500 hover:text-red-400" title="Delete Expense">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            ` : `
+              <div class="flex items-center justify-end gap-1 mt-1 text-[9px] text-slate-500" title="Only ${escapeHtml(paidByText)} or Trip Admin can edit">
+                <i class="fa-solid fa-lock text-[8px]"></i>
+                <span class="truncate max-w-[80px]">${escapeHtml(paidByText)}</span>
+              </div>
+            `}
           </div>
         </div>
 
@@ -2099,22 +2774,50 @@ function renderAnalyticsTab() {
   const catCountEl = document.getElementById('analyticsCategoryCount');
   if (!trip || !catListContainer || !leaderboardContainer) return;
 
-  const totalSpend = (trip.expenses || []).reduce((sum, exp) => {
+  const isPersonal = trip.type === 'personal';
+  let expenses = trip.expenses || [];
+
+  if (isPersonal && state.selectedMonth) {
+    expenses = expenses.filter(exp => {
+      const ym = getExpenseYearMonth(exp);
+      return ym.year === state.selectedMonth.year && ym.month === state.selectedMonth.month;
+    });
+  }
+
+  const totalSpend = expenses.reduce((sum, exp) => {
     return sum + (exp.convertedAmount || (exp.amount * (trip.forexRate || 1)));
   }, 0);
 
+  // Update card titles and visibility
+  const hallOfFame = document.getElementById('analyticsHallOfFameCard');
+  if (hallOfFame) {
+    hallOfFame.style.display = isPersonal ? 'none' : 'block';
+  }
+
+  const catCardTitle = document.getElementById('analyticsCategoryCardTitle');
+  if (catCardTitle) {
+    if (isPersonal && state.selectedMonth) {
+      const mName = MONTH_NAMES[state.selectedMonth.month] || 'Monthly';
+      catCardTitle.textContent = `${mName} Spending by Category`;
+    } else {
+      catCardTitle.textContent = 'Spending by Category';
+    }
+  }
+
   // Group by category
   const catTotals = {};
-  (trip.expenses || []).forEach(exp => {
+  expenses.forEach(exp => {
     const homeVal = exp.convertedAmount || (exp.amount * (trip.forexRate || 1));
     catTotals[exp.categoryId] = (catTotals[exp.categoryId] || 0) + homeVal;
   });
 
   const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
-  catCountEl.textContent = `${sortedCats.length} Categories`;
+  if (catCountEl) {
+    catCountEl.textContent = `${sortedCats.length} Categories`;
+  }
 
   if (sortedCats.length === 0) {
-    catListContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No spending data yet</div>';
+    catListContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No spending data for this period</div>';
   } else {
     catListContainer.innerHTML = sortedCats.map(([catId, amt]) => {
       const cat = getCategoryInfo(catId);
@@ -2137,46 +2840,98 @@ function renderAnalyticsTab() {
     }).join('');
   }
 
-  // Member Leaderboard: Who paid the most
-  const memberPaid = {};
-  trip.members.forEach(m => { memberPaid[m.id] = 0; });
+  const leaderboardTitle = document.getElementById('analyticsLeaderboardTitle');
+  const leaderboardIcon = document.getElementById('analyticsLeaderboardIcon');
 
-  (trip.expenses || []).forEach(exp => {
-    const homeVal = exp.convertedAmount || (exp.amount * (trip.forexRate || 1));
-    if (Array.isArray(exp.paidBy)) {
-      exp.paidBy.forEach(p => {
-        const ratio = Number(p.amount) / Number(exp.amount);
-        memberPaid[p.memberId] = (memberPaid[p.memberId] || 0) + (homeVal * ratio);
-      });
+  if (isPersonal) {
+    if (leaderboardTitle) leaderboardTitle.textContent = 'Payment Methods Breakdown';
+    if (leaderboardIcon) leaderboardIcon.className = 'fa-solid fa-wallet text-brand-400';
+
+    const payMethods = [
+      { id: 'upi', name: 'UPI / QR', icon: '⚡', color: '#10B981' },
+      { id: 'credit_card', name: 'Credit Card', icon: '💳', color: '#8B5CF6' },
+      { id: 'debit_card', name: 'Debit Card', icon: '🏧', color: '#06B6D4' },
+      { id: 'cash', name: 'Cash', icon: '💵', color: '#F59E0B' },
+      { id: 'net_banking', name: 'Net Banking', icon: '🏦', color: '#3B82F6' }
+    ];
+
+    const methodStats = payMethods.map(pm => {
+      const matched = expenses.filter(e => (e.paymentMethod || 'upi') === pm.id);
+      const total = matched.reduce((s, e) => s + (e.convertedAmount || (e.amount * (trip.forexRate || 1))), 0);
+      return { ...pm, total, count: matched.length };
+    }).filter(m => m.count > 0).sort((a, b) => b.total - a.total);
+
+    if (methodStats.length === 0) {
+      leaderboardContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No payments recorded for this month</div>';
     } else {
-      memberPaid[exp.paidBy] = (memberPaid[exp.paidBy] || 0) + homeVal;
+      leaderboardContainer.innerHTML = methodStats.map(pm => {
+        const pct = totalSpend > 0 ? Math.round((pm.total / totalSpend) * 100) : 0;
+        return `
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${pm.icon}</span>
+                <span class="font-bold text-white">${escapeHtml(pm.name)}</span>
+                <span class="text-[10px] text-slate-400">(${pm.count} ${pm.count === 1 ? 'entry' : 'entries'})</span>
+              </div>
+              <div class="font-mono-num text-right">
+                <span class="font-bold text-white">₹${pm.total.toFixed(0)}</span>
+                <span class="text-[10px] text-brand-400 font-semibold ml-1.5">${pct}%</span>
+              </div>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-500" style="width: ${pct}%; background: ${pm.color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-  });
+  } else {
+    if (leaderboardTitle) leaderboardTitle.textContent = 'Member Spending vs Consumption';
+    if (leaderboardIcon) leaderboardIcon.className = 'fa-solid fa-credit-card text-brand-400';
 
-  const sortedMembers = Object.entries(memberPaid).sort((a, b) => b[1] - a[1]);
+    // Member Leaderboard: Who paid the most
+    const memberPaid = {};
+    trip.members.forEach(m => { memberPaid[m.id] = 0; });
 
-  leaderboardContainer.innerHTML = sortedMembers.map(([mId, amt], index) => {
-    const member = trip.members.find(m => m.id === mId) || { name: 'Friend' };
-    const percentage = totalSpend > 0 ? Math.round((amt / totalSpend) * 100) : 0;
-    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+    (trip.expenses || []).forEach(exp => {
+      const homeVal = exp.convertedAmount || (exp.amount * (trip.forexRate || 1));
+      if (Array.isArray(exp.paidBy)) {
+        exp.paidBy.forEach(p => {
+          const ratio = Number(p.amount) / Number(exp.amount);
+          memberPaid[p.memberId] = (memberPaid[p.memberId] || 0) + (homeVal * ratio);
+        });
+      } else {
+        memberPaid[exp.paidBy] = (memberPaid[exp.paidBy] || 0) + homeVal;
+      }
+    });
 
-    return `
-      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-6 text-center font-bold text-amber-400">${rankEmoji}</span>
-          <span class="font-bold text-white">${escapeHtml(member.name)}</span>
+    const sortedMembers = Object.entries(memberPaid).sort((a, b) => b[1] - a[1]);
+
+    leaderboardContainer.innerHTML = sortedMembers.map(([mId, amt], index) => {
+      const member = trip.members.find(m => m.id === mId) || { name: 'Friend' };
+      const percentage = totalSpend > 0 ? Math.round((amt / totalSpend) * 100) : 0;
+      const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+
+      return `
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-center font-bold text-amber-400">${rankEmoji}</span>
+            <span class="font-bold text-white">${escapeHtml(member.name)}</span>
+          </div>
+          <div class="font-mono-num text-right">
+            <span class="font-bold text-white">₹${amt.toFixed(0)}</span>
+            <span class="text-[10px] text-slate-500 block">${percentage}% of trip</span>
+          </div>
         </div>
-        <div class="font-mono-num text-right">
-          <span class="font-bold text-white">₹${amt.toFixed(0)}</span>
-          <span class="text-[10px] text-slate-500 block">${percentage}% of trip</span>
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
 
-  // Also render trip awards
-  renderTripAwards();
+    // Also render trip awards
+    renderTripAwards();
+  }
 }
+
 
 // ==================== 🏆 TRIP HALL OF FAME & AWARDS ====================
 function renderTripAwards() {
@@ -2501,6 +3256,363 @@ function renderSettingsTab() {
       </div>
     `).join('');
   }
+
+  renderSmartPerks();
+}
+
+// ==================== 🎁 SMART TRAVEL & LIFESTYLE PERKS ENGINE ====================
+let currentActivePerk = null;
+
+function renderSmartPerks() {
+  const container = document.getElementById('hubSmartPerksContainer');
+  if (!container) return;
+
+  const trip = state.activeTrip;
+  if (!trip) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const isPersonal = trip.type === 'personal';
+  const isFlat = trip.type === 'flat';
+  const dest = trip.destination || 'Destination';
+
+  let title = '🌴 Smart Travel Perks & Partner Deals';
+  let subtitle = `Exclusive partner discounts and travel utilities for ${escapeHtml(dest)}`;
+  let perks = [];
+
+  if (isPersonal) {
+    title = '🛒 Daily Lifestyle Perks & Grocery Utilities';
+    subtitle = 'Save on daily essentials, quick commerce, groceries & cashback';
+    perks = [
+      {
+        id: 'perk-zepto-blinkit',
+        emoji: '⚡',
+        name: 'Quick Commerce & 10-Min Groceries',
+        brand: 'Zepto • Blinkit • Instamart',
+        badge: 'UP TO ₹100 OFF',
+        badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        desc: 'Instant delivery of milk, fresh fruits, vegetables, snacks & dairy in 10 minutes.',
+        code: 'DAILYBARABAR',
+        actionText: 'Order Essentials',
+        url: 'https://www.zeptonow.com'
+      },
+      {
+        id: 'perk-cashback-card',
+        emoji: '💳',
+        name: '5% Cashback on Daily Spends',
+        brand: 'Zero-Fee Lifestyle Card',
+        badge: 'CASHBACK',
+        badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        desc: 'Flat 5% cashback on Swiggy, Zomato, groceries & utility bills with zero annual charges.',
+        code: 'CB5MAX',
+        actionText: 'View Card Offers',
+        url: 'https://www.onecard.co'
+      },
+      {
+        id: 'perk-fd-savings',
+        emoji: '📈',
+        name: 'High-Yield Savings & 8.5% FDs',
+        brand: 'RBI Insured Wealth Tools',
+        badge: '8.5% INTEREST',
+        badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        desc: 'Park your monthly idle budget in high-interest digital FDs with instant zero-penalty withdrawal.',
+        code: 'GROW85',
+        actionText: 'Compare Rates',
+        url: 'https://stablemoney.in'
+      }
+    ];
+  } else if (isFlat) {
+    title = '🏠 Flat & Roommate Shared Utilities';
+    subtitle = 'Convenience tools for apartment bills, shared groceries & home maintenance';
+    perks = [
+      {
+        id: 'perk-flat-groceries',
+        emoji: '🥛',
+        name: 'Flat Grocery & Supplies Restock',
+        brand: 'Blinkit & Zepto Express',
+        badge: 'SHARED RESTOCK',
+        badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        desc: 'Split 20L water cans, milk crates, eggs & cleaning supplies in 10 minutes.',
+        code: 'FLATMATE100',
+        actionText: 'Restock Flat',
+        url: 'https://blinkit.com'
+      },
+      {
+        id: 'perk-flat-cleaning',
+        emoji: '🧹',
+        name: 'Deep Cleaning & AC Service',
+        brand: 'Urban Company Verified',
+        badge: 'UP TO 20% OFF',
+        badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+        desc: 'Verified professionals for sofa shampooing, bathroom deep clean & pest control.',
+        code: 'CLEANFLAT',
+        actionText: 'Book Service',
+        url: 'https://www.urbancompany.com'
+      },
+      {
+        id: 'perk-flat-bills',
+        emoji: '💡',
+        name: 'Electricity & Wi-Fi Bill Cashback',
+        brand: 'Utility Pay Hub',
+        badge: '₹50 CASHBACK',
+        badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        desc: 'Pay monthly flat electricity and broadband bills with zero convenience fees.',
+        code: 'BILLPAY50',
+        actionText: 'Pay Bills',
+        url: 'https://paytm.com/electricity-bill-payment'
+      }
+    ];
+  } else {
+    // Group Trip Mode
+    perks = [
+      {
+        id: 'perk-agoda',
+        emoji: '🏨',
+        name: `Best Villas & Stays in ${dest}`,
+        brand: 'Agoda Partner Network',
+        badge: 'UP TO 15% OFF',
+        badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+        desc: `Verified pool villas, private apartments & beachfront resorts near ${dest}.`,
+        code: 'AGODAGROUP',
+        actionText: 'Compare Stays',
+        url: `https://www.agoda.com`
+      },
+      {
+        id: 'perk-klook',
+        emoji: '🎟️',
+        name: `Tours, Boats & Activities (${dest})`,
+        brand: 'Klook Experience Partner',
+        badge: 'INSTANT VOUCHER',
+        badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        desc: 'Fast-track passes, island speedboats, snorkeling trips & private airport transfers.',
+        code: 'KLOOKTRIP',
+        actionText: 'Explore Tours',
+        url: `https://www.klook.com`
+      },
+      {
+        id: 'perk-airalo',
+        emoji: '📱',
+        name: `International Travel Data eSIM`,
+        brand: 'Airalo Global eSIM',
+        badge: '10% OFF CODE: TRIP10',
+        badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        desc: `Stay connected in ${dest} with 4G/5G data. Instant QR install in 60 seconds without SIM swapping.`,
+        code: 'TRIP10',
+        actionText: 'Get eSIM Data',
+        url: `https://www.airalo.com`
+      },
+      {
+        id: 'perk-forex',
+        emoji: '💳',
+        name: 'Zero-Forex Markup Travel Card',
+        brand: 'Global Travel Card',
+        badge: '0% MARKUP',
+        badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        desc: 'Save 3.5% + GST on international ATM withdrawals and restaurant POS tap payments.',
+        code: 'NOFOREX',
+        actionText: 'Check Zero-Forex Card',
+        url: 'https://scapia.cards'
+      }
+    ];
+  }
+
+  container.innerHTML = `
+    <div class="p-4 rounded-2xl glass-card border border-brand-500/30 space-y-3 relative overflow-hidden">
+      <!-- Glow ambient background -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">
+            PRO PERKS
+          </span>
+          <h3 class="text-xs sm:text-sm font-black text-white mt-1">${title}</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">${subtitle}</p>
+        </div>
+      </div>
+
+      <!-- Perks Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+        ${perks.map(p => `
+          <div onclick="openPerkDetails('${p.id}')" 
+            class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-brand-500/50 cursor-pointer active-press transition-all flex items-start gap-3 group shadow-md">
+            <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              ${p.emoji}
+            </div>
+            <div class="min-w-0 flex-1 space-y-1">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded border ${p.badgeColor}">
+                  ${p.badge}
+                </span>
+                <span class="text-[9px] text-brand-400 font-bold group-hover:underline">Open ➔</span>
+              </div>
+              <h4 class="text-xs font-bold text-white group-hover:text-brand-300 truncate">${escapeHtml(p.name)}</h4>
+              <p class="text-[10px] text-slate-400 line-clamp-2 leading-snug">${escapeHtml(p.desc)}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
+        <span class="flex items-center gap-1">
+          <i class="fa-solid fa-shield-check text-emerald-400"></i>
+          <span>Verified Partner Benefits</span>
+        </span>
+        <span>Zero Hidden Fees</span>
+      </div>
+    </div>
+  `;
+}
+
+function openPerkDetails(perkId) {
+  const allPerks = [
+    // Personal Perks
+    {
+      id: 'perk-zepto-blinkit',
+      emoji: '⚡',
+      name: '10-Min Groceries & Essentials',
+      brand: 'Zepto • Blinkit • Instamart',
+      badge: 'UP TO ₹100 OFF',
+      desc: 'Get milk, curd, fresh fruits, bread, cold drinks and late-night munchies delivered in 10 minutes.',
+      code: 'DAILYBARABAR',
+      actionText: 'Order on Zepto / Blinkit',
+      url: 'https://www.zeptonow.com'
+    },
+    {
+      id: 'perk-cashback-card',
+      emoji: '💳',
+      name: '5% Daily Cashback Card',
+      brand: 'Zero-Fee Lifestyle Card',
+      badge: 'CASHBACK',
+      desc: 'Lifetime free credit card offering flat 5% cashback on groceries, dining, Swiggy, Zomato and fuel.',
+      code: 'CB5MAX',
+      actionText: 'View Card Offers',
+      url: 'https://www.onecard.co'
+    },
+    {
+      id: 'perk-fd-savings',
+      emoji: '📈',
+      name: 'High-Yield FDs & Savings',
+      brand: 'RBI Insured Wealth Tools',
+      badge: '8.5% INTEREST',
+      desc: 'Earn up to 8.5% p.a. on your emergency funds with instant withdrawal and RBI DICGC guarantee.',
+      code: 'GROW85',
+      actionText: 'Compare Rates',
+      url: 'https://stablemoney.in'
+    },
+    // Flat Perks
+    {
+      id: 'perk-flat-groceries',
+      emoji: '🥛',
+      name: 'Shared Flat Grocery Restock',
+      brand: 'Blinkit & Zepto Express',
+      badge: 'SHARED RESTOCK',
+      desc: 'Order water cans, cooking oil, spices, snacks and household cleaning supplies in 10 minutes.',
+      code: 'FLATMATE100',
+      actionText: 'Restock Flat',
+      url: 'https://blinkit.com'
+    },
+    {
+      id: 'perk-flat-cleaning',
+      emoji: '🧹',
+      name: 'Flat Deep Cleaning & AC Service',
+      brand: 'Urban Company Verified',
+      badge: 'UP TO 20% OFF',
+      desc: 'Split roommate cleaning, AC servicing, plumbing, and deep pest control with verified professionals.',
+      code: 'CLEANFLAT',
+      actionText: 'Book Service',
+      url: 'https://www.urbancompany.com'
+    },
+    {
+      id: 'perk-flat-bills',
+      emoji: '💡',
+      name: 'Flat Utility Bills Cashback',
+      brand: 'Utility Pay Hub',
+      badge: '₹50 CASHBACK',
+      desc: 'Pay electricity, Wi-Fi and piped gas bills with zero surcharge and split directly on Trip Barabar.',
+      code: 'BILLPAY50',
+      actionText: 'Pay Bills',
+      url: 'https://paytm.com/electricity-bill-payment'
+    },
+    // Trip Perks
+    {
+      id: 'perk-agoda',
+      emoji: '🏨',
+      name: 'Agoda Group Stays & Villas',
+      brand: 'Agoda Verified Partner',
+      badge: 'UP TO 15% OFF',
+      desc: 'Compare private pool villas, serviced apartments, and top-rated resorts with free cancellation.',
+      code: 'AGODAGROUP',
+      actionText: 'Search Stays on Agoda',
+      url: 'https://www.agoda.com'
+    },
+    {
+      id: 'perk-klook',
+      emoji: '🎟️',
+      name: 'Klook Tours & Experiences',
+      brand: 'Klook Experience Partner',
+      badge: 'INSTANT VOUCHER',
+      desc: 'Book verified island speedboats, snorkeling gear, skip-the-line tickets & airport van transfers.',
+      code: 'KLOOKTRIP',
+      actionText: 'Explore Klook Tours',
+      url: 'https://www.klook.com'
+    },
+    {
+      id: 'perk-airalo',
+      emoji: '📱',
+      name: 'Airalo Global Data eSIM',
+      brand: 'Airalo Global eSIM',
+      badge: '10% OFF CODE: TRIP10',
+      desc: 'Instant international mobile data in 200+ countries. Zero roaming bill shock, keep your WhatsApp number.',
+      code: 'TRIP10',
+      actionText: 'Get eSIM Data',
+      url: 'https://www.airalo.com'
+    },
+    {
+      id: 'perk-forex',
+      emoji: '💳',
+      name: 'Zero-Forex Markup Travel Card',
+      brand: 'Global Travel Card',
+      badge: '0% MARKUP',
+      desc: 'Save thousands on international card fees with 0% forex markup on POS transactions and ATM cash.',
+      code: 'NOFOREX',
+      actionText: 'Check Zero-Forex Card',
+      url: 'https://scapia.cards'
+    }
+  ];
+
+  const perk = allPerks.find(p => p.id === perkId);
+  if (!perk) return;
+
+  currentActivePerk = perk;
+
+  const emojiEl = document.getElementById('perkLauncherEmoji');
+  const badgeEl = document.getElementById('perkLauncherBadge');
+  const titleEl = document.getElementById('perkLauncherTitle');
+  const descEl = document.getElementById('perkLauncherDesc');
+  const codeEl = document.getElementById('perkLauncherCode');
+  const actionTextEl = document.getElementById('perkLauncherActionText');
+  const actionBtnEl = document.getElementById('perkLauncherActionBtn');
+
+  if (emojiEl) emojiEl.textContent = perk.emoji;
+  if (badgeEl) badgeEl.textContent = perk.badge;
+  if (titleEl) titleEl.textContent = perk.name;
+  if (descEl) descEl.textContent = perk.desc;
+  if (codeEl) codeEl.textContent = perk.code;
+  if (actionTextEl) actionTextEl.textContent = perk.actionText;
+  if (actionBtnEl) actionBtnEl.href = perk.url;
+
+  openModal('modalPerkLauncher');
+}
+
+function copyPerkCode() {
+  if (!currentActivePerk || !currentActivePerk.code) return;
+  navigator.clipboard.writeText(currentActivePerk.code).then(() => {
+    showToast(`✓ Copied promo code "${currentActivePerk.code}" to clipboard!`);
+  }).catch(() => {
+    showToast(`Code: ${currentActivePerk.code}`);
+  });
 }
 
 // ==================== ADD / EDIT EXPENSE MODAL LOGIC ====================
@@ -2514,24 +3626,53 @@ function openAddExpenseModal(editId = null) {
   state.isMultiPayer = false;
   state.splitMode = 'equal';
 
+  const isPersonal = trip.type === 'personal';
+  const whoPaidContainer = document.getElementById('containerWhoPaidSection');
+  const sharedWithContainer = document.getElementById('containerSharedWithSection');
+
+  if (isPersonal) {
+    if (whoPaidContainer) whoPaidContainer.classList.add('hidden');
+    if (sharedWithContainer) sharedWithContainer.classList.add('hidden');
+    document.getElementById('modalExpenseTitle').textContent = editId ? 'Edit Personal Expense' : 'Add Daily Expense';
+    document.getElementById('btnSaveExpenseText').textContent = editId ? 'Update Expense' : 'Save Personal Expense';
+  } else {
+    if (whoPaidContainer) whoPaidContainer.classList.remove('hidden');
+    if (sharedWithContainer) sharedWithContainer.classList.remove('hidden');
+    document.getElementById('modalExpenseTitle').textContent = editId ? 'Edit Expense' : 'Add New Expense';
+    document.getElementById('btnSaveExpenseText').textContent = editId ? 'Update Expense' : 'Save Expense & Update Balances';
+  }
+
   document.getElementById('expenseEditId').value = editId || '';
-  document.getElementById('modalExpenseTitle').textContent = editId ? 'Edit Expense' : 'Add New Expense';
-  document.getElementById('btnSaveExpenseText').textContent = editId ? 'Update Expense' : 'Save Expense & Update Balances';
   const initialCur = editId ? (trip.expenses.find(e => e.id === editId)?.currency || trip.baseCurrency) : trip.baseCurrency;
   document.getElementById('selectExpenseCurrency').value = initialCur;
   renderModalCurrencyPills(initialCur);
-  document.getElementById('inputExpenseDate').value = new Date().toISOString().split('T')[0];
+
+  // Smart Date Defaulting: In Personal Mode, default to currently selected month
+  const now = new Date();
+  if (isPersonal && (state.selectedMonth.year !== now.getFullYear() || state.selectedMonth.month !== now.getMonth())) {
+    const lastDay = new Date(state.selectedMonth.year, state.selectedMonth.month + 1, 0).getDate();
+    const mm = String(state.selectedMonth.month + 1).padStart(2, '0');
+    document.getElementById('inputExpenseDate').value = `${state.selectedMonth.year}-${mm}-${String(lastDay).padStart(2, '0')}`;
+  } else {
+    document.getElementById('inputExpenseDate').value = now.toISOString().split('T')[0];
+  }
+
+  // Pre-select Payment Method
+  const existingExp = editId ? trip.expenses.find(e => e.id === editId) : null;
+  const initialPayMethod = existingExp?.paymentMethod || localStorage.getItem('tb_last_payment_method') || 'upi';
+  setExpensePaymentMethod(initialPayMethod);
+
   document.getElementById('containerReceiptPreview').classList.add('hidden');
   document.getElementById('labelReceiptAttached').textContent = 'Attach Photo';
 
   // Render Category Grid in Modal
   renderModalCategoryGrid();
 
-  // Render Payers list
-  renderModalPayerSection();
-
-  // Render Shared With ("3 out of 9" rule)
-  renderModalSplitGrid();
+  // Render Payers list & split grid if group mode
+  if (!isPersonal) {
+    renderModalPayerSection();
+    renderModalSplitGrid();
+  }
 
   // If editing an existing expense, populate values
   if (editId) {
@@ -2543,6 +3684,9 @@ function openAddExpenseModal(editId = null) {
       renderModalCurrencyPills(exp.currency || trip.baseCurrency);
       document.getElementById('inputExpenseDate').value = exp.date || new Date().toISOString().split('T')[0];
       
+      // Payment Method
+      if (exp.paymentMethod) setExpensePaymentMethod(exp.paymentMethod);
+
       // Select category
       selectModalCategory(exp.categoryId);
 
@@ -2626,10 +3770,51 @@ function renderModalPayerSection() {
   const multiInputs = document.getElementById('multiPayerInputsList');
   if (!trip || !singleSelect || !multiInputs) return;
 
-  const savedUserName = (localStorage.getItem('tb_user_name') || '').toLowerCase();
-  const myId = (trip.myMemberId ? trip.members.find(m => m.id === trip.myMemberId)?.id : null) 
-    || (savedUserName ? trip.members.find(m => m.name.toLowerCase() === savedUserName)?.id : null)
-    || trip.members[0]?.id;
+  const authUser = window.AuthClient ? window.AuthClient.getCurrentUser() : null;
+  const currentUserName = (authUser?.name || localStorage.getItem('tb_user_name') || '').trim().toLowerCase();
+  const currentUserId = authUser?.id || localStorage.getItem('tb_user_id');
+
+  // Priority 1: Match logged-in user to a member in this trip by name or ID
+  let myId = null;
+  if (currentUserName) {
+    const foundByName = trip.members.find(m => m.name && m.name.trim().toLowerCase() === currentUserName);
+    if (foundByName) myId = foundByName.id;
+  }
+  if (!myId && currentUserId) {
+    const foundById = trip.members.find(m => m.userId === currentUserId);
+    if (foundById) myId = foundById.id;
+  }
+  // Auto-enlist logged in user as a member of this trip if not already present
+  if (!myId && currentUserName && currentUserName !== 'traveler') {
+    const rawName = (authUser?.name || localStorage.getItem('tb_user_name') || 'Traveler').trim();
+    const newMemberId = 'm_' + Date.now().toString(36);
+    const newMember = {
+      id: newMemberId,
+      name: rawName,
+      userId: currentUserId || null,
+      phone: authUser?.phone || '',
+      upi: '',
+      color: '#38BDF8'
+    };
+    trip.members.push(newMember);
+    myId = newMemberId;
+    localStorage.setItem(`tb_member_id_${trip.id}`, newMemberId);
+    saveTripsToStorage();
+    if (typeof syncActiveTripToCloud === 'function') {
+      syncActiveTripToCloud(false);
+    }
+  }
+  // Priority 2: Device-specific member preference
+  if (!myId) {
+    const localMemberId = localStorage.getItem(`tb_member_id_${trip.id}`);
+    if (localMemberId && trip.members.some(m => m.id === localMemberId)) {
+      myId = localMemberId;
+    }
+  }
+  // Priority 3: Fallback to first member
+  if (!myId) {
+    myId = trip.members[0]?.id;
+  }
 
   singleSelect.innerHTML = `
     <option value="kitty">💰 Trip Kitty / Common Pool (Treasurer Mode)</option>
@@ -2924,53 +4109,60 @@ function handleSaveExpense(event) {
     return;
   }
 
-  // Determine who paid
+  // Determine who paid & shared with
+  const isPersonal = trip.type === 'personal';
   let paidBy = [];
-  if (state.isMultiPayer) {
-    let multiTotal = 0;
-    trip.members.forEach(m => {
-      const input = document.getElementById(`multiPayerInput_${m.id}`);
-      const val = Number(input?.value) || 0;
-      if (val > 0) {
-        paidBy.push({ memberId: m.id, amount: val });
-        multiTotal += val;
-      }
-    });
-
-    if (Math.abs(multiTotal - amount) > 0.05) {
-      alert(`Multi-payer sum (${multiTotal.toFixed(2)}) must match the total amount (${amount.toFixed(2)}).`);
-      return;
-    }
-  } else {
-    const payerId = document.getElementById('selectSinglePayer').value;
-    paidBy = [{ memberId: payerId, amount: amount }];
-  }
-
-  // Determine shared with and custom splits
   const sharedWith = [];
   const exactSplits = {};
   const percentages = {};
   const shares = {};
 
-  trip.members.forEach(m => {
-    const cb = document.getElementById(`splitMemberCheckbox_${m.id}`);
-    if (cb && cb.checked) {
-      sharedWith.push(m.id);
-      const amtInput = document.getElementById(`splitAmountInput_${m.id}`);
-      const val = Number(amtInput?.value) || 0;
-      if (state.splitMode === 'exact') {
-        exactSplits[m.id] = val;
-      } else if (state.splitMode === 'percentage') {
-        percentages[m.id] = val;
-      } else if (state.splitMode === 'shares') {
-        shares[m.id] = val || 1;
-      }
-    }
-  });
+  if (isPersonal) {
+    const soloId = trip.members[0]?.id || 'm1';
+    paidBy = [{ memberId: soloId, amount: amount }];
+    sharedWith.push(soloId);
+  } else {
+    if (state.isMultiPayer) {
+      let multiTotal = 0;
+      trip.members.forEach(m => {
+        const input = document.getElementById(`multiPayerInput_${m.id}`);
+        const val = Number(input?.value) || 0;
+        if (val > 0) {
+          paidBy.push({ memberId: m.id, amount: val });
+          multiTotal += val;
+        }
+      });
 
-  if (sharedWith.length === 0) {
-    alert('Please select at least 1 person to share this expense with.');
-    return;
+      if (Math.abs(multiTotal - amount) > 0.05) {
+        alert(`Multi-payer sum (${multiTotal.toFixed(2)}) must match the total amount (${amount.toFixed(2)}).`);
+        return;
+      }
+    } else {
+      const payerId = document.getElementById('selectSinglePayer').value;
+      paidBy = [{ memberId: payerId, amount: amount }];
+    }
+
+    // Determine shared with and custom splits
+    trip.members.forEach(m => {
+      const cb = document.getElementById(`splitMemberCheckbox_${m.id}`);
+      if (cb && cb.checked) {
+        sharedWith.push(m.id);
+        const amtInput = document.getElementById(`splitAmountInput_${m.id}`);
+        const val = Number(amtInput?.value) || 0;
+        if (state.splitMode === 'exact') {
+          exactSplits[m.id] = val;
+        } else if (state.splitMode === 'percentage') {
+          percentages[m.id] = val;
+        } else if (state.splitMode === 'shares') {
+          shares[m.id] = val || 1;
+        }
+      }
+    });
+
+    if (sharedWith.length === 0) {
+      alert('Please select at least 1 person to share this expense with.');
+      return;
+    }
   }
 
   // Calculate home currency conversion
@@ -3002,6 +4194,13 @@ function handleSaveExpense(event) {
     }
   }
 
+  const authUser = window.AuthClient ? window.AuthClient.getCurrentUser() : null;
+  const currentUserId = authUser?.id || localStorage.getItem('tb_user_id') || 'guest';
+  const currentUserName = authUser?.name || localStorage.getItem('tb_user_name') || 'Traveler';
+
+  const payerLabel = isPaidFromKitty ? 'Trip Kitty' : (trip.members.find(m => m.id === paidBy[0]?.memberId)?.name || currentUserName);
+  const paymentMethod = document.getElementById('inputPaymentMethod')?.value || 'upi';
+
   const expenseObj = {
     id: editId || 'exp-' + Date.now(),
     title,
@@ -3009,7 +4208,9 @@ function handleSaveExpense(event) {
     currency,
     convertedAmount,
     categoryId: selectedModalCategoryId,
+    paymentMethod,
     paidBy,
+    paidByName: payerLabel,
     sharedWith,
     splitMode: state.splitMode,
     exactSplits: state.splitMode === 'exact' ? exactSplits : null,
@@ -3017,7 +4218,10 @@ function handleSaveExpense(event) {
     shares: state.splitMode === 'shares' ? shares : null,
     date,
     receipt: state.tempReceiptBase64,
-    createdAt: editId ? (trip.expenses.find(e => e.id === editId)?.createdAt || Date.now()) : Date.now()
+    createdAt: editId ? (trip.expenses.find(e => e.id === editId)?.createdAt || Date.now()) : Date.now(),
+    createdBy: editId ? (trip.expenses.find(e => e.id === editId)?.createdBy || currentUserId) : currentUserId,
+    createdByName: editId ? (trip.expenses.find(e => e.id === editId)?.createdByName || currentUserName) : currentUserName,
+    updatedAt: Date.now()
   };
 
   if (editId) {
@@ -3028,7 +4232,12 @@ function handleSaveExpense(event) {
     trip.expenses.push(expenseObj);
   }
 
-  const payerLabel = isPaidFromKitty ? 'Trip Kitty' : (trip.members.find(m => m.id === paidBy[0]?.memberId)?.name || 'Friend');
+  // If in personal mode, auto-align month view to the logged expense's month so it is immediately visible
+  if (isPersonal && date) {
+    const ym = getExpenseYearMonth({ date });
+    state.selectedMonth = { year: ym.year, month: ym.month };
+  }
+
   logActivity(editId ? 'edit' : 'expense', payerLabel, `${editId ? 'Updated' : 'Added'} "${title}" (${currency} ${amount})`, 'fa-receipt');
 
   saveTripsToStorage();
@@ -3041,14 +4250,59 @@ function handleSaveExpense(event) {
   queueSilentSync(expenseObj);
 }
 
+// ==================== 🛡️ EXPENSE OWNERSHIP & ROLE PERMISSIONS ====================
+function canUserModifyExpense(exp) {
+  const trip = state.activeTrip;
+  if (!trip || !exp) return false;
+
+  const authUser = window.AuthClient ? window.AuthClient.getCurrentUser() : null;
+  const currentUserName = (authUser?.name || localStorage.getItem('tb_user_name') || '').trim().toLowerCase();
+  const currentUserId = authUser?.id || localStorage.getItem('tb_user_id');
+
+  // Rule 1: Master Admin / Founder Ankuj has full override authority
+  const isMasterAdmin = (authUser && authUser.isAdmin) || 
+                        (currentUserName === 'ankuj') ||
+                        (trip.adminId && trip.adminId === currentUserId) ||
+                        (trip.members[0]?.id && trip.members[0]?.name?.toLowerCase() === currentUserName);
+  if (isMasterAdmin) return true;
+
+  // Rule 2: The person who paid or created the bill can modify it
+  let payerName = '';
+  if (Array.isArray(exp.paidBy)) {
+    payerName = trip.members.find(m => m.id === exp.paidBy[0]?.memberId)?.name || '';
+  } else {
+    payerName = trip.members.find(m => m.id === exp.paidBy)?.name || '';
+  }
+
+  const isPayer = payerName && currentUserName && payerName.trim().toLowerCase() === currentUserName;
+  const isCreator = (exp.createdBy && currentUserId && exp.createdBy === currentUserId) ||
+                    (exp.createdByName && currentUserName && exp.createdByName.trim().toLowerCase() === currentUserName);
+
+  return isPayer || isCreator;
+}
+
 function editExpense(expId) {
+  const trip = state.activeTrip;
+  const exp = trip?.expenses?.find(e => e.id === expId);
+  if (!canUserModifyExpense(exp)) {
+    SoundEffects.playClick();
+    showToast(`🔒 Only ${exp?.paidByName || 'creator'} or Trip Admin can edit this expense.`);
+    return;
+  }
   openAddExpenseModal(expId);
 }
 
 function deleteExpense(expId) {
-  if (!confirm('Are you sure you want to delete this expense?')) return;
   const trip = state.activeTrip;
-  const exp = trip.expenses.find(e => e.id === expId);
+  const exp = trip?.expenses?.find(e => e.id === expId);
+  if (!canUserModifyExpense(exp)) {
+    SoundEffects.playClick();
+    showToast(`🔒 Only ${exp?.paidByName || 'creator'} or Trip Admin can delete this expense.`);
+    return;
+  }
+
+  if (!confirm(`Delete expense "${exp?.title || 'Expense'}"? This action cannot be undone.`)) return;
+
   trip.expenses = trip.expenses.filter(e => e.id !== expId);
 
   // Tombstone tracking so cloud sync does not resurrect deleted expense
@@ -3057,7 +4311,8 @@ function deleteExpense(expId) {
     trip.deletedExpenseIds.push(expId);
   }
 
-  logActivity('delete', 'Friend', `Deleted expense "${exp?.title || 'Expense'}"`, 'fa-trash');
+  const currentUserName = window.AuthClient?.getCurrentUser()?.name || 'Friend';
+  logActivity('delete', currentUserName, `Deleted expense "${exp?.title || 'Expense'}"`, 'fa-trash');
 
   saveTripsToStorage();
   renderAll();
@@ -3492,7 +4747,75 @@ function selectNewTripCurrency(curr, sym, forex) {
   });
 }
 
+function selectSpaceType(type) {
+  const selectedInput = document.getElementById('selectedSpaceType');
+  if (selectedInput) selectedInput.value = type;
+
+  const types = ['trip', 'personal', 'flat'];
+  types.forEach(t => {
+    const btn = document.getElementById(`btnSpaceType-${t}`);
+    if (btn) {
+      if (t === type) {
+        btn.className = 'py-2 px-1 rounded-xl font-bold text-[11px] bg-brand-500 text-slate-950 transition-all flex flex-col items-center gap-0.5 shadow-md';
+      } else {
+        btn.className = 'py-2 px-1 rounded-xl font-bold text-[11px] text-slate-400 hover:text-white transition-all flex flex-col items-center gap-0.5';
+      }
+    }
+  });
+
+  const destDatesContainer = document.getElementById('containerNewTripDestDates');
+  const friendsContainer = document.getElementById('containerNewTripFriends');
+  const personalCallout = document.getElementById('calloutPersonalTracker');
+  const nameInput = document.getElementById('newTripName');
+  const destInput = document.getElementById('newTripDestination');
+  const datesInput = document.getElementById('newTripDates');
+  const friendsLabel = document.getElementById('labelNewTripFriends');
+  const friendsHint = document.getElementById('hintNewTripFriends');
+  const createBtnText = document.getElementById('textBtnCreateSpace');
+  const labelName = document.getElementById('labelNewTripName');
+
+  try { if (window.SoundEffects) window.SoundEffects.playClick(); } catch(e) {}
+
+  if (type === 'personal') {
+    if (destDatesContainer) destDatesContainer.classList.add('hidden');
+    if (friendsContainer) friendsContainer.classList.add('hidden');
+    if (personalCallout) personalCallout.classList.remove('hidden');
+    if (labelName) labelName.textContent = 'Tracker / Space Name *';
+    if (nameInput) nameInput.placeholder = 'e.g. My Personal Wallet, Daily Spends (October)';
+    if (destInput) destInput.value = 'Personal Wallet';
+    if (datesInput) datesInput.value = 'Daily / Ongoing';
+    if (createBtnText) createBtnText.textContent = 'Create Personal Tracker 🚀';
+    selectNewTripCurrency('INR', '₹', 1.0);
+  } else if (type === 'flat') {
+    if (destDatesContainer) destDatesContainer.classList.remove('hidden');
+    if (friendsContainer) friendsContainer.classList.remove('hidden');
+    if (personalCallout) personalCallout.classList.add('hidden');
+    if (labelName) labelName.textContent = 'Flat / Home Name *';
+    if (nameInput) nameInput.placeholder = 'e.g. Flat 302 Spends, Green Glen Roommates';
+    if (destInput) destInput.placeholder = 'e.g. Bangalore, Mumbai';
+    if (datesInput) datesInput.placeholder = 'e.g. Monthly / Ongoing';
+    if (friendsLabel) friendsLabel.textContent = 'Flatmates / Roommates Sharing Bills *';
+    if (friendsHint) friendsHint.textContent = 'Add your roommates so monthly rent, cook & WiFi are split easily.';
+    if (createBtnText) createBtnText.textContent = 'Create Flat Shared Space 🚀';
+    selectNewTripCurrency('INR', '₹', 1.0);
+  } else {
+    // trip
+    if (destDatesContainer) destDatesContainer.classList.remove('hidden');
+    if (friendsContainer) friendsContainer.classList.remove('hidden');
+    if (personalCallout) personalCallout.classList.add('hidden');
+    if (labelName) labelName.textContent = 'Trip Name *';
+    if (nameInput) nameInput.placeholder = 'e.g. Goa Sunburn 2026, Thailand Vows';
+    if (destInput) destInput.placeholder = 'e.g. Goa, Phuket, Dubai';
+    if (datesInput) datesInput.placeholder = 'e.g. Nov 14 - 18, 2026';
+    if (friendsLabel) friendsLabel.textContent = 'Friends Traveling With You *';
+    if (friendsHint) friendsHint.textContent = 'Enter traveling friends. You can add or edit members anytime.';
+    if (createBtnText) createBtnText.textContent = 'Create & Launch Trip 🚀';
+  }
+}
+window.selectSpaceType = selectSpaceType;
+
 function confirmCreateTripFromHub() {
+  const spaceType = document.getElementById('selectedSpaceType')?.value || 'trip';
   const nameInput = document.getElementById('newTripName');
   const destInput = document.getElementById('newTripDestination');
   const datesInput = document.getElementById('newTripDates');
@@ -3501,13 +4824,13 @@ function confirmCreateTripFromHub() {
 
   const name = nameInput ? nameInput.value.trim() : '';
   if (!name) {
-    showToast('⚠️ Please enter a trip name');
+    showToast(spaceType === 'personal' ? '⚠️ Please enter a name for your tracker' : '⚠️ Please enter a trip name');
     if (nameInput) nameInput.focus();
     return;
   }
 
-  const destination = destInput && destInput.value.trim() ? destInput.value.trim() : name;
-  const dates = datesInput && datesInput.value.trim() ? datesInput.value.trim() : 'Upcoming';
+  const destination = destInput && destInput.value.trim() ? destInput.value.trim() : (spaceType === 'personal' ? 'Personal Wallet' : name);
+  const dates = datesInput && datesInput.value.trim() ? datesInput.value.trim() : (spaceType === 'personal' ? 'Daily / Ongoing' : 'Upcoming');
   const curr = document.getElementById('selectedNewTripCurrency')?.value || 'INR';
   const sym = document.getElementById('selectedNewTripSymbol')?.value || '₹';
   const forex = Number(document.getElementById('selectedNewTripForex')?.value) || 1.0;
@@ -3515,32 +4838,24 @@ function confirmCreateTripFromHub() {
   // Creator's name
   let yourName = yourNameInput && yourNameInput.value.trim() 
     ? yourNameInput.value.trim() 
-    : (localStorage.getItem('tb_user_name') || '');
-
-  // Parse friends
-  const rawFriends = friendsInput && friendsInput.value.trim() 
-    ? friendsInput.value.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
-
-  if (!yourName && rawFriends.length === 0) {
-    showToast('⚠️ Please enter your name and traveling friends');
-    if (yourNameInput) yourNameInput.focus();
-    return;
-  }
+    : (localStorage.getItem('tb_user_name') || 'Ankuj');
 
   if (yourName) {
     localStorage.setItem('tb_user_name', yourName);
-  } else {
-    yourName = 'You';
   }
 
-  // Combine creator as #1, followed by friends (avoiding duplicate creator name)
-  const allNames = [yourName];
-  rawFriends.forEach(fn => {
-    if (fn.toLowerCase() !== yourName.toLowerCase() && !allNames.some(n => n.toLowerCase() === fn.toLowerCase())) {
-      allNames.push(fn);
-    }
-  });
+  // Parse members
+  let allNames = [yourName];
+  if (spaceType !== 'personal') {
+    const rawFriends = friendsInput && friendsInput.value.trim() 
+      ? friendsInput.value.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+    rawFriends.forEach(fn => {
+      if (fn.toLowerCase() !== yourName.toLowerCase() && !allNames.some(n => n.toLowerCase() === fn.toLowerCase())) {
+        allNames.push(fn);
+      }
+    });
+  }
 
   const colors = ['#0D9488', '#0284C7', '#7C3AED', '#D97706', '#E11D48', '#10B981', '#6366F1', '#EC4899', '#F59E0B'];
   const members = allNames.map((fn, idx) => ({
@@ -3551,15 +4866,17 @@ function confirmCreateTripFromHub() {
     color: colors[idx % colors.length]
   }));
 
-  const code = (name.replace(/[^A-Za-z]/g, '').slice(0, 4) || 'TRIP').toUpperCase() + Math.floor(10 + Math.random() * 90);
+  const codePrefix = spaceType === 'personal' ? 'SOLO' : (spaceType === 'flat' ? 'FLAT' : (name.replace(/[^A-Za-z]/g, '').slice(0, 4) || 'TRIP').toUpperCase());
+  const code = codePrefix + Math.floor(10 + Math.random() * 90);
 
   const newTrip = {
-    id: 'trip-' + Date.now(),
+    id: 'space-' + Date.now(),
+    type: spaceType,
     name: name,
     destination: destination,
     dates: dates,
     code: code,
-    theme: detectThemeFromTrip({ name, destination }),
+    theme: spaceType === 'personal' ? 'cyber' : detectThemeFromTrip({ name, destination }),
     baseCurrency: curr,
     currencySymbol: sym,
     homeCurrency: 'INR',
@@ -3578,12 +4895,12 @@ function confirmCreateTripFromHub() {
       contributors: members.map(m => m.id),
       transactions: []
     },
-    budget: { total: 0, days: 3, currency: curr },
+    budget: { total: 0, days: 30, currency: curr },
     pendingSettlements: [],
     activityLog: [{
       id: 'act-' + Date.now(),
-      action: 'create_trip',
-      text: `Created new trip "${name}" (${destination})`,
+      action: 'create_space',
+      text: spaceType === 'personal' ? `Created Personal Expense Tracker "${name}"` : `Created new space "${name}" (${destination})`,
       timestamp: Date.now(),
       memberId: members[0]?.id || 'm1'
     }]
@@ -3604,7 +4921,12 @@ function confirmCreateTripFromHub() {
   renderAll();
   SoundEffects.playVictory();
   fireConfetti();
-  showToast(`🎉 Created "${newTrip.name}"! Room Code: ${newTrip.code}`);
+  
+  if (spaceType === 'personal') {
+    showToast(`🎉 "${newTrip.name}" is ready! Log your daily spends anytime.`);
+  } else {
+    showToast(`🎉 Created "${newTrip.name}"! Room Code: ${newTrip.code}`);
+  }
   syncActiveTripToCloud(true);
 }
 
@@ -3617,6 +4939,345 @@ function handleJoinTripByCode() {
   }
   closeModal('modalJoinTripCode');
   joinTripByCode(code);
+}
+
+// ==================== 🧪 SOLO FOUNDER TEST LAB: 1-CLICK DEMO TRIP SIMULATOR ====================
+function loadDemoTripSimulator() {
+  const yourName = localStorage.getItem('tb_user_name') || 'Ankuj (You)';
+
+  const demoTrip = {
+    id: 'trip-bali-demo',
+    type: 'trip',
+    name: '🌴 Bali Dream Getaway',
+    destination: 'Seminyak & Ubud, Bali',
+    dates: '15th Nov - 21st Nov 2026',
+    code: 'BALI55',
+    theme: 'tropical',
+    baseCurrency: 'INR',
+    currencySymbol: '₹',
+    homeCurrency: 'INR',
+    homeCurrencySymbol: '₹',
+    forexRate: 1.0,
+    myMemberId: 'm1',
+    members: [
+      { id: 'm1', name: yourName.includes('(') ? yourName : `${yourName} (You)`, phone: '9876543210', upi: 'ankuj@okhdfcbank', color: '#0D9488' },
+      { id: 'm2', name: 'Kabir Sharma', phone: '9811122334', upi: 'kabir@okaxis', color: '#0284C7' },
+      { id: 'm3', name: 'Neha Verma', phone: '9822233445', upi: 'neha@icici', color: '#E11D48' },
+      { id: 'm4', name: 'Rahul Mehta', phone: '9833344556', upi: 'rahul@ybl', color: '#D97706' },
+      { id: 'm5', name: 'Simran Kaur', phone: '9844455667', upi: 'simran@paytm', color: '#7C3AED' }
+    ],
+    customCategories: [],
+    expenses: [
+      // 1. Villa (High value, equal split across all 5)
+      {
+        id: 'exp-b1',
+        title: '🏨 Luxury Seminyak Pool Villa (3 Nights)',
+        amount: 45000,
+        currency: 'INR',
+        convertedAmount: 45000,
+        categoryId: 'stay',
+        paidBy: [{ memberId: 'm1', amount: 45000 }],
+        paidByName: yourName,
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-15',
+        createdAt: Date.now() - 5 * 86400000,
+        createdBy: 'm1',
+        createdByName: yourName,
+        updatedAt: Date.now() - 5 * 86400000
+      },
+      // 2. Airport VIP Van (Kabir paid, equal)
+      {
+        id: 'exp-b2',
+        title: '🚖 Airport VIP HiAce Van Transfer',
+        amount: 3500,
+        currency: 'INR',
+        convertedAmount: 3500,
+        categoryId: 'cabs',
+        paidBy: [{ memberId: 'm2', amount: 3500 }],
+        paidByName: 'Kabir Sharma',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-15',
+        createdAt: Date.now() - 5 * 86400000 + 3600000,
+        createdBy: 'm2',
+        createdByName: 'Kabir Sharma',
+        updatedAt: Date.now() - 5 * 86400000 + 3600000
+      },
+      // 3. Beach Club Dinner (Neha paid, equal)
+      {
+        id: 'exp-b3',
+        title: '🍔 Potato Head Beach Club Sunset Dinner',
+        amount: 12500,
+        currency: 'INR',
+        convertedAmount: 12500,
+        categoryId: 'food',
+        paidBy: [{ memberId: 'm3', amount: 12500 }],
+        paidByName: 'Neha Verma',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-16',
+        createdAt: Date.now() - 4 * 86400000,
+        createdBy: 'm3',
+        createdByName: 'Neha Verma',
+        updatedAt: Date.now() - 4 * 86400000
+      },
+      // 4. Snorkeling Boat (Ankuj paid, selective split: m1, m2, m4)
+      {
+        id: 'exp-b4',
+        title: '🚤 Nusa Penida Manta Ray Snorkeling Boat',
+        amount: 15000,
+        currency: 'INR',
+        convertedAmount: 15000,
+        categoryId: 'boat',
+        paidBy: [{ memberId: 'm1', amount: 15000 }],
+        paidByName: yourName,
+        sharedWith: ['m1', 'm2', 'm4'],
+        splitMode: 'equal',
+        date: '2026-11-16',
+        createdAt: Date.now() - 4 * 86400000 + 7200000,
+        createdBy: 'm1',
+        createdByName: yourName,
+        updatedAt: Date.now() - 4 * 86400000 + 7200000
+      },
+      // 5. Spa & Massage (Simran paid, selective split: m1, m3, m5)
+      {
+        id: 'exp-b5',
+        title: '💆 Balinese Royal Herbal Spa & Flower Bath',
+        amount: 6000,
+        currency: 'INR',
+        convertedAmount: 6000,
+        categoryId: 'massage',
+        paidBy: [{ memberId: 'm5', amount: 6000 }],
+        paidByName: 'Simran Kaur',
+        sharedWith: ['m1', 'm3', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-16',
+        createdAt: Date.now() - 4 * 86400000 + 10800000,
+        createdBy: 'm5',
+        createdByName: 'Simran Kaur',
+        updatedAt: Date.now() - 4 * 86400000 + 10800000
+      },
+      // 6. Beer & Snacks (Rahul paid, equal)
+      {
+        id: 'exp-b6',
+        title: '🍻 Bintang Beer Crates & Circle-K Snacks',
+        amount: 2800,
+        currency: 'INR',
+        convertedAmount: 2800,
+        categoryId: 'drinks',
+        paidBy: [{ memberId: 'm4', amount: 2800 }],
+        paidByName: 'Rahul Mehta',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-17',
+        createdAt: Date.now() - 3 * 86400000,
+        createdBy: 'm4',
+        createdByName: 'Rahul Mehta',
+        updatedAt: Date.now() - 3 * 86400000
+      },
+      // 7. Mount Batur Sunrise Trek (Kabir paid, equal)
+      {
+        id: 'exp-b7',
+        title: '🌋 Mt. Batur Sunrise 4x4 Jeep Safari',
+        amount: 14000,
+        currency: 'INR',
+        convertedAmount: 14000,
+        categoryId: 'boat',
+        paidBy: [{ memberId: 'm2', amount: 14000 }],
+        paidByName: 'Kabir Sharma',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-17',
+        createdAt: Date.now() - 3 * 86400000 + 14400000,
+        createdBy: 'm2',
+        createdByName: 'Kabir Sharma',
+        updatedAt: Date.now() - 3 * 86400000 + 14400000
+      },
+      // 8. Ubud Cafe Brunch (Neha paid, equal)
+      {
+        id: 'exp-b8',
+        title: '🍔 Clear Cafe Ubud Organic Vegan Brunch',
+        amount: 4500,
+        currency: 'INR',
+        convertedAmount: 4500,
+        categoryId: 'food',
+        paidBy: [{ memberId: 'm3', amount: 4500 }],
+        paidByName: 'Neha Verma',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-18',
+        createdAt: Date.now() - 2 * 86400000,
+        createdBy: 'm3',
+        createdByName: 'Neha Verma',
+        updatedAt: Date.now() - 2 * 86400000
+      },
+      // 9. Scooter Rentals (Rahul paid, equal)
+      {
+        id: 'exp-b9',
+        title: '🚖 3x NMAX Scooters & Helmets (4 Days)',
+        amount: 5200,
+        currency: 'INR',
+        convertedAmount: 5200,
+        categoryId: 'cabs',
+        paidBy: [{ memberId: 'm4', amount: 5200 }],
+        paidByName: 'Rahul Mehta',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-18',
+        createdAt: Date.now() - 2 * 86400000 + 7200000,
+        createdBy: 'm4',
+        createdByName: 'Rahul Mehta',
+        updatedAt: Date.now() - 2 * 86400000 + 7200000
+      },
+      // 10. Rock Bar Cocktails (Simran paid, equal)
+      {
+        id: 'exp-b10',
+        title: '🍸 Rock Bar Ayana Sunset Cocktails',
+        amount: 9000,
+        currency: 'INR',
+        convertedAmount: 9000,
+        categoryId: 'drinks',
+        paidBy: [{ memberId: 'm5', amount: 9000 }],
+        paidByName: 'Simran Kaur',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-19',
+        createdAt: Date.now() - 86400000,
+        createdBy: 'm5',
+        createdByName: 'Simran Kaur',
+        updatedAt: Date.now() - 86400000
+      },
+      // 11. Luwak Coffee (Ankuj paid, custom exact split: m1=1500, m2=1000, m4=500)
+      {
+        id: 'exp-b11',
+        title: '🛍️ Kintamani Luwak Coffee & Silver Craft',
+        amount: 3000,
+        currency: 'INR',
+        convertedAmount: 3000,
+        categoryId: 'shopping',
+        paidBy: [{ memberId: 'm1', amount: 3000 }],
+        paidByName: yourName,
+        sharedWith: ['m1', 'm2', 'm4'],
+        splitMode: 'exact',
+        exactSplits: { m1: 1500, m2: 1000, m4: 500 },
+        date: '2026-11-19',
+        createdAt: Date.now() - 86400000 + 3600000,
+        createdBy: 'm1',
+        createdByName: yourName,
+        updatedAt: Date.now() - 86400000 + 3600000
+      },
+      // 12. Pre-trip Flight Coordination (Rahul paid, equal)
+      {
+        id: 'exp-b12',
+        title: '✈️ Group Flight Seat & Extra Bag Advance',
+        amount: 7500,
+        currency: 'INR',
+        convertedAmount: 7500,
+        categoryId: 'flight',
+        paidBy: [{ memberId: 'm4', amount: 7500 }],
+        paidByName: 'Rahul Mehta',
+        sharedWith: ['m1', 'm2', 'm3', 'm4', 'm5'],
+        splitMode: 'equal',
+        date: '2026-11-14',
+        createdAt: Date.now() - 6 * 86400000,
+        createdBy: 'm4',
+        createdByName: 'Rahul Mehta',
+        updatedAt: Date.now() - 6 * 86400000
+      }
+    ],
+    settlements: [
+      {
+        id: 'stl-bali-demo-1',
+        fromMemberId: 'm2',
+        toMemberId: 'm1',
+        amount: 5000,
+        note: 'Partial GPay transfer for Villa Advance',
+        date: '2026-11-17',
+        createdAt: Date.now() - 2 * 86400000
+      }
+    ],
+    itinerary: [
+      {
+        id: 'itin-1',
+        day: 1,
+        title: 'Arrival in Denpasar & Villa Check-in',
+        time: '14:00',
+        category: 'stay',
+        location: 'Seminyak, Bali',
+        cost: 45000,
+        notes: 'Private Pool Villa booked'
+      },
+      {
+        id: 'itin-2',
+        day: 2,
+        title: 'Nusa Penida Manta Ray Snorkeling Trip',
+        time: '08:00',
+        category: 'tour',
+        location: 'Sanur Harbor',
+        cost: 15000,
+        notes: 'Speedboat departure at 08:30 AM'
+      },
+      {
+        id: 'itin-3',
+        day: 3,
+        title: 'Mt Batur Sunrise 4x4 Jeep Safari',
+        time: '04:00',
+        category: 'tour',
+        location: 'Kintamani',
+        cost: 14000,
+        notes: 'Pick up at 3:15 AM'
+      }
+    ],
+    kitty: {
+      balance: 0,
+      targetPerMember: 0,
+      totalCollected: 0,
+      contributors: ['m1', 'm2', 'm3', 'm4', 'm5'],
+      transactions: []
+    },
+    budget: { total: 150000, days: 7, currency: 'INR' },
+    pendingSettlements: [],
+    activityLog: [
+      {
+        id: 'act-1',
+        action: 'create_space',
+        text: 'Created Group Trip "🌴 Bali Dream Getaway" with 5 friends',
+        timestamp: Date.now() - 6 * 86400000,
+        memberId: 'm1'
+      },
+      {
+        id: 'act-2',
+        action: 'settle',
+        text: 'Kabir transferred ₹5,000 to Ankuj (UPI)',
+        timestamp: Date.now() - 2 * 86400000,
+        memberId: 'm2'
+      }
+    ]
+  };
+
+  // Replace existing or append
+  const existingIdx = state.trips.findIndex(t => t.id === 'trip-bali-demo');
+  if (existingIdx !== -1) {
+    state.trips[existingIdx] = demoTrip;
+  } else {
+    state.trips.push(demoTrip);
+  }
+
+  state.activeTrip = demoTrip;
+  localStorage.setItem(STORAGE_KEYS.ACTIVE_TRIP_ID, demoTrip.id);
+  saveTripsToStorage();
+
+  closeModal('modalTripSwitcher');
+  enterActiveTripWorkspace('trip-bali-demo');
+
+  // Trigger audio & visual delight
+  if (window.SoundEffects && SoundEffects.playVictory) SoundEffects.playVictory();
+  if (typeof fireConfetti === 'function') fireConfetti();
+
+  // Show the guided walkthrough modal
+  openModal('modalDemoExplainer');
+  showToast('🧪 Bali 5-Person Simulation Loaded! Math & Splits Ready.');
 }
 
 async function joinTripByCode(directCode) {
@@ -4157,26 +5818,42 @@ async function checkUrlForJoinCode() {
 // ==================== TAB SWITCHING & HELPERS ====================
 function switchTab(tabId) {
   state.activeTab = tabId;
-  const tabs = ['expenses', 'settle', 'analytics', 'settings'];
 
-  tabs.forEach(t => {
-    const section = document.getElementById(`tab-${t}`);
-    const navBtn = document.getElementById(`nav-btn-${t}`);
+  // Map aliases for tabs: 'hub' -> 'settings', 'friends' -> 'settings' (or dedicated sections if present)
+  let targetSectionId = tabId;
+  if (tabId === 'hub') {
+    targetSectionId = document.getElementById('tab-hub') ? 'hub' : 'settings';
+  } else if (tabId === 'friends') {
+    targetSectionId = document.getElementById('tab-friends') ? 'friends' : 'settings';
+  }
+
+  const allSections = ['expenses', 'settle', 'analytics', 'settings', 'hub', 'friends'];
+  allSections.forEach(s => {
+    const section = document.getElementById(`tab-${s}`);
     if (section) {
-      if (t === tabId) {
+      if (s === targetSectionId) {
         section.classList.remove('hidden');
       } else {
         section.classList.add('hidden');
       }
     }
+  });
+
+  const allNavButtons = ['expenses', 'settle', 'hub', 'friends', 'analytics', 'settings'];
+  allNavButtons.forEach(btnId => {
+    const navBtn = document.getElementById(`nav-btn-${btnId}`);
     if (navBtn) {
-      if (t === tabId) {
+      if (btnId === tabId) {
         navBtn.className = 'flex flex-col items-center py-1 rounded-xl text-brand-400 font-bold transition-all active-press';
       } else {
         navBtn.className = 'flex flex-col items-center py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active-press';
       }
     }
   });
+
+  if (targetSectionId === 'analytics') {
+    renderAnalyticsTab();
+  }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4737,7 +6414,7 @@ function submitHinglishEntry() {
 
   const parsed = parseHinglishInput(text);
   if (!parsed || !parsed.amount || parsed.amount <= 0) {
-    showToast('⚠️ Could not find amount. Try e.g. "Rohan 1200 dinner sabme"');
+    showToast('⚠️ Could not find amount. Try e.g. "Rohan 1200 dinner sabme" or "500 petrol cash"');
     return;
   }
 
@@ -4749,6 +6426,10 @@ function submitHinglishEntry() {
   updateModalCurrencyPreview();
 
   selectModalCategory(parsed.categoryId);
+
+  if (parsed.paymentMethod) {
+    setExpensePaymentMethod(parsed.paymentMethod);
+  }
 
   if (parsed.payerId === 'kitty') {
     document.getElementById('selectSinglePayer').value = 'kitty';
@@ -4815,10 +6496,22 @@ function parseHinglishInput(rawText) {
 
   if (text.includes('dinner') || text.includes('lunch') || text.includes('khana') || text.includes('food') || text.includes('burger') || text.includes('pizza') || text.includes('seafood') || text.includes('breakfast')) {
     categoryId = 'food';
-    title = text.includes('dinner') ? 'Dinner Feast' : (text.includes('lunch') ? 'Lunch' : 'Food & Dining');
-  } else if (text.includes('cab') || text.includes('taxi') || text.includes('grab') || text.includes('bolt') || text.includes('uber') || text.includes('auto')) {
+    title = text.includes('dinner') ? 'Dinner Feast' : (text.includes('lunch') ? 'Lunch' : (text.includes('breakfast') ? 'Breakfast' : 'Food & Dining'));
+  } else if (text.includes('coffee') || text.includes('chai') || text.includes('tea') || text.includes('cafe') || text.includes('starbucks')) {
+    categoryId = 'food';
+    title = text.includes('coffee') ? 'Coffee' : (text.includes('chai') || text.includes('tea') ? 'Chai / Tea' : 'Cafe & Beverages');
+  } else if (text.includes('grocery') || text.includes('groceries') || text.includes('sabzi') || text.includes('doodh') || text.includes('milk') || text.includes('supermarket') || text.includes('zepto') || text.includes('blinkit') || text.includes('instamart')) {
+    categoryId = 'shopping';
+    title = 'Groceries & Essentials';
+  } else if (text.includes('medicine') || text.includes('pharmacy') || text.includes('chemist') || text.includes('dawai') || text.includes('doctor')) {
+    categoryId = 'tips';
+    title = 'Pharmacy & Health';
+  } else if (text.includes('rent') || text.includes('electricity') || text.includes('bijli') || text.includes('recharge') || text.includes('wifi') || text.includes('bill')) {
+    categoryId = 'tips';
+    title = 'Bills & Utilities';
+  } else if (text.includes('cab') || text.includes('taxi') || text.includes('grab') || text.includes('bolt') || text.includes('uber') || text.includes('ola') || text.includes('auto')) {
     categoryId = 'cabs';
-    title = text.includes('grab') ? 'Grab Ride' : 'Cab / Transport';
+    title = text.includes('grab') ? 'Grab Ride' : (text.includes('uber') ? 'Uber Ride' : (text.includes('ola') ? 'Ola Ride' : 'Cab / Transport'));
   } else if (text.includes('beer') || text.includes('drinks') || text.includes('daaru') || text.includes('alcohol') || text.includes('whiskey') || text.includes('cocktail') || text.includes('club') || text.includes('party')) {
     categoryId = 'drinks';
     title = text.includes('club') ? 'Nightclub Party' : 'Beer & Drinks';
@@ -4837,9 +6530,9 @@ function parseHinglishInput(rawText) {
   } else if (text.includes('flight') || text.includes('ticket')) {
     categoryId = 'flight';
     title = 'Flight Tickets';
-  } else if (text.includes('shopping') || text.includes('7-eleven') || text.includes('seven eleven')) {
+  } else if (text.includes('shopping') || text.includes('7-eleven') || text.includes('seven eleven') || text.includes('clothes') || text.includes('mall')) {
     categoryId = 'shopping';
-    title = '7-Eleven & Shopping';
+    title = 'Shopping & Essentials';
   }
 
   // 4. Shared With Extraction
@@ -4864,6 +6557,20 @@ function parseHinglishInput(rawText) {
     }
   }
 
+  // 5. Payment Method Extraction
+  let paymentMethod = null;
+  if (text.includes('credit card') || text.includes('creditcard') || /\bcc\b/i.test(text) || text.includes('cred')) {
+    paymentMethod = 'credit_card';
+  } else if (text.includes('debit card') || text.includes('debitcard') || /\bdc\b/i.test(text) || text.includes('atm card') || text.includes('debit')) {
+    paymentMethod = 'debit_card';
+  } else if (text.includes('cash') || text.includes('rokda') || text.includes('nakad') || text.includes('cash me') || text.includes('in cash')) {
+    paymentMethod = 'cash';
+  } else if (text.includes('net banking') || text.includes('netbanking') || text.includes('bank transfer') || text.includes('neft') || text.includes('rtgs') || text.includes('imps') || text.includes('account transfer')) {
+    paymentMethod = 'net_banking';
+  } else if (text.includes('upi') || text.includes('gpay') || text.includes('google pay') || text.includes('phonepe') || text.includes('phone pe') || text.includes('paytm') || text.includes('bhim') || text.includes('qr') || text.includes('scan')) {
+    paymentMethod = 'upi';
+  }
+
   return {
     amount,
     currency,
@@ -4871,6 +6578,7 @@ function parseHinglishInput(rawText) {
     categoryId,
     title,
     sharedWith,
+    paymentMethod,
     rawText
   };
 }
@@ -7735,6 +9443,373 @@ function updateLogoPickerUI(activeKey) {
       }
     }
   });
+}
+
+// ==================== 🔐 AUTHENTICATION & LOGIN UI HANDLERS ====================
+async function handleGoogleSignIn() {
+  try { if (window.SoundEffects) window.SoundEffects.playClick(); } catch (e) {}
+  const nameInput = document.getElementById('authInputName')?.value?.trim();
+  try {
+    const res = await window.AuthClient.loginWithGoogle(nameInput || 'Traveler');
+    if (res.success) {
+      closeModal('modalAuthLogin');
+      try { if (window.SoundEffects) window.SoundEffects.playVictory(); } catch (e) {}
+      fireConfetti();
+      showToast(`🎉 Welcome to Trip Barabar, ${res.user.name}!`);
+      renderAll();
+    }
+  } catch (err) {
+    console.error('Google sign in error:', err);
+    showToast(`⚠️ Login failed: ${err.message}`);
+  }
+}
+
+async function handleSendOtp() {
+  const phoneInput = document.getElementById('authInputPhone');
+  const nameInput = document.getElementById('authInputName');
+  const btn = document.getElementById('btnSendMobileOtp');
+  const phone = phoneInput ? phoneInput.value.trim() : '';
+  const name = nameInput ? nameInput.value.trim() : '';
+
+  if (!name) {
+    showToast('⚠️ Please enter your name first');
+    if (nameInput) nameInput.focus();
+    return;
+  }
+  if (!phone || phone.length < 8) {
+    showToast('⚠️ Please enter a valid 10-digit mobile number');
+    if (phoneInput) phoneInput.focus();
+    return;
+  }
+
+  try { if (window.SoundEffects) window.SoundEffects.playClick(); } catch (e) {}
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Sending OTP...</span>';
+  }
+
+  try {
+    const res = await window.AuthClient.sendMobileOtp(phone);
+    showToast(`✓ OTP Sent! Demo code: ${res.debugOtp || '1234'}`);
+    const step1 = document.getElementById('authMobileStep1');
+    const step2 = document.getElementById('authMobileStep2');
+    if (step1) step1.classList.add('hidden');
+    if (step2) step2.classList.remove('hidden');
+    const otpInput = document.getElementById('authInputOtp');
+    if (otpInput) {
+      otpInput.value = res.debugOtp || '1234';
+      setTimeout(() => otpInput.focus(), 100);
+    }
+  } catch (err) {
+    console.error('sendMobileOtp error:', err);
+    showToast(`⚠️ ${err.message || 'Error sending OTP'}`);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Send 4-Digit OTP</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>';
+    }
+  }
+}
+
+function handleBackToPhone() {
+  const step1 = document.getElementById('authMobileStep1');
+  const step2 = document.getElementById('authMobileStep2');
+  if (step1) step1.classList.remove('hidden');
+  if (step2) step2.classList.add('hidden');
+}
+
+async function handleVerifyOtp() {
+  const phone = document.getElementById('authInputPhone')?.value?.trim() || '';
+  const name = document.getElementById('authInputName')?.value?.trim() || 'Traveler';
+  const otp = document.getElementById('authInputOtp')?.value?.trim() || '';
+  const btn = document.getElementById('btnVerifyMobileOtp');
+
+  if (!otp) {
+    showToast('⚠️ Please enter the 4-digit OTP');
+    return;
+  }
+
+  try { if (window.SoundEffects) window.SoundEffects.playClick(); } catch (e) {}
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Verifying...</span>';
+  }
+
+  try {
+    const res = await window.AuthClient.verifyMobileOtp(phone, otp, name);
+    if (res.success) {
+      closeModal('modalAuthLogin');
+      try { if (window.SoundEffects) window.SoundEffects.playVictory(); } catch (e) {}
+      fireConfetti();
+      showToast(`🎉 Verified! Welcome, ${res.user.name}!`);
+      renderAll();
+    }
+  } catch (err) {
+    console.error('verifyMobileOtp error:', err);
+    showToast(`❌ ${err.message || 'Verification failed'}`);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Verify & Continue</span> <i class="fa-solid fa-check text-xs"></i>';
+    }
+  }
+}
+
+async function handleQuickFounderLogin() {
+  try { if (window.SoundEffects) window.SoundEffects.playClick(); } catch (e) {}
+  try {
+    const res = await window.AuthClient.loginWithGoogle('Ankuj', 'ankuj@tripbarabar.com');
+    if (res.success) {
+      closeModal('modalAuthLogin');
+      try { if (window.SoundEffects) window.SoundEffects.playVictory(); } catch (e) {}
+      fireConfetti();
+      showToast(`👑 Welcome back, Founder Ankuj! (Admin Mode Active)`);
+      renderAll();
+    }
+  } catch (err) {
+    console.error('Founder login error:', err);
+    showToast(`⚠️ ${err.message}`);
+  }
+}
+
+function handleLogout() {
+  if (!confirm('Sign out of your Trip Barabar account?')) return;
+  window.AuthClient.logout();
+  closeModal('modalUserProfile');
+  showToast('✓ Signed out successfully');
+  showAppLobby();
+  openModal('modalAuthLogin');
+}
+
+function openUserProfileModal() {
+  const u = window.AuthClient.getCurrentUser();
+  const contactEl = document.getElementById('profileUserContact');
+  if (contactEl && u) {
+    contactEl.textContent = u.phone || u.email || 'Verified Traveler';
+  }
+  openModal('modalUserProfile');
+}
+
+// ==================== 💬 CUSTOMER FEEDBACK & HELPDESK ====================
+function openCustomerFeedbackModal() {
+  openModal('modalCustomerFeedback');
+}
+
+function setFeedbackRating(val) {
+  const input = document.getElementById('feedbackRatingValue');
+  if (input) input.value = val;
+  const starsContainer = document.getElementById('feedbackRatingStars');
+  if (starsContainer) {
+    const stars = starsContainer.querySelectorAll('span');
+    stars.forEach((s, idx) => {
+      s.className = (idx < val) ? 'text-amber-400 cursor-pointer' : 'text-slate-600 cursor-pointer';
+    });
+  }
+  SoundEffects.playClick();
+}
+
+async function submitCustomerFeedback(e) {
+  e.preventDefault();
+  const category = document.getElementById('feedbackCategory')?.value || 'Suggestion';
+  const rating = document.getElementById('feedbackRatingValue')?.value || 5;
+  const message = document.getElementById('feedbackMessageText')?.value || '';
+
+  if (!message.trim()) {
+    showToast('⚠️ Please type your message');
+    return;
+  }
+
+  SoundEffects.playClick();
+  const res = await window.AuthClient.submitFeedback({
+    category,
+    rating,
+    message,
+    tripCode: state.activeTrip?.code || ''
+  });
+
+  closeModal('modalCustomerFeedback');
+  document.getElementById('formCustomerFeedback')?.reset();
+  SoundEffects.playVictory();
+  fireConfetti();
+  showToast(res.message || '🎉 Thank you! Feedback sent to Founder Ankuj.');
+}
+
+// ==================== 👑 FOUNDER CONSOLE & USER DIRECTORY ====================
+let founderConsoleTab = 'users';
+
+async function openFounderConsoleModal() {
+  openModal('modalFounderConsole');
+  await renderFounderConsole();
+}
+
+function switchFounderTab(tab) {
+  founderConsoleTab = tab;
+  const btnUsers = document.getElementById('btnFounderTabUsers');
+  const btnFeedback = document.getElementById('btnFounderTabFeedback');
+  const secUsers = document.getElementById('founderUsersSection');
+  const secFeedback = document.getElementById('founderFeedbackSection');
+
+  if (tab === 'users') {
+    if (btnUsers) btnUsers.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-brand-500 text-slate-950 shadow-sm';
+    if (btnFeedback) btnFeedback.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white';
+    if (secUsers) secUsers.classList.remove('hidden');
+    if (secFeedback) secFeedback.classList.add('hidden');
+  } else {
+    if (btnUsers) btnUsers.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white';
+    if (btnFeedback) btnFeedback.className = 'px-3 py-1 rounded-xl text-xs font-bold bg-brand-500 text-slate-950 shadow-sm';
+    if (secUsers) secUsers.classList.add('hidden');
+    if (secFeedback) secFeedback.classList.remove('hidden');
+  }
+  SoundEffects.playClick();
+}
+
+async function renderFounderConsole() {
+  const usersRes = await window.AuthClient.getFounderUsers();
+  const fbRes = await window.AuthClient.getFounderFeedback();
+
+  const users = usersRes.users || [];
+  const feedback = fbRes.feedback || [];
+
+  const statUsers = document.getElementById('founderStatTotalUsers');
+  const statTrips = document.getElementById('founderStatTotalTrips');
+  const statFb = document.getElementById('founderStatTotalFeedback');
+
+  if (statUsers) statUsers.textContent = users.length;
+  if (statTrips) statTrips.textContent = (state.trips || []).length;
+  if (statFb) statFb.textContent = feedback.length;
+
+  // 1. Render Users Table
+  const usersListEl = document.getElementById('founderUsersList');
+  if (usersListEl) {
+    if (users.length === 0) {
+      usersListEl.innerHTML = '<div class="text-center py-4 text-slate-500">No registered users yet.</div>';
+    } else {
+      usersListEl.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+              <tr>
+                <th class="py-2 px-1">User</th>
+                <th class="py-2 px-1">Contact</th>
+                <th class="py-2 px-1">Location</th>
+                <th class="py-2 px-1">Device</th>
+                <th class="py-2 px-1">Role</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              ${users.map(u => `
+                <tr class="hover:bg-slate-900/40">
+                  <td class="py-2 px-1 font-bold text-white flex items-center gap-1.5">
+                    <span class="w-5 h-5 rounded-md bg-brand-500/20 text-brand-400 flex items-center justify-center text-[10px]">${(u.name || 'U').charAt(0)}</span>
+                    <span>${escapeHtml(u.name)}</span>
+                  </td>
+                  <td class="py-2 px-1 text-slate-300 font-mono text-[11px]">${escapeHtml(u.phone || u.email || '—')}</td>
+                  <td class="py-2 px-1 text-slate-400">${escapeHtml(u.location?.city || 'Local')}, ${escapeHtml(u.location?.country || 'India')}</td>
+                  <td class="py-2 px-1 text-slate-400 text-[10px]">${escapeHtml(u.device?.platform || 'Mobile')}</td>
+                  <td class="py-2 px-1">
+                    ${u.isAdmin ? '<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">FOUNDER</span>' : '<span class="text-[9px] text-slate-400">User</span>'}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+  }
+
+  // 2. Render Feedback List
+  const fbListEl = document.getElementById('founderFeedbackList');
+  if (fbListEl) {
+    if (feedback.length === 0) {
+      fbListEl.innerHTML = '<div class="text-center py-4 text-slate-500">No customer feedback yet.</div>';
+    } else {
+      fbListEl.innerHTML = feedback.map(f => `
+        <div class="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white">${escapeHtml(f.userName)}</span>
+              <span class="text-[10px] text-slate-400 font-mono">(${escapeHtml(f.userContact || 'No contact')})</span>
+            </div>
+            <div class="flex items-center gap-1 text-amber-400 text-xs">
+              ${'★'.repeat(f.rating || 5)}
+              <span class="text-[10px] font-bold px-1.5 rounded bg-slate-800 text-slate-300 ml-1">${escapeHtml(f.category)}</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80">
+            "${escapeHtml(f.message)}"
+          </p>
+          ${f.reply ? `
+            <div class="p-2 rounded-xl bg-brand-500/10 border border-brand-500/30 text-[11px] text-brand-300">
+              <strong>Your Reply:</strong> ${escapeHtml(f.reply)}
+            </div>
+          ` : `
+            <div class="flex items-center gap-2 pt-1">
+              <input type="text" id="inputReply_${f.id}" placeholder="Type reply or solution..." 
+                class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none">
+              <button onclick="sendFeedbackReply('${f.id}')" 
+                class="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs shrink-0 active-press">
+                Reply
+              </button>
+            </div>
+          `}
+        </div>
+      `).join('');
+    }
+  }
+}
+
+async function sendFeedbackReply(fbId) {
+  const input = document.getElementById(`inputReply_${fbId}`);
+  const replyText = input ? input.value.trim() : '';
+  if (!replyText) {
+    showToast('⚠️ Please type a reply');
+    return;
+  }
+
+  SoundEffects.playClick();
+  const res = await window.AuthClient.replyToFeedback(fbId, replyText);
+  if (res.success) {
+    SoundEffects.playVictory();
+    showToast('✓ Reply sent and recorded!');
+    await renderFounderConsole();
+  } else {
+    showToast('❌ Failed to record reply');
+  }
+}
+
+async function exportUsersCsv() {
+  const usersRes = await window.AuthClient.getFounderUsers();
+  const users = usersRes.users || [];
+  if (users.length === 0) {
+    showToast('No users to export');
+    return;
+  }
+
+  const headers = ['User ID', 'Name', 'Phone', 'Email', 'Platform', 'City', 'Country', 'Registered Date', 'Role'];
+  const rows = users.map(u => [
+    `"${u.id || ''}"`,
+    `"${(u.name || '').replace(/"/g, '""')}"`,
+    `"${u.phone || ''}"`,
+    `"${u.email || ''}"`,
+    `"${u.device?.platform || ''}"`,
+    `"${u.location?.city || ''}"`,
+    `"${u.location?.country || ''}"`,
+    `"${new Date(u.createdAt || Date.now()).toISOString()}"`,
+    `"${u.isAdmin ? 'Admin' : 'User'}"`
+  ]);
+
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `trip_barabar_users_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('✓ Exported users list to CSV');
 }
 
 // Start application when DOM is ready

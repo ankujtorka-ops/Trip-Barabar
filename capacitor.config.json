@@ -1,8 +1,7 @@
 {
   "appId": "com.tripbarabar.app",
   "appName": "Trip Barabar",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "server": {
     "androidScheme": "https"
   },

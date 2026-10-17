@@ -403,20 +403,20 @@ const SecurityVault = {
     const overlay = document.getElementById('privacyShieldOverlay');
     if (!overlay) return;
 
-    // Blur viewport when user switches window, minimizes app, or switches tabs
+    // Only blur if PIN / vault protection is actively enabled by user
     const handleFocusLoss = () => {
-      overlay.classList.remove('hidden');
+      if (this.isPinEnabled()) {
+        overlay.classList.remove('hidden');
+      }
     };
 
     const handleFocusGain = () => {
-      // Only unblur if not PIN locked
       if (this.isUnlocked) {
         overlay.classList.add('hidden');
       }
     };
 
-    window.addEventListener('blur', handleFocusLoss);
-    window.addEventListener('focus', handleFocusGain);
+    // On mobile, only trigger on actual document hidden (app minimized/task switched), not window.blur
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) handleFocusLoss();
       else handleFocusGain();

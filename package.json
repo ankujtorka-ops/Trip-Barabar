@@ -5,7 +5,8 @@
   "main": "index.html",
   "scripts": {
     "start": "node server.js",
-    "cap:sync": "npx.cmd cap sync",
+    "build": "node build.js",
+    "cap:sync": "node build.js && npx.cmd cap sync android",
     "cap:android": "npx.cmd cap open android",
     "cap:ios": "npx.cmd cap open ios"
   },

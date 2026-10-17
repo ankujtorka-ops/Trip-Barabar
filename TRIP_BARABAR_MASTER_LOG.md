@@ -173,3 +173,33 @@ npx.cmd cap open ios
 ### 12. Print / PDF Statement Export
 * Formatted printable travel invoice statement view with `@media print` CSS styling for crisp PDF export and physical printouts.
 
+### 13. 3-Space Mode Engine (Travel, Daily Tracker & Flatmates)
+* **✈️ Group Trip**: Full vacation splitting, multi-currency conversion, Hisaab debt simplification.
+* **👤 Personal Tracker**: Solo expense diary with 3-second rapid bill logging, daily run rate, monthly budget pace, and category charts (payer & split fields automatically hidden).
+* **🏠 Flat / Home**: Roommates recurring bills (rent, groceries, electricity, broadband).
+
+### 14. Founder Admin Console & Bi-Directional Helpdesk
+* Live telemetry: user device, OS, screen resolution, local IP, timestamps persisted in `data/users.json`.
+* Customer review & feedback submission with founder direct reply engine (`data/feedback.json`).
+* One-click CSV export for customer list and feedback tickets.
+
+### 15. Default Payer Auto-Assignment & Anti-Tampering Engine
+* Automatically selects the logged-in user as primary payer.
+* Non-authors receive locked "View Only" cards to prevent unauthorized tampering or deletion.
+
+### 16. 1-Click Solo Founder Test Lab & Stress Test
+* Injects 5 friends and 12 complex real-world expenses (villa, airport van, beach club dinner, selective island boat split, selective spa split, exact rupee split, flight advance, GPay settlement).
+* Mathematically simplifies 12 cross-payments into 4 clean UPI transfers with ₹0.00 discrepancy.
+
+### 17. Native Android Packaging & Automated Cloud CI/CD
+* Capacitor 6.2 native Android configuration (`com.tripbarabar.app`).
+* Automated `build.js` pipeline preparing `<5MB` compact assets in `/www`.
+* GitHub Actions workflow (`.github/workflows/build-apk.yml`) for automated cloud compilation into installable `app-debug.apk`.
+
+### 18. Smart Lifestyle & Travel Perks Engine (Monetization Architecture)
+* **Personal Mode**: Quick commerce (Blinkit, Zepto, Swiggy Instamart), 5% daily cashback cards, 8.5% RBI-insured FDs.
+* **Flat Mode**: Flat supplies restock, utility bill cashback, Urban Company home services.
+* **Group Trip Mode**: Agoda & Booking.com villas, Klook tours & speedboats, Airalo international eSIMs (`TRIP10`), Zero-Forex travel cards.
+* Interactive `modalPerkLauncher` with coupon code copying and affiliate deep links.
+
+

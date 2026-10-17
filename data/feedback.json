@@ -1,0 +1,30 @@
+[
+  {
+    "id": "fb_1792146937706_sr5u",
+    "userId": "phone_919876543210",
+    "userName": "Test User",
+    "userContact": "+919876543210",
+    "tripCode": "",
+    "category": "Praise",
+    "rating": 5,
+    "message": "Amazing and simple to use!",
+    "timestamp": 1792146937707,
+    "reply": "",
+    "replyAt": 1792146957771,
+    "status": "resolved"
+  },
+  {
+    "id": "fb_demo_welcome",
+    "userId": "usr_ankuj_founder",
+    "userName": "Ankuj (Founder)",
+    "userContact": "ankuj@tripbarabar.com",
+    "tripCode": "THAI59",
+    "category": "Praise",
+    "rating": 5,
+    "message": "Welcome to Trip Barabar 2.0! Feedback channel is live.",
+    "timestamp": 1791013568433,
+    "reply": "System operational and ready for global travelers.",
+    "replyAt": 1791013568433,
+    "status": "resolved"
+  }
+]

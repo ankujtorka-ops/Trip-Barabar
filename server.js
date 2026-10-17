@@ -8,6 +8,8 @@ const PORT = process.env.PORT || 8090;
 const PUBLIC_DIR = path.resolve(__dirname);
 const DATA_DIR = path.join(PUBLIC_DIR, 'data');
 const CLOUD_TRIPS_FILE = path.join(DATA_DIR, 'cloud_trips.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.json');
 
 // Ensure data storage directory exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -31,7 +33,33 @@ try {
   cloudTrips = {};
 }
 
-// Debounced flush to disk
+// In-Memory Users Directory & Founder Analytics
+let usersStore = {};
+try {
+  if (fs.existsSync(USERS_FILE)) {
+    const raw = fs.readFileSync(USERS_FILE, 'utf8');
+    usersStore = JSON.parse(raw);
+    console.log(`Loaded ${Object.keys(usersStore).length} registered users from disk.`);
+  }
+} catch (e) {
+  console.warn('Error loading users.json, starting fresh:', e);
+  usersStore = {};
+}
+
+// In-Memory Customer Feedback & Reviews
+let feedbackStore = [];
+try {
+  if (fs.existsSync(FEEDBACK_FILE)) {
+    const raw = fs.readFileSync(FEEDBACK_FILE, 'utf8');
+    feedbackStore = JSON.parse(raw);
+    console.log(`Loaded ${feedbackStore.length} customer feedback items from disk.`);
+  }
+} catch (e) {
+  console.warn('Error loading feedback.json, starting fresh:', e);
+  feedbackStore = [];
+}
+
+// Debounced flush to disk for trips
 let saveTimeout = null;
 function persistTripsToDisk() {
   if (saveTimeout) clearTimeout(saveTimeout);
@@ -40,6 +68,32 @@ function persistTripsToDisk() {
       fs.writeFileSync(CLOUD_TRIPS_FILE, JSON.stringify(cloudTrips, null, 2), 'utf8');
     } catch (e) {
       console.error('Failed to write cloud_trips.json:', e);
+    }
+  }, 1000);
+}
+
+// Debounced flush for users directory
+let saveUsersTimeout = null;
+function persistUsersToDisk() {
+  if (saveUsersTimeout) clearTimeout(saveUsersTimeout);
+  saveUsersTimeout = setTimeout(() => {
+    try {
+      fs.writeFileSync(USERS_FILE, JSON.stringify(usersStore, null, 2), 'utf8');
+    } catch (e) {
+      console.error('Failed to write users.json:', e);
+    }
+  }, 1000);
+}
+
+// Debounced flush for feedback
+let saveFeedbackTimeout = null;
+function persistFeedbackToDisk() {
+  if (saveFeedbackTimeout) clearTimeout(saveFeedbackTimeout);
+  saveFeedbackTimeout = setTimeout(() => {
+    try {
+      fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(feedbackStore, null, 2), 'utf8');
+    } catch (e) {
+      console.error('Failed to write feedback.json:', e);
     }
   }, 1000);
 }
@@ -336,6 +390,229 @@ const server = http.createServer((req, res) => {
     res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8', ...corsHeaders });
     res.end(JSON.stringify({ success: false, message: 'Unknown API endpoint' }));
     return;
+  }
+
+  // ==================== 👤 AUTHENTICATION & USER PROFILE API ====================
+  if (rawUrlPath.startsWith('/api/auth/')) {
+    const authRoute = rawUrlPath.replace('/api/auth/', '').toLowerCase();
+    const apiHeaders = {
+      ...corsHeaders,
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'Content-Type': 'application/json; charset=utf-8'
+    };
+
+    // Route: POST /api/auth/register-or-login
+    if (authRoute === 'register-or-login' && req.method === 'POST') {
+      let bodyData = '';
+      req.on('data', chunk => { bodyData += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(bodyData || '{}');
+          const name = (payload.name || '').trim();
+          const phone = (payload.phone || '').trim();
+          const email = (payload.email || '').trim().toLowerCase();
+          const provider = payload.provider || (email ? 'google' : 'mobile');
+
+          if (!name) {
+            res.writeHead(400, apiHeaders);
+            res.end(JSON.stringify({ success: false, message: 'Name is required' }));
+            return;
+          }
+
+          // Stable unique identifier based on contact, or random ID
+          const rawIdKey = phone ? `phone_${phone.replace(/\D/g, '')}` : (email ? `email_${email}` : `usr_${Date.now()}`);
+          const userId = payload.userId || rawIdKey;
+          const now = Date.now();
+
+          // Detect Founder Admin Privileges (Ankuj or admin email/phone)
+          const isFounder = name.toLowerCase() === 'ankuj' || 
+                            email.includes('ankuj') || 
+                            phone.includes('9999999999') ||
+                            payload.isAdmin === true;
+
+          const existingUser = usersStore[userId] || {};
+          const userRecord = {
+            id: userId,
+            name: name,
+            phone: phone || existingUser.phone || '',
+            email: email || existingUser.email || '',
+            avatar: payload.avatar || existingUser.avatar || '',
+            provider: provider,
+            location: {
+              city: payload.city || existingUser.location?.city || 'Local',
+              country: payload.country || existingUser.location?.country || 'India',
+              ip: clientIp
+            },
+            device: {
+              userAgent: req.headers['user-agent'] || 'Unknown',
+              platform: payload.platform || (req.headers['user-agent']?.includes('Mobile') ? 'Mobile' : 'Desktop'),
+              appVersion: '2.0.0-PRO'
+            },
+            isAdmin: isFounder || existingUser.isAdmin === true,
+            createdAt: existingUser.createdAt || now,
+            lastActive: now,
+            tripsCount: (existingUser.tripsCount || 0) + (payload.newTrip ? 1 : 0)
+          };
+
+          usersStore[userId] = userRecord;
+          persistUsersToDisk();
+
+          console.log(`[Auth] User active: ${userRecord.name} (${userRecord.phone || userRecord.email || userRecord.id}) - Admin: ${userRecord.isAdmin}`);
+
+          res.writeHead(200, apiHeaders);
+          res.end(JSON.stringify({
+            success: true,
+            user: userRecord,
+            token: `tb_token_${Buffer.from(userId + ':' + now).toString('base64')}`
+          }));
+        } catch (err) {
+          res.writeHead(400, apiHeaders);
+          res.end(JSON.stringify({ success: false, message: 'Invalid JSON request' }));
+        }
+      });
+      return;
+    }
+
+    // Route: GET /api/auth/session?userId=XYZ
+    if (authRoute === 'session' && req.method === 'GET') {
+      const qUserId = (parsedUrl.query.userId || '').toString().trim();
+      if (!qUserId || !usersStore[qUserId]) {
+        res.writeHead(404, apiHeaders);
+        res.end(JSON.stringify({ success: false, message: 'User session not found' }));
+        return;
+      }
+
+      // Update last active
+      usersStore[qUserId].lastActive = Date.now();
+      persistUsersToDisk();
+
+      res.writeHead(200, apiHeaders);
+      res.end(JSON.stringify({ success: true, user: usersStore[qUserId] }));
+      return;
+    }
+  }
+
+  // ==================== 💬 CUSTOMER FEEDBACK & REVIEWS API ====================
+  if (rawUrlPath.startsWith('/api/feedback/')) {
+    const fbRoute = rawUrlPath.replace('/api/feedback/', '').toLowerCase();
+    const apiHeaders = {
+      ...corsHeaders,
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'Content-Type': 'application/json; charset=utf-8'
+    };
+
+    // Route: POST /api/feedback/submit
+    if (fbRoute === 'submit' && req.method === 'POST') {
+      let bodyData = '';
+      req.on('data', chunk => { bodyData += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(bodyData || '{}');
+          if (!payload.message) {
+            res.writeHead(400, apiHeaders);
+            res.end(JSON.stringify({ success: false, message: 'Message content is required' }));
+            return;
+          }
+
+          const fbItem = {
+            id: `fb_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            userId: payload.userId || 'guest',
+            userName: payload.userName || 'Anonymous Traveler',
+            userContact: payload.userContact || '',
+            tripCode: payload.tripCode || '',
+            category: payload.category || 'Feedback', // Feedback, Bug, Suggestion, Praise
+            rating: parseInt(payload.rating || 5, 10),
+            message: payload.message,
+            timestamp: Date.now(),
+            reply: null,
+            replyAt: null,
+            status: 'pending'
+          };
+
+          feedbackStore.unshift(fbItem);
+          persistFeedbackToDisk();
+
+          console.log(`[Feedback] New ${fbItem.category} from ${fbItem.userName}: "${fbItem.message.substring(0, 40)}..."`);
+
+          res.writeHead(200, apiHeaders);
+          res.end(JSON.stringify({
+            success: true,
+            message: 'Feedback received! Founder Ankuj and the team will review this.',
+            feedbackId: fbItem.id
+          }));
+        } catch (err) {
+          res.writeHead(400, apiHeaders);
+          res.end(JSON.stringify({ success: false, message: 'Malformed JSON payload' }));
+        }
+      });
+      return;
+    }
+  }
+
+  // ==================== 👑 FOUNDER & ADMIN CONSOLE API ====================
+  if (rawUrlPath.startsWith('/api/admin/')) {
+    const adminRoute = rawUrlPath.replace('/api/admin/', '').toLowerCase();
+    const apiHeaders = {
+      ...corsHeaders,
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'Content-Type': 'application/json; charset=utf-8'
+    };
+
+    // Route: GET /api/admin/users
+    if (adminRoute === 'users' && req.method === 'GET') {
+      const userList = Object.values(usersStore).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
+      res.writeHead(200, apiHeaders);
+      res.end(JSON.stringify({
+        success: true,
+        totalUsers: userList.length,
+        users: userList,
+        serverTime: Date.now()
+      }));
+      return;
+    }
+
+    // Route: GET /api/admin/feedback
+    if (adminRoute === 'feedback' && req.method === 'GET') {
+      res.writeHead(200, apiHeaders);
+      res.end(JSON.stringify({
+        success: true,
+        totalFeedback: feedbackStore.length,
+        feedback: feedbackStore
+      }));
+      return;
+    }
+
+    // Route: POST /api/admin/reply
+    if (adminRoute === 'reply' && req.method === 'POST') {
+      let bodyData = '';
+      req.on('data', chunk => { bodyData += chunk; });
+      req.on('end', () => {
+        try {
+          const payload = JSON.parse(bodyData || '{}');
+          const fbId = payload.feedbackId;
+          const replyText = (payload.replyText || '').trim();
+
+          const target = feedbackStore.find(f => f.id === fbId);
+          if (!target) {
+            res.writeHead(404, apiHeaders);
+            res.end(JSON.stringify({ success: false, message: 'Feedback not found' }));
+            return;
+          }
+
+          target.reply = replyText;
+          target.replyAt = Date.now();
+          target.status = 'resolved';
+          persistFeedbackToDisk();
+
+          res.writeHead(200, apiHeaders);
+          res.end(JSON.stringify({ success: true, message: 'Reply sent and recorded', feedback: target }));
+        } catch (err) {
+          res.writeHead(400, apiHeaders);
+          res.end(JSON.stringify({ success: false, message: 'Malformed JSON payload' }));
+        }
+      });
+      return;
+    }
   }
 
   // ==================== 📁 STATIC FILE SERVING ====================

@@ -1,5 +1,12 @@
 # Dependencies
 node_modules/
+www/
+
+# Android build outputs & caches
+android/.gradle/
+android/build/
+android/app/build/
+*.apk
 
 # Binaries & executables
 cloudflared.exe
@@ -12,3 +19,6 @@ cloudflared.exe
 # OS files
 .DS_Store
 Thumbs.db
+
+
+.github/

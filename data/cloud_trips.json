@@ -75,7 +75,8 @@
           "shares": null,
           "date": "2026-10-03",
           "receipt": null,
-          "createdAt": 1791013791367
+          "createdAt": 1791013791367,
+          "integrityHash": "782fa7f490aa86cea43d7408a530ae76287891b7e6334e4afa6dd85735131e36"
         },
         {
           "id": "exp-1791017403350",
@@ -103,7 +104,8 @@
           "shares": null,
           "date": "2026-10-03",
           "receipt": null,
-          "createdAt": 1791017403350
+          "createdAt": 1791017403350,
+          "integrityHash": "bdde65c4cef5fb337a3ef96d8d41c728e42766e359303a11c8072a184c57ba60"
         }
       ],
       "settlements": [],
@@ -154,8 +156,8 @@
       ],
       "deletedExpenseIds": []
     },
-    "lastModified": 1791017403951,
-    "updatedBy": "SyncEngine",
+    "lastModified": 1792176688277,
+    "updatedBy": "Sneha",
     "ip": "127.0.0.1"
   },
   "THAI83": {
@@ -315,6 +317,655 @@
     },
     "lastModified": 1791017403951,
     "updatedBy": "SyncEngine",
+    "ip": "127.0.0.1"
+  },
+  "GOAT22": {
+    "trip": {
+      "id": "space-1792176641545",
+      "type": "trip",
+      "name": "Goa 2026 Trial",
+      "destination": "Goa",
+      "dates": "24th Nov",
+      "code": "GOAT22",
+      "theme": "goa",
+      "baseCurrency": "INR",
+      "currencySymbol": "₹",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 1,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        },
+        {
+          "id": "m2",
+          "name": "Sneha",
+          "phone": "",
+          "upi": "",
+          "color": "#0284C7"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [
+        {
+          "id": "exp-1792176789574",
+          "title": "FOOD DINER",
+          "amount": 2000,
+          "currency": "INR",
+          "convertedAmount": 2000,
+          "categoryId": "food",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 2000
+            }
+          ],
+          "paidByName": "Ankuj",
+          "sharedWith": [
+            "m1",
+            "m2"
+          ],
+          "splitMode": "equal",
+          "exactSplits": null,
+          "percentages": null,
+          "shares": null,
+          "date": "2026-10-16",
+          "receipt": null,
+          "createdAt": 1792176789574,
+          "createdBy": "phone_9819990962",
+          "createdByName": "Ankuj",
+          "updatedAt": 1792176789574,
+          "integrityHash": "a677ce61da938a0bb61f5554381f8902735652e91b94dfcd7703513bce6b53cb"
+        }
+      ],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1",
+          "m2"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 0,
+        "days": 30,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "log-1792176789574-595",
+          "timestamp": 1792176789574,
+          "type": "expense",
+          "memberName": "Ankuj",
+          "text": "Added \"FOOD DINER\" (INR 2000)",
+          "icon": "fa-receipt"
+        },
+        {
+          "id": "act-1792176641545",
+          "action": "create_space",
+          "text": "Created new space \"Goa 2026 Trial\" (Goa)",
+          "timestamp": 1792176641545,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1792178726204,
+    "updatedBy": "Ankuj",
+    "ip": "127.0.0.1"
+  },
+  "BALI55": {
+    "trip": {
+      "id": "trip-bali-demo",
+      "type": "trip",
+      "name": "🌴 Bali Dream Getaway",
+      "destination": "Seminyak & Ubud, Bali",
+      "dates": "15th Nov - 21st Nov 2026",
+      "code": "BALI55",
+      "theme": "tropical",
+      "baseCurrency": "IDR",
+      "currencySymbol": "Rp",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 0.0054,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj (You)",
+          "phone": "9876543210",
+          "upi": "ankuj@okhdfcbank",
+          "color": "#0D9488"
+        },
+        {
+          "id": "m2",
+          "name": "Kabir Sharma",
+          "phone": "9811122334",
+          "upi": "kabir@okaxis",
+          "color": "#0284C7"
+        },
+        {
+          "id": "m3",
+          "name": "Neha Verma",
+          "phone": "9822233445",
+          "upi": "neha@icici",
+          "color": "#E11D48"
+        },
+        {
+          "id": "m4",
+          "name": "Rahul Mehta",
+          "phone": "9833344556",
+          "upi": "rahul@ybl",
+          "color": "#D97706"
+        },
+        {
+          "id": "m5",
+          "name": "Simran Kaur",
+          "phone": "9844455667",
+          "upi": "simran@paytm",
+          "color": "#7C3AED"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [
+        {
+          "id": "exp-b1",
+          "title": "🏨 Luxury Seminyak Pool Villa (3 Nights)",
+          "amount": 45000,
+          "currency": "INR",
+          "convertedAmount": 45000,
+          "categoryId": "stay",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 45000
+            }
+          ],
+          "paidByName": "Ankuj A Torka",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-15",
+          "createdAt": 1791750052490,
+          "createdBy": "m1",
+          "createdByName": "Ankuj A Torka",
+          "updatedAt": 1791750052490,
+          "integrityHash": "ac989b638f9b024e048c69ad4212df9e10e514e08882903958d9a4b8cc8253b2"
+        },
+        {
+          "id": "exp-b2",
+          "title": "🚖 Airport VIP HiAce Van Transfer",
+          "amount": 3500,
+          "currency": "INR",
+          "convertedAmount": 3500,
+          "categoryId": "cabs",
+          "paidBy": [
+            {
+              "memberId": "m2",
+              "amount": 3500
+            }
+          ],
+          "paidByName": "Kabir Sharma",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-15",
+          "createdAt": 1791753652490,
+          "createdBy": "m2",
+          "createdByName": "Kabir Sharma",
+          "updatedAt": 1791753652490,
+          "integrityHash": "b38af68d773a30022ad2022ac45d5f32b592ce7e13de7e6ec3cf6f891137f558"
+        },
+        {
+          "id": "exp-b3",
+          "title": "🍔 Potato Head Beach Club Sunset Dinner",
+          "amount": 12500,
+          "currency": "INR",
+          "convertedAmount": 12500,
+          "categoryId": "food",
+          "paidBy": [
+            {
+              "memberId": "m3",
+              "amount": 12500
+            }
+          ],
+          "paidByName": "Neha Verma",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-16",
+          "createdAt": 1791836452490,
+          "createdBy": "m3",
+          "createdByName": "Neha Verma",
+          "updatedAt": 1791836452490,
+          "integrityHash": "f87898a2cdd9879f62015e13ea4b7f1416699eb117f93f7e36682db106c92d68"
+        },
+        {
+          "id": "exp-b4",
+          "title": "🚤 Nusa Penida Manta Ray Snorkeling Boat",
+          "amount": 15000,
+          "currency": "INR",
+          "convertedAmount": 15000,
+          "categoryId": "boat",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 15000
+            }
+          ],
+          "paidByName": "Ankuj A Torka",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m4"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-16",
+          "createdAt": 1791843652490,
+          "createdBy": "m1",
+          "createdByName": "Ankuj A Torka",
+          "updatedAt": 1791843652490,
+          "integrityHash": "3f59574e5a6efccd13aca3a83cdb40bb574df46a026a0263d2c06689faef7721"
+        },
+        {
+          "id": "exp-b5",
+          "title": "💆 Balinese Royal Herbal Spa & Flower Bath",
+          "amount": 6000,
+          "currency": "INR",
+          "convertedAmount": 6000,
+          "categoryId": "massage",
+          "paidBy": [
+            {
+              "memberId": "m5",
+              "amount": 6000
+            }
+          ],
+          "paidByName": "Simran Kaur",
+          "sharedWith": [
+            "m1",
+            "m3",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-16",
+          "createdAt": 1791847252490,
+          "createdBy": "m5",
+          "createdByName": "Simran Kaur",
+          "updatedAt": 1791847252490,
+          "integrityHash": "d6ddcfaa57a08cdd746a4b54466bc399d61db6630eeca2fcbabb77c61db71ed0"
+        },
+        {
+          "id": "exp-b6",
+          "title": "🍻 Bintang Beer Crates & Circle-K Snacks",
+          "amount": 2800,
+          "currency": "INR",
+          "convertedAmount": 2800,
+          "categoryId": "drinks",
+          "paidBy": [
+            {
+              "memberId": "m4",
+              "amount": 2800
+            }
+          ],
+          "paidByName": "Rahul Mehta",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-17",
+          "createdAt": 1791922852490,
+          "createdBy": "m4",
+          "createdByName": "Rahul Mehta",
+          "updatedAt": 1791922852490,
+          "integrityHash": "524c6711d4f71b17613fda68ab6c556d62a6ad7a729a57aae7080889926a38a8"
+        },
+        {
+          "id": "exp-b7",
+          "title": "🌋 Mt. Batur Sunrise 4x4 Jeep Safari",
+          "amount": 14000,
+          "currency": "INR",
+          "convertedAmount": 14000,
+          "categoryId": "boat",
+          "paidBy": [
+            {
+              "memberId": "m2",
+              "amount": 14000
+            }
+          ],
+          "paidByName": "Kabir Sharma",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-17",
+          "createdAt": 1791937252490,
+          "createdBy": "m2",
+          "createdByName": "Kabir Sharma",
+          "updatedAt": 1791937252490,
+          "integrityHash": "f253486df69e9549829fd178f88d4cf8e6cc708b39ef8b3e8d372c9733593b90"
+        },
+        {
+          "id": "exp-b8",
+          "title": "🍔 Clear Cafe Ubud Organic Vegan Brunch",
+          "amount": 4500,
+          "currency": "INR",
+          "convertedAmount": 4500,
+          "categoryId": "food",
+          "paidBy": [
+            {
+              "memberId": "m3",
+              "amount": 4500
+            }
+          ],
+          "paidByName": "Neha Verma",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-18",
+          "createdAt": 1792009252490,
+          "createdBy": "m3",
+          "createdByName": "Neha Verma",
+          "updatedAt": 1792009252490,
+          "integrityHash": "c0cb1a3140d92d24fc5a62e904f6f4557686bbe0c48a14dd6b3da208e04a84c7"
+        },
+        {
+          "id": "exp-b9",
+          "title": "🚖 3x NMAX Scooters & Helmets (4 Days)",
+          "amount": 5200,
+          "currency": "INR",
+          "convertedAmount": 5200,
+          "categoryId": "cabs",
+          "paidBy": [
+            {
+              "memberId": "m4",
+              "amount": 5200
+            }
+          ],
+          "paidByName": "Rahul Mehta",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-18",
+          "createdAt": 1792016452490,
+          "createdBy": "m4",
+          "createdByName": "Rahul Mehta",
+          "updatedAt": 1792016452490,
+          "integrityHash": "08d22e075934c3e7e41d2aa5f4ef72d2e4098569f371493e139feae016d23a00"
+        },
+        {
+          "id": "exp-b10",
+          "title": "🍸 Rock Bar Ayana Sunset Cocktails",
+          "amount": 9000,
+          "currency": "INR",
+          "convertedAmount": 9000,
+          "categoryId": "drinks",
+          "paidBy": [
+            {
+              "memberId": "m5",
+              "amount": 9000
+            }
+          ],
+          "paidByName": "Simran Kaur",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-19",
+          "createdAt": 1792095652490,
+          "createdBy": "m5",
+          "createdByName": "Simran Kaur",
+          "updatedAt": 1792095652490,
+          "integrityHash": "b28006155729616cb7acda7675a95ece3b8d86c6e2132ea3e354c83922dd622b"
+        },
+        {
+          "id": "exp-b11",
+          "title": "🛍️ Kintamani Luwak Coffee & Silver Craft",
+          "amount": 3000,
+          "currency": "INR",
+          "convertedAmount": 3000,
+          "categoryId": "shopping",
+          "paidBy": [
+            {
+              "memberId": "m1",
+              "amount": 3000
+            }
+          ],
+          "paidByName": "Ankuj A Torka",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m4"
+          ],
+          "splitMode": "exact",
+          "exactSplits": {
+            "m1": 1500,
+            "m2": 1000,
+            "m4": 500
+          },
+          "date": "2026-11-19",
+          "createdAt": 1792099252490,
+          "createdBy": "m1",
+          "createdByName": "Ankuj A Torka",
+          "updatedAt": 1792099252490,
+          "integrityHash": "6e805f6fffc9e79d2b22803c095e82007c48e12bb06b12c5cfbc8c12795dab8d"
+        },
+        {
+          "id": "exp-b12",
+          "title": "✈️ Group Flight Seat & Extra Bag Advance",
+          "amount": 7500,
+          "currency": "INR",
+          "convertedAmount": 7500,
+          "categoryId": "flight",
+          "paidBy": [
+            {
+              "memberId": "m4",
+              "amount": 7500
+            }
+          ],
+          "paidByName": "Rahul Mehta",
+          "sharedWith": [
+            "m1",
+            "m2",
+            "m3",
+            "m4",
+            "m5"
+          ],
+          "splitMode": "equal",
+          "date": "2026-11-14",
+          "createdAt": 1791663652490,
+          "createdBy": "m4",
+          "createdByName": "Rahul Mehta",
+          "updatedAt": 1791663652490,
+          "integrityHash": "95df85a2ce7926a0a059bd5ec0d3b8db82cafd7bc54771dcf7104b9950123c03"
+        }
+      ],
+      "settlements": [
+        {
+          "id": "stl-bali-demo-1",
+          "fromMemberId": "m2",
+          "toMemberId": "m1",
+          "amount": 5000,
+          "note": "Partial GPay transfer for Villa Advance",
+          "date": "2026-11-17",
+          "createdAt": 1792005927421
+        }
+      ],
+      "itinerary": [
+        {
+          "id": "itin-1",
+          "day": 1,
+          "title": "Arrival in Denpasar & Villa Check-in",
+          "time": "14:00",
+          "category": "stay",
+          "location": "Seminyak, Bali",
+          "cost": 45000,
+          "notes": "Private Pool Villa booked"
+        },
+        {
+          "id": "itin-2",
+          "day": 2,
+          "title": "Nusa Penida Manta Ray Snorkeling Trip",
+          "time": "08:00",
+          "category": "tour",
+          "location": "Sanur Harbor",
+          "cost": 15000,
+          "notes": "Speedboat departure at 08:30 AM"
+        },
+        {
+          "id": "itin-3",
+          "day": 3,
+          "title": "Mt Batur Sunrise 4x4 Jeep Safari",
+          "time": "04:00",
+          "category": "tour",
+          "location": "Kintamani",
+          "cost": 14000,
+          "notes": "Pick up at 3:15 AM"
+        }
+      ],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 150000,
+        "days": 7,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "act-1",
+          "action": "create_space",
+          "text": "Created Group Trip \"🌴 Bali Dream Getaway\" with 5 friends",
+          "timestamp": 1791660327421,
+          "memberId": "m1"
+        },
+        {
+          "id": "act-2",
+          "action": "settle",
+          "text": "Kabir transferred ₹5,000 to Ankuj (UPI)",
+          "timestamp": 1792005927421,
+          "memberId": "m2"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1792265483623,
+    "updatedBy": "Ankuj Torka",
+    "ip": "192.168.1.9"
+  },
+  "SOLO38": {
+    "trip": {
+      "id": "space-1792182106976",
+      "type": "personal",
+      "name": "My daily Expenses",
+      "destination": "Personal Wallet",
+      "dates": "Daily / Ongoing",
+      "code": "SOLO38",
+      "theme": "cyber",
+      "baseCurrency": "INR",
+      "currencySymbol": "₹",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 1,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj A Torka",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 0,
+        "days": 30,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "act-1792182106976",
+          "action": "create_space",
+          "text": "Created Personal Expense Tracker \"My daily Expenses\"",
+          "timestamp": 1792182106976,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1792182160291,
+    "updatedBy": "Ankuj A Torka",
     "ip": "127.0.0.1"
   }
 }

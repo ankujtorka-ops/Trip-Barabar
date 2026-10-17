@@ -1,0 +1,90 @@
+{
+  "usr_ankuj_founder": {
+    "id": "usr_ankuj_founder",
+    "name": "Ankuj",
+    "phone": "+91 98000 00000",
+    "email": "ankuj@tripbarabar.com",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Ankuj",
+    "provider": "founder",
+    "location": {
+      "city": "Mumbai",
+      "country": "India",
+      "ip": "127.0.0.1"
+    },
+    "device": {
+      "userAgent": "Trip Barabar Founder Client",
+      "platform": "Android / Web",
+      "appVersion": "2.0.0-PRO"
+    },
+    "isAdmin": true,
+    "createdAt": 1791013568433,
+    "lastActive": 1791013568433,
+    "tripsCount": 1
+  },
+  "phone_919876543210": {
+    "id": "phone_919876543210",
+    "name": "Test User",
+    "phone": "+919876543210",
+    "email": "",
+    "avatar": "",
+    "provider": "mobile",
+    "location": {
+      "city": "Local",
+      "country": "India",
+      "ip": "127.0.0.1"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-IN) WindowsPowerShell/5.1.26100.9711",
+      "platform": "Desktop",
+      "appVersion": "2.0.0-PRO"
+    },
+    "isAdmin": false,
+    "createdAt": 1792146924815,
+    "lastActive": 1792146924815,
+    "tripsCount": 0
+  },
+  "phone_9819990962": {
+    "id": "phone_9819990962",
+    "name": "Ankuj Torka",
+    "phone": "9819990962",
+    "email": "",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Ankuj%20Torka",
+    "provider": "mobile",
+    "location": {
+      "city": "Local",
+      "country": "India",
+      "ip": "192.168.1.9"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36",
+      "platform": "Mobile",
+      "appVersion": "2.0.0-PRO"
+    },
+    "isAdmin": true,
+    "createdAt": 1792160027566,
+    "lastActive": 1792265430922,
+    "tripsCount": 0
+  },
+  "phone_9819377649": {
+    "id": "phone_9819377649",
+    "name": "Sneha",
+    "phone": "9819377649",
+    "email": "",
+    "avatar": "https://api.dicebear.com/7.x/initials/svg?seed=Sneha",
+    "provider": "mobile",
+    "location": {
+      "city": "Local",
+      "country": "India",
+      "ip": "127.0.0.1"
+    },
+    "device": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+      "platform": "Desktop",
+      "appVersion": "2.0.0-PRO"
+    },
+    "isAdmin": false,
+    "createdAt": 1792172985294,
+    "lastActive": 1792176666926,
+    "tripsCount": 0
+  }
+}

@@ -57,59 +57,82 @@
 <body class="text-slate-100 flex flex-col min-h-screen" data-theme="tropical">
 
   <!-- TOP HEADER / APP BAR -->
-  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 pt-2.5 pb-2.5">
-    <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
-      
-      <!-- Brand & Active Trip Selector -->
-      <div class="flex items-center gap-2.5 min-w-0 flex-1">
-        <div class="relative group cursor-pointer active-press shrink-0" onclick="handleHeaderLogoTap()" title="Tap for interactive logo effects & travel icon options">
-          <img id="appHeaderLogoImg" src="logos/kool-jet.png" onerror="if(window.handleLogoLoadError) window.handleLogoLoadError(this)" alt="" class="w-10 h-10 rounded-2xl shadow-lg border border-cyan-500/50 object-cover transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
-          <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 text-slate-950 text-[8px] font-black flex items-center justify-center shadow-md animate-pulse">✨</span>
+  <header id="mainAppHeader" class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 pt-2.5 pb-2.5">
+    
+    <!-- MODE A: LOBBY HEADER (When viewing My Trips / App Home) -->
+    <div id="headerLobbyView" class="max-w-xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="relative group cursor-pointer active-press shrink-0" onclick="handleHeaderLogoTap()" title="Trip Barabar">
+          <img id="appHeaderLogoImg" src="logos/kool-jet.png" onerror="if(window.handleLogoLoadError) window.handleLogoLoadError(this)" alt="" class="w-10 h-10 rounded-2xl shadow-lg border border-cyan-500/50 object-cover">
+          <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 text-slate-950 text-[8px] font-black flex items-center justify-center shadow-md">✨</span>
         </div>
-        <div class="min-w-0 flex-1">
-          <!-- 1. Bold, Prominent App Title -->
+        <div>
           <div class="flex items-center gap-1.5 leading-tight">
-            <span class="text-base sm:text-lg font-black tracking-tight text-white">
-              Trip Barabar
-            </span>
-            <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider shrink-0">
-              PRO
-            </span>
+            <span class="text-base font-black tracking-tight text-white">Trip Barabar</span>
+            <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-wider">PRO</span>
           </div>
-
-          <!-- 2. Active Trip Destination Switcher Pill (Directly underneath) -->
-          <button type="button" onclick="openTripSwitcherModal()" 
-            class="inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-slate-800/70 hover:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700/60 transition-colors mt-0.5 max-w-full group active-press">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-            <span id="headerTripName" class="font-bold text-slate-200 group-hover:text-brand-300 truncate max-w-[130px] sm:max-w-[190px]">
-              No Active Trip
-            </span>
-            <i class="fa-solid fa-chevron-down text-[10px] text-amber-400 shrink-0"></i>
-            <span class="text-slate-500 text-[10px]">•</span>
-            <span id="headerTripDates" class="text-[10px] text-slate-400 truncate max-w-[70px]">Tap to start</span>
-          </button>
+          <p class="text-[11px] text-slate-400 font-medium">Trip Sorted. Hisaab Barabar.</p>
         </div>
       </div>
 
-      <!-- Right Header Actions: Clean & Clutter-Free -->
-      <div class="flex items-center gap-2 justify-end shrink-0">
+      <!-- Right Header: User Profile Pill -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="openUserProfileModal()" 
+          class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-brand-500/50 text-slate-200 active-press transition-all shadow-sm">
+          <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-brand-500 to-teal-400 text-slate-950 font-black text-xs flex items-center justify-center user-auth-initials shadow-sm">
+            A
+          </div>
+          <span class="text-xs font-bold user-auth-name truncate max-w-[85px] sm:max-w-[120px]">Ankuj</span>
+          <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODE B: WORKSPACE HEADER (When inside a specific Trip) -->
+    <div id="headerWorkspaceView" class="hidden max-w-xl mx-auto flex items-center justify-between gap-2">
+      <!-- Back to Lobby -->
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <button type="button" onclick="showAppLobby()" 
+          class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-300 hover:text-white flex items-center justify-center active-press border border-slate-700/80 transition-all shrink-0" 
+          title="Back to All Trips">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <span id="headerTripName" class="font-extrabold text-sm sm:text-base text-white truncate max-w-[140px] sm:max-w-[200px]">
+              Thailand Vows
+            </span>
+            <span id="headerTripCodeBadge" class="text-[9px] font-black px-1.5 py-0.2 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30 uppercase shrink-0 font-mono">
+              THAI59
+            </span>
+          </div>
+          <span id="headerTripDates" class="text-[10px] text-slate-400 truncate block">7th Oct - 13th Oct</span>
+        </div>
+      </div>
+
+      <!-- Right Header Actions in Workspace -->
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- Live Cloud Sync Indicator Badge -->
         <button type="button" id="syncHeaderBadge" onclick="triggerSyncManual()" 
-          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-800/80 border border-slate-700/80 text-emerald-400 cursor-pointer active-press hover:border-emerald-500/40 transition-all" 
+          class="flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold bg-slate-800/80 border border-slate-700/80 text-emerald-400 active-press hover:border-emerald-500/40 transition-all" 
           title="Tap to sync with cloud">
           <i class="fa-solid fa-cloud-arrow-up text-[10px]" id="syncHeaderIcon"></i>
           <span id="syncHeaderText" class="hidden xs:inline">Live</span>
         </button>
 
-        <!-- ✨ Trip Toolkit Drawer Trigger (Houses Sound, Stealth Bro Mode, PIN Vault, Kitty Pool, Games) -->
-        <button onclick="openTripToolsSheet()" 
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all border active-press bg-gradient-to-r from-amber-500/20 via-brand-500/20 to-purple-500/20 text-white border-amber-500/40 hover:border-amber-400 shadow-sm"
-          title="Trip Tools, Quick Settings & Games">
-          <span class="text-sm">✨</span>
-          <span>Tools</span>
+        <!-- Discreet / Stealth Mode Quick Toggle -->
+        <button type="button" id="btnHeaderDiscreetToggle" onclick="toggleDiscreetMode()" 
+          class="px-2 py-1 rounded-xl text-[10px] font-bold border transition-all active-press bg-slate-800 text-slate-300 border-slate-700 hover:border-brand-500/50" 
+          title="Toggle Discreet / Stealth Mode">
+          <i class="fa-solid fa-eye-slash text-xs text-brand-400"></i>
+        </button>
+
+        <!-- User Profile Avatar -->
+        <button type="button" onclick="openUserProfileModal()" 
+          class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 hover:border-brand-500/50 text-slate-200 flex items-center justify-center active-press transition-all shrink-0">
+          <span class="user-auth-initials font-black text-xs text-brand-400">A</span>
         </button>
       </div>
-
     </div>
 
     <!-- Discreet Mode Active Banner (Visible only when Stealth Mode is ON) -->
@@ -125,97 +148,167 @@
   <!-- MAIN SCROLLABLE CONTAINER -->
   <main class="flex-1 max-w-xl w-full mx-auto px-3.5 sm:px-4 py-3 sm:py-4 space-y-3.5">
 
-    <!-- 🌴 EMPTY STATE / WELCOME SCREEN (Shown when 0 trips exist or none selected) -->
-    <div id="welcomeNoTripView" class="hidden space-y-4 animate-fade-in pb-12">
-      <!-- Welcome Hero Card -->
-      <div class="relative overflow-hidden rounded-3xl glass-card theme-glow-card border border-slate-800/90 p-5 sm:p-6 text-center space-y-4 shadow-2xl">
-        <div onclick="openLogoPickerModal()" class="w-16 h-16 rounded-3xl overflow-hidden mx-auto shadow-2xl border-2 border-cyan-500/50 cursor-pointer active-press hover:scale-110 transition-all relative group" title="Tap to choose your favorite 3D app icon">
-          <img id="welcomeLogoImg" src="logos/kool-jet.png" onerror="if(window.handleLogoLoadError) window.handleLogoLoadError(this)" alt="" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px] font-bold">
-            Change 🎨
-          </div>
-        </div>
-        <div class="space-y-1.5">
-          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/30">
-            <span>✨</span> <span>Hisaab Sorted • Trip Sorted</span>
+    <!-- ==================== 🌴 LEVEL 1: APP HOME / LOBBY (Zero-Brain Home) ==================== -->
+    <div id="viewAppLobby" class="space-y-4 animate-fade-in pb-16">
+      
+      <!-- Welcome Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl glass-card border border-slate-800/90 p-5 text-center space-y-3 shadow-2xl">
+        <div class="space-y-1">
+          <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-brand-500/15 text-brand-400 border border-brand-500/30">
+            <span>🌴</span> <span>Trip Barabar 2.0</span>
           </span>
-          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Welcome to Trip Barabar
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+            Hi, <span class="user-auth-name text-amber-400">Traveler</span>! 👋
           </h2>
-          <p class="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed">
-            The group expense sharing app built for genuine holiday fun. Track spends, manage kitty pools, and split bills fairly without awkwardness.
+          <p class="text-xs text-slate-300 max-w-sm mx-auto">
+            Ready to split trip bills without awkwardness? Choose an active trip or start a new one.
           </p>
         </div>
 
-        <!-- Fast 1-Tap Cloud Trip Restore Button -->
-        <div id="quickRestoreTripBanner" class="p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-brand-500/15 to-emerald-500/15 border border-brand-500/40 text-center space-y-1.5 cursor-pointer active-press shadow-lg" onclick="joinTripByCode('THAI59')">
-          <div class="flex items-center justify-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-xs font-black text-white uppercase tracking-wider">Cloud Trip Ready: Thailand Vows (THAI59)</span>
+        <!-- Ongoing Trip Highlight Card (If active trip exists) -->
+        <div id="lobbyActiveTripCard" onclick="enterActiveTripWorkspace()" 
+          class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-brand-500/20 to-teal-500/15 border-2 border-brand-500/40 text-left space-y-3 cursor-pointer active-press hover:border-brand-400 shadow-xl transition-all group">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-[11px] font-black text-emerald-400 uppercase tracking-wider">Ongoing Active Trip</span>
+            </div>
+            <span id="lobbyActiveTripCode" class="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-amber-300">
+              THAI59
+            </span>
           </div>
-          <div class="text-[11px] text-slate-300">
-            2 Spends Logged • ₹92,600 Total • 5 Friends
+
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 id="lobbyActiveTripName" class="text-lg font-black text-white group-hover:text-brand-300 transition-colors">
+                Thailand Vows
+              </h3>
+              <p id="lobbyActiveTripDates" class="text-xs text-slate-400">7th Oct - 13th Oct • Bangkok, Pattaya</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] uppercase font-bold text-slate-400 block">Total Spend</span>
+              <div id="lobbyActiveTripTotal" class="text-sm font-black text-white font-mono-num">฿0.00</div>
+              <div id="lobbyActiveTripHomeTotal" class="text-[11px] font-bold text-amber-400 font-mono-num">≈ ₹0.00</div>
+            </div>
           </div>
-          <button type="button" class="px-4 py-1 rounded-xl bg-brand-500 text-slate-950 font-black text-xs shadow-md">
-            Tap to Open Your Trip ➔
-          </button>
+
+          <!-- Bottom Action Bar of Card -->
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1.5 text-slate-300">
+              <i class="fa-solid fa-users text-brand-400 text-xs"></i>
+              <span id="lobbyActiveTripMembers">5 Friends</span>
+            </div>
+            <button type="button" class="px-3.5 py-1.5 rounded-xl bg-brand-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md group-hover:bg-brand-400 transition-all">
+              <span>Open Trip</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Primary Actions: Create or Join -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 max-w-sm mx-auto">
-          <button onclick="openTripSwitcherModal('create')" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-400 hover:to-teal-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-2 shadow-xl shadow-brand-500/20">
+        <!-- 2 Big Action Buttons: Create New Trip & Join Friend's Trip -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <button onclick="openTripSwitcherModal('create')" class="py-3 px-3 rounded-2xl bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-400 hover:to-teal-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 transition-all">
             <i class="fa-solid fa-plus-circle text-sm"></i>
-            <span>Create Your First Trip</span>
+            <span>+ Create Space</span>
           </button>
-          <button onclick="openTripSwitcherModal('join')" class="py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-700 active-press flex items-center justify-center gap-2 shadow-md">
+          <button onclick="openTripSwitcherModal('join')" class="py-3 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-700 active-press flex items-center justify-center gap-2 shadow-md transition-all">
             <i class="fa-solid fa-key text-amber-400 text-xs"></i>
-            <span>Join Friend's Trip</span>
+            <span>Join with Code</span>
           </button>
         </div>
 
-        <!-- Secondary Utility Row: Tour & Install Guide -->
-        <div class="flex items-center justify-center gap-2 pt-2 text-[11px]">
-          <button onclick="openAppTourModal(0)" class="text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold active-press flex items-center gap-1.5 transition-all">
-            <i class="fa-solid fa-sparkles text-[10px]"></i>
-            <span>✨ Take App Tour</span>
+        <!-- 🧪 SOLO FOUNDER TEST LAB (1-Click Multi-User Simulation) -->
+        <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-brand-500/10 border border-amber-500/40 text-left space-y-2.5 shadow-lg relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              <span class="text-[10px] font-black text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                <span>🧪</span> Solo Founder Test Lab
+              </span>
+            </div>
+            <span class="text-[9px] font-bold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              5 Friends • 12 Bills • Math Verified
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h4 class="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+                <span>🌴 Bali Dream Getaway</span>
+              </h4>
+              <p class="text-[11px] text-slate-300 leading-tight mt-0.5">
+                Load 5 friends with villa, dinners, cabs, spa & instant Hisaab settlements.
+              </p>
+            </div>
+            <button type="button" onclick="loadDemoTripSimulator()" 
+              class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs active-press shadow-md transition-all shrink-0 flex items-center gap-1.5">
+              <span>Load Test Trip</span>
+              <i class="fa-solid fa-play text-[10px]"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 📋 ALL MY TRIPS ACCORDION LIST -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-suitcase-rolling text-brand-400"></i>
+            <span>My Trips (<span id="lobbyAllTripsCount">1</span>)</span>
+          </span>
+          <button onclick="openTripSwitcherModal()" class="text-[11px] font-bold text-brand-400 hover:text-brand-300 active-press">
+            Manage All
           </button>
-          <button onclick="openInstallGuideModal()" class="text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 px-3 py-1.5 rounded-xl font-bold active-press flex items-center gap-1.5 transition-all">
-            <i class="fa-solid fa-mobile-screen text-[10px]"></i>
-            <span>📲 Install as App</span>
-          </button>
+        </div>
+
+        <!-- Rendered dynamically by JS -->
+        <div id="lobbyTripsContainer" class="space-y-2">
+          <!-- Dynamic trip cards -->
         </div>
       </div>
 
-      <!-- Feature Highlights: 4 Pillars of Trip Barabar -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-1.5 hover:border-slate-700 transition-all">
-          <div class="text-xl">⚡</div>
-          <div class="text-xs font-bold text-slate-200">Live Real-Time Sync</div>
-          <div class="text-[10px] text-slate-400 leading-normal">Share a 5-letter trip code with friends. Everyone adds spends and sees live updates together.</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-1.5 hover:border-slate-700 transition-all">
-          <div class="text-xl">🎨</div>
-          <div class="text-xs font-bold text-slate-200">25+ Destination Themes</div>
-          <div class="text-[10px] text-slate-400 leading-normal">The whole app morphs with custom ambient colors & scenic postcard art for your destination.</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-1.5 hover:border-slate-700 transition-all">
-          <div class="text-xl">💰</div>
-          <div class="text-xs font-bold text-slate-200">Smart Split & Kitty Pool</div>
-          <div class="text-[10px] text-slate-400 leading-normal">Equal, unequal, or itemized bill splits, plus a pooled cash manager for common expenses.</div>
-        </div>
-        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 space-y-1.5 hover:border-slate-700 transition-all">
-          <div class="text-xl">📜</div>
-          <div class="text-xs font-bold text-slate-200">Karz-Mukt Sanad</div>
-          <div class="text-[10px] text-slate-400 leading-normal">Minimizes 40 debts into 2 direct UPI transfers + generates Babu Bhaiya celebration certificates!</div>
-        </div>
+      <!-- 🌟 CLEAN FOOTER UTILITIES (Lobby Only) -->
+      <div class="pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-2 text-xs">
+        <button onclick="openCustomerFeedbackModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 flex items-center gap-1.5 active-press">
+          <i class="fa-solid fa-comment-dots text-amber-400"></i>
+          <span>Help & Feedback</span>
+        </button>
+        <button onclick="openFounderConsoleModal()" class="founder-admin-only hidden px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-brand-500/20 border border-amber-500/40 text-amber-300 font-bold flex items-center gap-1.5 active-press">
+          <span>👑 Founder Console</span>
+        </button>
+        <button onclick="openInstallGuideModal()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 flex items-center gap-1.5 active-press">
+          <i class="fa-solid fa-mobile-screen text-brand-400"></i>
+          <span>Install App</span>
+        </button>
       </div>
+
     </div>
 
-    <!-- ACTIVE TRIP CONTENT (Visible when a trip is selected/created) -->
-    <div id="activeTripMainView" class="space-y-3.5">
+    <!-- ==================== 🌴 LEVEL 2: INSIDE TRIP WORKSPACE ==================== -->
+    <div id="viewTripWorkspace" class="hidden space-y-3.5">
+
+    <!-- 📅 MONTH SWITCHER BAR (Personal Tracker Solo Mode) -->
+    <div id="personalMonthSwitcherBar" class="hidden flex items-center justify-between px-3 py-2.5 rounded-2xl glass-card border border-slate-800/90 shadow-sm">
+      <button type="button" onclick="changePersonalMonth(-1)" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-brand-400 flex items-center justify-center active-press transition-all" title="Previous Month">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </button>
+
+      <div class="flex items-center gap-2 cursor-pointer active-press" onclick="openMonthPickerModal()">
+        <span class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5" id="personalSelectedMonthText">
+          <i class="fa-regular fa-calendar text-brand-400 text-xs"></i>
+          <span>October 2026</span>
+        </span>
+        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30" id="personalCurrentMonthBadge">CURRENT</span>
+      </div>
+
+      <button type="button" onclick="changePersonalMonth(1)" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-brand-400 flex items-center justify-center active-press transition-all" title="Next Month">
+        <i class="fa-solid fa-chevron-right text-xs"></i>
+      </button>
+    </div>
 
     <!-- 🌴 TRIP HERO CARD: HOLIDAY VIBE, SPEND & MY STANDING -->
-    <div class="relative overflow-hidden rounded-3xl glass-card theme-glow-card p-4 sm:p-4.5 border border-slate-800/90 shadow-2xl">
+    <div id="heroTripCard" class="relative overflow-hidden rounded-3xl glass-card theme-glow-card p-4 sm:p-4.5 border border-slate-800/90 shadow-2xl">
       <!-- 🎨 Dynamic Destination Horizon Graphic Artwork (Camels, Palms, Waves, Mountains) -->
       <div id="heroScenicArtContainer" class="scenic-art-container" aria-hidden="true"></div>
 
@@ -236,7 +329,7 @@
           </div>
 
           <!-- Forex Quick Pill -->
-          <button onclick="openForexModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-[11px] font-bold shadow-sm active-press hover:bg-slate-800 transition-all">
+          <button onclick="openForexModal()" id="heroForexPillBtn" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-[11px] font-bold shadow-sm active-press hover:bg-slate-800 transition-all">
             <i class="fa-solid fa-arrow-right-arrow-left text-[9px]"></i>
             <span id="heroForexRateText">1 THB = ₹2.48</span>
             <i class="fa-solid fa-pen text-[8px] opacity-70"></i>
@@ -247,13 +340,13 @@
         <!-- Main Spend Numbers: Dual Currency & Per-Person Average -->
         <div class="flex items-end justify-between gap-2 pt-0.5">
           <div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Trip Expenses</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block" id="heroTotalSpendLabel">Total Trip Expenses</span>
             <div class="flex items-baseline gap-2 mt-0.5">
               <h2 class="text-2xl sm:text-3xl font-black text-white font-mono-num tracking-tight" id="heroTotalTripSpend">฿0.00</h2>
               <span class="text-[10px] px-1.5 py-0.2 rounded font-extrabold bg-brand-500/20 text-brand-400 border border-brand-500/30" id="heroTripCurrencyCode">THB</span>
             </div>
             <!-- Converted Home Currency -->
-            <div class="text-xs sm:text-sm font-bold text-amber-400 font-mono-num mt-0.5 flex items-center gap-1">
+            <div class="text-xs sm:text-sm font-bold text-amber-400 font-mono-num mt-0.5 flex items-center gap-1" id="heroHomeCurrencyWrap">
               <span>≈</span>
               <span id="heroTotalHomeSpend">₹0.00</span>
               <span class="text-[10px] text-slate-400 font-normal">INR</span>
@@ -261,7 +354,7 @@
           </div>
 
           <!-- Per-Person Average Pill -->
-          <div class="text-right p-2 rounded-2xl bg-slate-900/70 border border-slate-800/80">
+          <div class="text-right p-2 rounded-2xl bg-slate-900/70 border border-slate-800/80" id="heroAvgBox">
             <span class="text-[9px] text-slate-400 uppercase tracking-wider block font-semibold">Avg / Person</span>
             <div class="text-xs sm:text-sm font-black text-slate-100 font-mono-num mt-0.5" id="heroAvgPerPerson">₹0.00</div>
             <div class="text-[9px] text-brand-400 font-medium sm:hidden" id="heroTotalBillsCountMobile">0 Spends</div>
@@ -269,7 +362,7 @@
         </div>
 
         <!-- Bottom Row: Personal Net Standing Ribbon (Owed vs Owes) -->
-        <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+        <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2" id="heroStandingRibbon">
           <div class="flex items-center gap-2 min-w-0">
             <div class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] text-slate-300 font-bold shrink-0" id="myAvatarCircle">A</div>
             <div class="text-xs truncate">
@@ -287,7 +380,7 @@
     </div>
 
     <!-- 👥 UNIVERSAL SCALABLE MEMBER CHIP STRIP (2 to 25+ FRIENDS) -->
-    <div class="space-y-1.5">
+    <div class="space-y-1.5" id="friendsBreakdownSection">
       <div class="flex items-center justify-between px-1">
         <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <i class="fa-solid fa-users text-brand-400"></i>
@@ -403,10 +496,10 @@
       <div class="flex items-center justify-between px-1 pt-1">
         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <i class="fa-solid fa-receipt text-brand-400"></i>
-          <span>Recent Transactions (<span id="expenseCountBadge">0</span>)</span>
+          <span><span id="recentTransactionsTitle">Recent Transactions</span> (<span id="expenseCountBadge">0</span>)</span>
         </span>
         <div class="flex items-center gap-1.5">
-          <button onclick="openWhatsAppSummaryModal()" class="text-[11px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 hover:bg-emerald-500/20 active-press">
+          <button id="btnWhatsAppRecap" onclick="openWhatsAppSummaryModal()" class="text-[11px] font-semibold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 hover:bg-emerald-500/20 active-press">
             <i class="fa-brands fa-whatsapp text-xs"></i>
             <span>Daily Recap</span>
           </button>
@@ -480,7 +573,7 @@
     <section id="tab-analytics" class="hidden space-y-4">
       
       <!-- 🏆 TRIP HALL OF FAME & FUN BADGES -->
-      <div class="p-4 rounded-3xl glass-card border border-amber-500/30 space-y-3 relative overflow-hidden">
+      <div id="analyticsHallOfFameCard" class="p-4 rounded-3xl glass-card border border-amber-500/30 space-y-3 relative overflow-hidden">
         <div class="absolute -right-8 -top-8 w-28 h-28 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -500,7 +593,7 @@
         <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
           <span class="flex items-center gap-1.5">
             <i class="fa-solid fa-chart-pie text-brand-400"></i>
-            <span>Spending by Category</span>
+            <span id="analyticsCategoryCardTitle">Spending by Category</span>
           </span>
           <span class="text-[11px] text-slate-400" id="analyticsCategoryCount">0 Categories</span>
         </h3>
@@ -514,8 +607,8 @@
       <!-- Spender Leaderboard: Who Paid vs Who Consumed -->
       <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
         <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-trophy text-amber-400"></i>
-          <span>Member Spending vs Consumption</span>
+          <i class="fa-solid fa-credit-card text-brand-400" id="analyticsLeaderboardIcon"></i>
+          <span id="analyticsLeaderboardTitle">Member Spending vs Consumption</span>
         </h3>
         <div id="analyticsMemberLeaderboard" class="space-y-2.5 pt-1">
           <!-- Rendered by JS -->
@@ -550,6 +643,11 @@
             <span class="font-bold text-slate-200" id="settingsHomeCurrency">INR (₹)</span>
           </div>
         </div>
+      </div>
+
+      <!-- 🌟 SMART TRAVEL & LIFESTYLE PERKS (Option 3 Dynamic Monetization) -->
+      <div id="hubSmartPerksContainer" class="space-y-3">
+        <!-- Rendered dynamically by renderSmartPerks() in JS -->
       </div>
 
       <!-- Trip Members Management Card -->
@@ -925,16 +1023,16 @@
         <span class="text-[11px] mt-1">Settle Up</span>
       </button>
 
-      <!-- Nav 3: Analytics -->
-      <button onclick="switchTab('analytics')" id="nav-btn-analytics" class="flex flex-col items-center py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active-press">
-        <i class="fa-solid fa-chart-pie text-lg"></i>
-        <span class="text-[11px] mt-1">Analytics</span>
+      <!-- Nav 3: Trip Hub (Toolkit, Kitty, Budget, Forex, Games) -->
+      <button onclick="switchTab('hub')" id="nav-btn-hub" class="flex flex-col items-center py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active-press">
+        <i class="fa-solid fa-toolbox text-lg"></i>
+        <span class="text-[11px] mt-1">Trip Hub</span>
       </button>
 
-      <!-- Nav 4: Trip & Settings -->
-      <button onclick="switchTab('settings')" id="nav-btn-settings" class="flex flex-col items-center py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active-press">
-        <i class="fa-solid fa-gear text-lg"></i>
-        <span class="text-[11px] mt-1">Trip Info</span>
+      <!-- Nav 4: Friends & Invite -->
+      <button onclick="switchTab('friends')" id="nav-btn-friends" class="flex flex-col items-center py-1 rounded-xl text-slate-400 hover:text-slate-200 transition-all active-press">
+        <i class="fa-solid fa-users text-lg"></i>
+        <span class="text-[11px] mt-1">Friends</span>
       </button>
 
     </div>
@@ -1462,8 +1560,36 @@
           </div>
         </div>
 
+        <!-- PAYMENT METHOD SELECTOR (Cash, UPI, Credit Card, Debit Card, Net Banking) -->
+        <div id="containerPaymentMethodSection" class="space-y-1.5 pt-1">
+          <label class="block text-slate-400 font-semibold">Payment Method</label>
+          <div class="grid grid-cols-5 gap-1.5" id="paymentMethodPillStrip">
+            <button type="button" onclick="setExpensePaymentMethod('upi')" id="btnPayMethod-upi" class="pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-brand-500/20 border-brand-500/50 text-brand-300 font-bold">
+              <span class="text-sm">⚡</span>
+              <span class="text-[9px] font-bold">UPI</span>
+            </button>
+            <button type="button" onclick="setExpensePaymentMethod('credit_card')" id="btnPayMethod-credit_card" class="pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-slate-900 border-slate-700/80 text-slate-400 hover:text-slate-200">
+              <span class="text-sm">💳</span>
+              <span class="text-[9px]">Card (Cr)</span>
+            </button>
+            <button type="button" onclick="setExpensePaymentMethod('debit_card')" id="btnPayMethod-debit_card" class="pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-slate-900 border-slate-700/80 text-slate-400 hover:text-slate-200">
+              <span class="text-sm">🏧</span>
+              <span class="text-[9px]">Debit</span>
+            </button>
+            <button type="button" onclick="setExpensePaymentMethod('cash')" id="btnPayMethod-cash" class="pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-slate-900 border-slate-700/80 text-slate-400 hover:text-slate-200">
+              <span class="text-sm">💵</span>
+              <span class="text-[9px]">Cash</span>
+            </button>
+            <button type="button" onclick="setExpensePaymentMethod('net_banking')" id="btnPayMethod-net_banking" class="pay-method-pill px-1.5 py-2 rounded-xl border flex flex-col items-center justify-center gap-1 active-press transition-all bg-slate-900 border-slate-700/80 text-slate-400 hover:text-slate-200">
+              <span class="text-sm">🏦</span>
+              <span class="text-[9px]">Bank</span>
+            </button>
+          </div>
+          <input type="hidden" id="inputPaymentMethod" value="upi">
+        </div>
+
         <!-- WHO PAID SECTION (Single Payer or Multi-Payer) -->
-        <div class="space-y-1.5 pt-1">
+        <div id="containerWhoPaidSection" class="space-y-1.5 pt-1">
           <div class="flex items-center justify-between">
             <label class="block text-slate-400 font-semibold">Who Paid for this?</label>
             <button type="button" onclick="toggleMultiPayerMode()" class="text-[11px] font-bold text-brand-400 hover:underline">
@@ -1492,7 +1618,7 @@
         </div>
 
         <!-- SHARED WITH SECTION ("3 out of 9" Rule) -->
-        <div class="space-y-2 pt-2 border-t border-slate-800">
+        <div id="containerSharedWithSection" class="space-y-2 pt-2 border-t border-slate-800">
           <div class="flex items-center justify-between">
             <div>
               <label class="block text-slate-300 font-bold">Shared With</label>
@@ -1554,6 +1680,45 @@
         </div>
 
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: MONTH PICKER ==================== -->
+  <div id="modalMonthPicker" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalMonthPicker')">
+    <div class="glass-modal w-full max-w-sm rounded-3xl border border-slate-700/80 p-5 space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">
+            📅
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Select Expense Month</h3>
+            <p class="text-[10px] text-slate-400">Jump to any month to view or audit expenses</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalMonthPicker')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center active-press">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between px-2 py-1 bg-slate-900/90 rounded-xl border border-slate-800">
+        <button type="button" onclick="changePickerYear(-1)" class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold flex items-center justify-center active-press">◀</button>
+        <span id="pickerYearDisplay" class="font-bold text-white text-sm">2026</span>
+        <button type="button" onclick="changePickerYear(1)" class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold flex items-center justify-center active-press">▶</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2" id="monthPickerGrid">
+        <!-- Rendered dynamically by JS: Jan to Dec -->
+      </div>
+
+      <div class="pt-2 flex justify-between items-center text-xs border-t border-slate-800">
+        <button type="button" onclick="jumpToCurrentMonth()" class="text-brand-400 font-bold hover:underline">
+          ⚡ Jump to This Month
+        </button>
+        <button type="button" onclick="closeModal('modalMonthPicker')" class="text-slate-400 hover:text-white">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1848,6 +2013,20 @@
 
       <!-- TAB CONTENT 1: Trips List -->
       <div id="hubSectionTrips" class="space-y-2.5 overflow-y-auto flex-1 pr-1">
+        <!-- Quick Test Lab Shortcut -->
+        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">🧪</span>
+            <div>
+              <span class="font-bold text-white text-[11px] block">Solo Founder Test Lab</span>
+              <span class="text-[10px] text-slate-400">Load 5-Person Bali Trip with 12 bills & Hisaab math</span>
+            </div>
+          </div>
+          <button type="button" onclick="loadDemoTripSimulator()" class="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[10px] active-press shrink-0">
+            Load Test Trip
+          </button>
+        </div>
+
         <div id="tripSwitcherList" class="space-y-2.5">
           <!-- Populated via JS with rich trip cards -->
         </div>
@@ -1856,28 +2035,52 @@
       <!-- TAB CONTENT 2: Create Trip Form -->
       <div id="hubSectionCreate" class="hidden space-y-3 overflow-y-auto flex-1 pr-1">
         <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+
+          <!-- Space Mode Selector -->
           <div>
-            <label class="block text-slate-300 font-bold mb-1">Trip Name *</label>
-            <input type="text" id="newTripName" placeholder="e.g. Goa Sunburn 2026, Dubai Luxury Tour" 
+            <label class="block text-slate-300 font-bold mb-1.5">Choose Space Type</label>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800">
+              <button type="button" id="btnSpaceType-trip" onclick="selectSpaceType('trip')" 
+                class="py-2 px-1 rounded-xl font-bold text-[11px] bg-brand-500 text-slate-950 transition-all flex flex-col items-center gap-0.5 shadow-md">
+                <span class="text-sm">✈️</span>
+                <span>Group Trip</span>
+              </button>
+              <button type="button" id="btnSpaceType-personal" onclick="selectSpaceType('personal')" 
+                class="py-2 px-1 rounded-xl font-bold text-[11px] text-slate-400 hover:text-white transition-all flex flex-col items-center gap-0.5">
+                <span class="text-sm">👤</span>
+                <span>Personal Tracker</span>
+              </button>
+              <button type="button" id="btnSpaceType-flat" onclick="selectSpaceType('flat')" 
+                class="py-2 px-1 rounded-xl font-bold text-[11px] text-slate-400 hover:text-white transition-all flex flex-col items-center gap-0.5">
+                <span class="text-sm">🏠</span>
+                <span>Flat / Home</span>
+              </button>
+            </div>
+            <input type="hidden" id="selectedSpaceType" value="trip">
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1" id="labelNewTripName">Space / Trip Name *</label>
+            <input type="text" id="newTripName" placeholder="e.g. Goa Sunburn 2026, Thailand Vows" 
               class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-semibold text-xs focus:outline-none focus:border-brand-500">
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div id="containerNewTripDestDates" class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-slate-300 font-bold mb-1">Destination</label>
+              <label class="block text-slate-300 font-bold mb-1" id="labelNewTripDestination">Destination</label>
               <input type="text" id="newTripDestination" placeholder="e.g. Goa, Phuket, Dubai" 
                 class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-brand-500">
             </div>
             <div>
-              <label class="block text-slate-300 font-bold mb-1">Trip Dates</label>
+              <label class="block text-slate-300 font-bold mb-1" id="labelNewTripDates">Dates / Timeline</label>
               <input type="text" id="newTripDates" placeholder="e.g. Nov 14 - 18, 2026" 
                 class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-brand-500">
             </div>
           </div>
 
           <!-- Currency Selector Pills -->
-          <div>
-            <label class="block text-slate-300 font-bold mb-1.5">Primary Trip Currency</label>
+          <div id="containerNewTripCurrency">
+            <label class="block text-slate-300 font-bold mb-1.5" id="labelNewTripCurrency">Primary Currency</label>
             <div class="grid grid-cols-4 gap-1.5">
               <button type="button" onclick="selectNewTripCurrency('INR', '₹', 1.0)" id="currBtn-INR" 
                 class="py-1.5 px-2 rounded-xl border text-center font-bold text-xs bg-brand-500/20 text-brand-300 border-brand-500">
@@ -1917,35 +2120,44 @@
             <input type="hidden" id="selectedNewTripForex" value="1.0">
           </div>
 
-          <!-- Your Name (Trip Creator) -->
+          <!-- Your Name (Creator) -->
           <div class="space-y-1">
             <div class="flex items-center justify-between">
-              <label class="block text-slate-300 font-bold">Your Name (You) *</label>
-              <span class="text-[10px] text-brand-400 font-semibold">Trip Creator</span>
+              <label class="block text-slate-300 font-bold" id="labelNewTripYourName">Your Name *</label>
+              <span class="text-[10px] text-brand-400 font-semibold" id="badgeNewTripCreator">Space Creator</span>
             </div>
             <div class="relative">
               <span class="absolute left-3 top-2 text-slate-500 text-xs">👤</span>
               <input type="text" id="newTripYourName" placeholder="e.g. Ankuj" value=""
                 class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-semibold text-xs focus:outline-none focus:border-brand-500">
             </div>
-            <p class="text-[10px] text-slate-400">Your name will be Member #1 so your spends and balance are always tracked.</p>
           </div>
 
-          <!-- Friends Traveling With You -->
-          <div class="space-y-1">
-            <label class="block text-slate-300 font-bold">Friends Traveling With You (comma separated) *</label>
+          <!-- Friends Traveling / Sharing With You -->
+          <div id="containerNewTripFriends" class="space-y-1">
+            <label class="block text-slate-300 font-bold" id="labelNewTripFriends">Friends Traveling With You (comma separated) *</label>
             <div class="relative">
               <span class="absolute left-3 top-2 text-slate-500 text-xs">👥</span>
               <input type="text" id="newTripFriends" placeholder="e.g. Shwaan, Shubu, Rohit, Priya" value=""
                 class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-brand-500">
             </div>
-            <p class="text-[10px] text-slate-400">Enter your traveling friends. You can easily add or edit members anytime during the trip.</p>
+            <p class="text-[10px] text-slate-400" id="hintNewTripFriends">Enter friends joining you. You can easily add or edit members anytime.</p>
           </div>
 
-          <button type="button" onclick="confirmCreateTripFromHub()" 
+          <!-- Personal Tracker Solo Callout -->
+          <div id="calloutPersonalTracker" class="hidden p-3 rounded-xl bg-brand-500/10 border border-brand-500/30 text-xs text-brand-300 space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-white">
+              <span>👤 Solo Expense Diary Active</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Track personal spends, monthly budget & category analytics with zero debt clutter.
+            </p>
+          </div>
+
+          <button type="button" id="btnConfirmCreateSpace" onclick="confirmCreateTripFromHub()" 
             class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-teal-600 text-white font-extrabold text-xs active-press flex items-center justify-center gap-2 shadow-lg">
             <i class="fa-solid fa-sparkles"></i>
-            <span>Create & Launch Trip</span>
+            <span id="textBtnCreateSpace">Create & Launch Trip</span>
           </button>
         </div>
       </div>
@@ -3383,6 +3595,454 @@
     </div>
   </div>
 
+  <!-- ==================== 🔐 MODAL: AUTHENTICATION & LOGIN (GOOGLE + MOBILE OTP) ==================== -->
+  <div id="modalAuthLogin" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in">
+    <div class="glass-modal w-full max-w-md rounded-3xl border border-slate-700/80 p-5 sm:p-6 space-y-4 animate-slide-up shadow-2xl">
+      
+      <!-- Brand & Header -->
+      <div class="text-center space-y-1">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-teal-400/20 border border-brand-500/40 mx-auto flex items-center justify-center text-2xl shadow-lg">
+          🌴
+        </div>
+        <h3 class="text-xl font-black text-white tracking-tight">Welcome to Trip Barabar</h3>
+        <p class="text-xs text-slate-300">Trip Sorted. Hisaab Barabar.</p>
+      </div>
+
+      <!-- Auth Tabs: Google vs Mobile -->
+      <div class="space-y-3 pt-1">
+        
+        <!-- Google 1-Tap Sign-In -->
+        <button type="button" onclick="handleGoogleSignIn()" 
+          class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-2.5 shadow-lg active-press transition-all">
+          <svg class="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="flex items-center gap-2 text-slate-500 text-[11px] my-2">
+          <div class="h-px bg-slate-800 flex-1"></div>
+          <span>OR MOBILE NUMBER</span>
+          <div class="h-px bg-slate-800 flex-1"></div>
+        </div>
+
+        <!-- Mobile Form -->
+        <div id="authMobileStep1" class="space-y-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">Your Full Name</label>
+            <input type="text" id="authInputName" placeholder="e.g. Ankuj or Rohan" 
+              onkeydown="if(event.key==='Enter') handleSendOtp()"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:border-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">Mobile Phone Number</label>
+            <div class="flex gap-2">
+              <span class="px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 flex items-center">
+                +91
+              </span>
+              <input type="tel" id="authInputPhone" placeholder="98765 43210" 
+                onkeydown="if(event.key==='Enter') handleSendOtp()"
+                class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:border-brand-500 focus:outline-none">
+            </div>
+          </div>
+          <button type="button" id="btnSendMobileOtp" onclick="handleSendOtp()" 
+            class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-1.5 shadow-md transition-all">
+            <span>Send 4-Digit OTP</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div id="authMobileStep2" class="hidden space-y-2.5">
+          <div class="p-2.5 rounded-xl bg-brand-500/10 border border-brand-500/30 text-center">
+            <span class="text-[11px] text-brand-300">Enter the 4-digit code sent to your phone (Demo: <strong class="text-white">1234</strong>)</span>
+          </div>
+          <div class="flex justify-center gap-2 pt-1">
+            <input type="text" maxlength="4" id="authInputOtp" placeholder="1234" 
+              onkeydown="if(event.key==='Enter') handleVerifyOtp()"
+              class="w-36 text-center tracking-widest text-lg font-black font-mono-num px-3 py-2 rounded-xl bg-slate-900 border border-brand-500 text-white focus:outline-none">
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" onclick="handleBackToPhone()" class="w-1/3 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">
+              Back
+            </button>
+            <button type="button" id="btnVerifyMobileOtp" onclick="handleVerifyOtp()" 
+              class="w-2/3 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-1.5 shadow-md">
+              <span>Verify & Continue</span>
+              <i class="fa-solid fa-check text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Founder / Guest Shortcut -->
+      <div class="pt-2 border-t border-slate-800 text-center">
+        <button type="button" onclick="handleQuickFounderLogin()" class="text-[11px] text-slate-400 hover:text-amber-400 underline font-medium">
+          Quick Demo: Sign in as Ankuj (Founder)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 👤 MODAL: USER PROFILE & SETTINGS ==================== -->
+  <div id="modalUserProfile" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalUserProfile')">
+    <div class="glass-modal w-full max-w-sm rounded-3xl border border-slate-700/80 p-5 space-y-4 animate-slide-up shadow-2xl">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-circle text-brand-400"></i>
+          <span>My Profile & Account</span>
+        </h3>
+        <button onclick="closeModal('modalUserProfile')" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- User Card -->
+      <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-teal-400 text-slate-950 font-black text-lg flex items-center justify-center user-auth-initials shadow-md">
+          A
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <h4 class="text-sm font-bold text-white user-auth-name truncate">Ankuj</h4>
+            <span class="founder-admin-only hidden px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-black uppercase">
+              Admin
+            </span>
+          </div>
+          <p id="profileUserContact" class="text-xs text-slate-400 truncate">Logged In</p>
+        </div>
+      </div>
+
+      <!-- Action List -->
+      <div class="space-y-2">
+        <!-- Founder Console (Admin Only) -->
+        <button type="button" onclick="closeModal('modalUserProfile'); openFounderConsoleModal();" 
+          class="founder-admin-only hidden w-full p-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-brand-500/20 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center justify-between active-press">
+          <span class="flex items-center gap-2">
+            <span>👑</span>
+            <span>Founder Console & User Directory</span>
+          </span>
+          <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
+
+        <!-- Help & Feedback -->
+        <button type="button" onclick="closeModal('modalUserProfile'); openCustomerFeedbackModal();" 
+          class="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-between active-press transition-all">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-comment-dots text-amber-400"></i>
+            <span>Talk to Us / Feedback</span>
+          </span>
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+        </button>
+
+        <!-- PWA / App Guide -->
+        <button type="button" onclick="closeModal('modalUserProfile'); openInstallGuideModal();" 
+          class="w-full p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-between active-press transition-all">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-mobile-screen text-sky-400"></i>
+            <span>Install App on Phone</span>
+          </span>
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+        </button>
+      </div>
+
+      <!-- Logout Button -->
+      <div class="pt-2 border-t border-slate-800">
+        <button type="button" onclick="handleLogout()" 
+          class="w-full py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold text-xs active-press flex items-center justify-center gap-2 transition-all">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Sign Out / Switch Account</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 🧪 MODAL: SOLO FOUNDER TEST LAB EXPLAINER ==================== -->
+  <div id="modalDemoExplainer" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3.5 sm:p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalDemoExplainer')">
+    <div class="glass-modal w-full max-w-lg rounded-3xl border border-amber-500/50 p-5 space-y-4 animate-slide-up shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-brand-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg shadow-sm">
+            🧪
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h3 class="text-sm sm:text-base font-black text-white">Bali 5-Person Simulation Loaded!</h3>
+              <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 uppercase">LIVE</span>
+            </div>
+            <p class="text-[10px] sm:text-[11px] text-slate-400">12 diverse expenses across 5 friends • Debt math verified</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalDemoExplainer')" class="w-8 h-8 rounded-full bg-slate-800/90 text-slate-400 hover:text-white flex items-center justify-center active-press">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Explainer Body -->
+      <div class="space-y-3 overflow-y-auto pr-1 text-xs text-slate-300">
+        <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-1">
+          <p class="text-amber-300 font-bold flex items-center gap-1.5">
+            <span>🎉</span>
+            <span>You don't need friends to test Trip Barabar!</span>
+          </p>
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            We generated a realistic 7-day vacation with 5 friends to test every splitting & hisaab algorithm in the app.
+          </p>
+        </div>
+
+        <!-- 4 Key Things to Inspect -->
+        <div class="space-y-2">
+          <h4 class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">What to check right now:</h4>
+
+          <!-- Item 1: Hisaab Tab -->
+          <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+            <span class="text-lg shrink-0">🤝</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-white text-xs block">1. The "Hisaab" Tab (Debt Minimizer)</span>
+              <p class="text-[11px] text-slate-400 leading-snug">
+                Instead of 12 messy cross-payments, our greedy algorithm simplified everything into <strong>clean minimal UPI transfers</strong>.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 2: Selective / Excluded Splits -->
+          <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+            <span class="text-lg shrink-0">🚤</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-white text-xs block">2. Selective Friend Splits</span>
+              <p class="text-[11px] text-slate-400 leading-snug">
+                On the <em>Nusa Penida Boat</em> (₹15,000), Neha & Simran didn't go — so their share is ₹0. On the <em>Spa</em> (₹6,000), Kabir & Rahul didn't go.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 3: Exact Rupee Shares -->
+          <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+            <span class="text-lg shrink-0">☕</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-white text-xs block">3. Custom Exact Share Testing</span>
+              <p class="text-[11px] text-slate-400 leading-snug">
+                The <em>Luwak Coffee bill</em> (₹3,000) was split with exact custom amounts (Ankuj: ₹1,500, Kabir: ₹1,000, Rahul: ₹500).
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 4: Analytics -->
+          <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+            <span class="text-lg shrink-0">📊</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-white text-xs block">4. Analytics & Category Breakdown</span>
+              <p class="text-[11px] text-slate-400 leading-snug">
+                Tap the <strong>Analytics</strong> tab to see spending distribution across Villa, Dining, Drinks, and Transport.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[10px] text-slate-500 italic text-center">
+          💡 You can edit any expense, delete bills, or add new ones to see live real-time recalculations!
+        </p>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="pt-3 border-t border-slate-800 shrink-0 flex items-center gap-2">
+        <button type="button" onclick="closeModal('modalDemoExplainer'); switchTab('settle');" 
+          class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 text-slate-950 font-black text-xs active-press shadow-lg flex items-center justify-center gap-1.5 transition-all">
+          <span>Explore Hisaab Tab Now</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+        <button type="button" onclick="closeModal('modalDemoExplainer')" 
+          class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs active-press">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 🎁 MODAL: SMART PERK LAUNCHER ==================== -->
+  <div id="modalPerkLauncher" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalPerkLauncher')">
+    <div class="glass-modal w-full max-w-sm rounded-3xl border border-slate-700/80 p-5 space-y-4 animate-slide-up shadow-2xl text-xs text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-500/20 to-amber-500/20 text-3xl flex items-center justify-center mx-auto border border-brand-500/30" id="perkLauncherEmoji">
+        🏨
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30" id="perkLauncherBadge">
+          VERIFIED PARTNER PERK
+        </span>
+        <h3 class="text-base font-black text-white" id="perkLauncherTitle">Agoda Group Stays</h3>
+        <p class="text-xs text-slate-300 leading-relaxed" id="perkLauncherDesc">
+          Compare verified villas, private pools, and resorts with member discounts.
+        </p>
+      </div>
+
+      <!-- Promo code pill if applicable -->
+      <div id="perkLauncherCodeBox" class="p-2.5 rounded-xl bg-slate-900 border border-dashed border-slate-700 flex items-center justify-between">
+        <div class="text-left">
+          <span class="text-[9px] text-slate-500 uppercase block font-bold">Exclusive Promo Code</span>
+          <span class="text-xs font-mono font-black text-amber-400" id="perkLauncherCode">TRIP10</span>
+        </div>
+        <button type="button" onclick="copyPerkCode()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px] active-press">
+          Copy Code
+        </button>
+      </div>
+
+      <div class="pt-2 space-y-2">
+        <a id="perkLauncherActionBtn" href="#" target="_blank" rel="noopener noreferrer" 
+          class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-400 hover:to-teal-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-2 shadow-lg transition-all">
+          <span id="perkLauncherActionText">Open Partner Page</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+        </a>
+        <button type="button" onclick="closeModal('modalPerkLauncher')" class="w-full py-2 rounded-xl text-slate-400 hover:text-white font-semibold text-xs">
+          Back to Trip Barabar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 💬 MODAL: CUSTOMER FEEDBACK & HELPDESK ==================== -->
+  <div id="modalCustomerFeedback" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalCustomerFeedback')">
+    <div class="glass-modal w-full max-w-md rounded-3xl border border-slate-700/80 p-5 space-y-4 animate-slide-up shadow-2xl">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold">
+            💬
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Help & Feedback</h3>
+            <p class="text-[10px] text-slate-400">Your message goes straight to founder Ankuj</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalCustomerFeedback')" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <form id="formCustomerFeedback" onsubmit="submitCustomerFeedback(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Feedback Category</label>
+          <select id="feedbackCategory" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none">
+            <option value="Suggestion">💡 Feature Suggestion</option>
+            <option value="Praise">✨ I Love This App!</option>
+            <option value="Bug">🐞 Report a Bug / Issue</option>
+            <option value="Question">❓ Question for Creators</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Rating</label>
+          <div class="flex items-center gap-2 text-xl text-amber-400" id="feedbackRatingStars">
+            <span class="cursor-pointer" onclick="setFeedbackRating(1)">★</span>
+            <span class="cursor-pointer" onclick="setFeedbackRating(2)">★</span>
+            <span class="cursor-pointer" onclick="setFeedbackRating(3)">★</span>
+            <span class="cursor-pointer" onclick="setFeedbackRating(4)">★</span>
+            <span class="cursor-pointer" onclick="setFeedbackRating(5)">★</span>
+            <input type="hidden" id="feedbackRatingValue" value="5">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">Your Message / Suggestion</label>
+          <textarea id="feedbackMessageText" rows="3" required placeholder="What can we do to make Trip Barabar even better?" 
+            class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder:text-slate-500 focus:border-brand-500 focus:outline-none"></textarea>
+        </div>
+
+        <button type="submit" 
+          class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-black text-xs active-press flex items-center justify-center gap-1.5 shadow-md">
+          <span>Send Feedback to Ankuj</span>
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==================== 👑 MODAL: FOUNDER CONSOLE & USER DIRECTORY ==================== -->
+  <div id="modalFounderConsole" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 animate-fade-in" onclick="if(event.target === this) closeModal('modalFounderConsole')">
+    <div class="glass-modal w-full max-w-2xl rounded-3xl border border-amber-500/40 p-5 space-y-4 animate-slide-up shadow-2xl max-h-[90vh] flex flex-col">
+      
+      <!-- Top Title Bar -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold">
+            👑
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white">Founder Console & User Analytics</h3>
+            <p class="text-[10px] text-slate-400">Exclusive Master View for Ankuj</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalFounderConsole')" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="grid grid-cols-3 gap-2 shrink-0">
+        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-center">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Users</div>
+          <div id="founderStatTotalUsers" class="text-base font-black text-white font-mono-num mt-0.5">1</div>
+        </div>
+        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-center">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Trips Created</div>
+          <div id="founderStatTotalTrips" class="text-base font-black text-brand-400 font-mono-num mt-0.5">1</div>
+        </div>
+        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-center">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Feedback Items</div>
+          <div id="founderStatTotalFeedback" class="text-base font-black text-amber-400 font-mono-num mt-0.5">1</div>
+        </div>
+      </div>
+
+      <!-- Tab Buttons: Users vs Feedback -->
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2 shrink-0">
+        <button type="button" id="btnFounderTabUsers" onclick="switchFounderTab('users')" 
+          class="px-3 py-1 rounded-xl text-xs font-bold bg-brand-500 text-slate-950 shadow-sm">
+          👥 Registered Users
+        </button>
+        <button type="button" id="btnFounderTabFeedback" onclick="switchFounderTab('feedback')" 
+          class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:text-white">
+          💬 Customer Feedback & Replies
+        </button>
+        <div class="ml-auto">
+          <button type="button" onclick="exportUsersCsv()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-[11px] border border-slate-700 active-press">
+            📥 Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Area (Scrollable) -->
+      <div class="flex-1 overflow-y-auto space-y-3 min-h-[220px]">
+        <!-- 1. Users List -->
+        <div id="founderUsersSection" class="space-y-2">
+          <div class="text-xs text-slate-400" id="founderUsersList">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 2. Feedback List & Reply Box -->
+        <div id="founderFeedbackSection" class="hidden space-y-2">
+          <div id="founderFeedbackList" class="space-y-2">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- PRINTABLE TRIP STATEMENT FOR WINDOW.PRINT() PDF EXPORT -->
   <div id="printTripStatement">
     <!-- Populated by JS when exportTripPDF() is called -->
@@ -3392,12 +4052,13 @@
   <canvas id="confettiCanvas" class="fixed inset-0 z-50 pointer-events-none hidden w-full h-full"></canvas>
 
   <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-brand-600 text-slate-950 font-bold text-xs shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
+  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2.5 rounded-2xl bg-brand-600 text-slate-950 font-bold text-xs shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
     <span id="toastMessage">Success</span>
   </div>
 
   <!-- APPLICATION SCRIPTS -->
   <script src="security-vault.js"></script>
+  <script src="auth-client.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
