@@ -402,6 +402,65 @@ function getPaymentMethodBadge(method) {
   }
 }
 
+function getPaymentMethodGlyph(method) {
+  const m = (method || 'upi').toLowerCase();
+  switch (m) {
+    case 'credit_card':
+      return { icon: 'fa-solid fa-credit-card', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.25)' };
+    case 'debit_card':
+      return { icon: 'fa-regular fa-credit-card', color: '#0EA5E9', bg: 'rgba(14, 165, 233, 0.12)', border: 'rgba(14, 165, 233, 0.25)' };
+    case 'cash':
+      return { icon: 'fa-solid fa-money-bill-wave', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.25)' };
+    case 'net_banking':
+      return { icon: 'fa-solid fa-building-columns', color: '#6366F1', bg: 'rgba(99, 102, 241, 0.12)', border: 'rgba(99, 102, 241, 0.25)' };
+    case 'upi':
+    default:
+      return { icon: 'fa-solid fa-bolt', color: '#A855F7', bg: 'rgba(168, 85, 247, 0.12)', border: 'rgba(168, 85, 247, 0.25)' };
+  }
+}
+
+function inferPersonalCategory(rawTitle) {
+  if (!rawTitle || typeof rawTitle !== 'string') return 'food';
+  const text = rawTitle.toLowerCase().trim();
+
+  // 1. Food & Dining
+  if (/\b(food|lunch|dinner|breakfast|brunch|snack|snacks|tea|chai|coffee|cafe|starbucks|burger|pizza|biryani|zomato|swiggy|restaurant|dhaba|dosa|idli|maggi|bakery|juice|ice cream|icecream|roll|sandwich|canteen|subway|mcdonald|kfc|domin|sweets|mithai|thali|roti|paneer tikka)\b/i.test(text)) {
+    return 'food';
+  }
+
+  // 2. Groceries & Supermarket
+  if (/\b(grocery|groceries|sabzi|veggie|vegetables|doodh|milk|zepto|blinkit|instamart|dmart|supermarket|fruits|ration|paneer|curd|dahi|eggs|bread|atta|rice|oil|masala|super market|store)\b/i.test(text)) {
+    return 'shopping';
+  }
+
+  // 3. Transport, Fuel, Cabs
+  if (/\b(fuel|petrol|diesel|cng|cab|taxi|uber|ola|auto|rapido|rickshaw|metro|bus|train|ticket|toll|fastag|parking|bike|scooter|puncture|mechanic|car wash|fare)\b/i.test(text)) {
+    return 'cabs';
+  }
+
+  // 4. Bills & Utilities, Rent, Household
+  if (/\b(rent|bill|bills|electricity|bijli|recharge|jio|airtel|vi|broadband|wifi|water|gas|cylinder|lpg|maintenance|maid|cook|gym|fee|fees|school|tuition|subscription|ott|netflix|prime|hotstar|spotify|emi|loan|insurance)\b/i.test(text)) {
+    return 'tips';
+  }
+
+  // 5. Healthcare & Pharmacy
+  if (/\b(medicine|medicines|pharmacy|chemist|dawai|doctor|clinic|consultation|test|lab|hospital|dental|dentist|eyecare|opticals|spectacles|tablet|syrup|bandaid)\b/i.test(text)) {
+    return 'tips';
+  }
+
+  // 6. Social Drinks & Beverages
+  if (/\b(drinks|drink|beer|wine|whiskey|scotch|rum|vodka|cocktail|mocktail|party|pub|bar|alcohol|daaru|liquor|brewery)\b/i.test(text)) {
+    return 'drinks';
+  }
+
+  // 7. Shopping, Lifestyle & Personal Care
+  if (/\b(shopping|clothes|cloth|shirt|pants|jeans|dress|shoes|footwear|amazon|flipkart|myntra|zara|h&m|salon|haircut|parlour|grooming|perfume|cosmetics|electronics|gadget|mobile|laptop|mall)\b/i.test(text)) {
+    return 'shopping';
+  }
+
+  return 'food';
+}
+
 function formatExpenseDateShort(dateStrOrTs) {
   if (!dateStrOrTs) return 'Today';
   let d;
@@ -1677,6 +1736,18 @@ function enterActiveTripWorkspace(tripId = null) {
   if (bottomNav) bottomNav.classList.remove('hidden');
   if (fab) fab.classList.remove('hidden');
 
+  if (state.activeTrip && state.activeTrip.type === 'personal') {
+    state.selectedFilterCategory = 'all';
+    if (Array.isArray(state.activeTrip.expenses)) {
+      const banned = ['lapdance', 'adult', 'oral', 'ladydrinks', 'dispensary', 'massage', 'stay', 'boat'];
+      state.activeTrip.expenses.forEach(e => {
+        if (!e.categoryId || banned.includes(e.categoryId)) {
+          e.categoryId = inferPersonalCategory(e.title);
+        }
+      });
+    }
+  }
+
   switchTab(state.activeTab || 'expenses');
   renderAll();
   if (window.AuthClient) window.AuthClient.updateProfileDom();
@@ -2244,12 +2315,15 @@ function renderCategoryFilterChips() {
   const trip = state.activeTrip;
   const isPersonal = trip && trip.type === 'personal';
 
-  let catsToUse = DEFAULT_CATEGORIES;
   if (isPersonal) {
-    catsToUse = DEFAULT_CATEGORIES.filter(c => !c.isAdult && c.id !== 'stay' && c.id !== 'boat');
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    state.selectedFilterCategory = 'all';
+    return;
   }
+  container.classList.remove('hidden');
 
-  const allCats = [{ id: 'all', emoji: '✨', name: 'All' }, ...catsToUse];
+  const allCats = [{ id: 'all', emoji: '✨', name: 'All' }, ...DEFAULT_CATEGORIES];
 
   container.innerHTML = allCats.map(cat => {
     const isSelected = state.selectedFilterCategory === cat.id;
@@ -2382,15 +2456,15 @@ function renderExpensesList() {
 
   if (isPersonal) {
     let rowsHtml = visibleList.map(exp => {
-      const cat = getCategoryInfo(exp.categoryId);
+      const glyph = getPaymentMethodGlyph(exp.paymentMethod || 'upi');
       const payBadge = getPaymentMethodBadge(exp.paymentMethod || 'upi');
       const dateText = formatExpenseDateShort(exp.date || exp.createdAt);
 
       return `
         <div class="glass-card rounded-2xl px-3.5 py-2.5 border border-slate-800/90 shadow-sm flex items-center justify-between gap-3 hover:border-slate-700 transition-all">
           <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0" style="background: ${cat.color}20; border: 1px solid ${cat.color}40;">
-              ${cat.displayEmoji}
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0" style="background: ${glyph.bg}; border: 1px solid ${glyph.border}; color: ${glyph.color};">
+              <i class="${glyph.icon}"></i>
             </div>
             <div class="min-w-0">
               <h4 class="text-xs font-bold text-white truncate">${escapeHtml(exp.title)}</h4>
@@ -2861,17 +2935,35 @@ function renderAnalyticsTab() {
       const cat = getCategoryInfo(catId);
       const percentage = totalSpend > 0 ? Math.round((amt / totalSpend) * 100) : 0;
 
+      let catIconHtml = `<span>${cat.displayEmoji}</span>`;
+      let catLabelText = cat.displayName;
+      let catBarColor = cat.color || '#0D9488';
+
+      if (isPersonal) {
+        const personalCatMap = {
+          food: { icon: 'fa-solid fa-utensils', color: '#F97316', label: 'Food & Dining' },
+          shopping: { icon: 'fa-solid fa-bag-shopping', color: '#10B981', label: 'Groceries & Essentials' },
+          cabs: { icon: 'fa-solid fa-car', color: '#06B6D4', label: 'Transport & Fuel' },
+          tips: { icon: 'fa-solid fa-receipt', color: '#8B5CF6', label: 'Bills, Utilities & Care' },
+          drinks: { icon: 'fa-solid fa-mug-hot', color: '#EAB308', label: 'Drinks & Social' }
+        };
+        const pm = personalCatMap[catId] || { icon: 'fa-solid fa-wallet', color: '#64748B', label: cat.displayName || 'General' };
+        catIconHtml = `<i class="${pm.icon} text-xs" style="color: ${pm.color};"></i>`;
+        catLabelText = pm.label;
+        catBarColor = pm.color;
+      }
+
       return `
         <div class="space-y-1">
           <div class="flex items-center justify-between text-xs">
-            <span class="flex items-center gap-1.5 text-slate-300 font-semibold">
-              <span>${cat.displayEmoji}</span>
-              <span>${escapeHtml(cat.displayName)}</span>
+            <span class="flex items-center gap-2 text-slate-300 font-semibold">
+              ${catIconHtml}
+              <span>${escapeHtml(catLabelText)}</span>
             </span>
             <span class="font-mono-num font-bold text-white">₹${amt.toFixed(0)} (${percentage}%)</span>
           </div>
           <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500" style="width: ${percentage}%; background: ${cat.color || '#0D9488'};"></div>
+            <div class="h-full rounded-full transition-all duration-500" style="width: ${percentage}%; background: ${catBarColor};"></div>
           </div>
         </div>
       `;
@@ -3667,15 +3759,24 @@ function openAddExpenseModal(editId = null) {
   const isPersonal = trip.type === 'personal';
   const whoPaidContainer = document.getElementById('containerWhoPaidSection');
   const sharedWithContainer = document.getElementById('containerSharedWithSection');
+  const categorySectionContainer = document.getElementById('containerModalCategorySection');
+  const modalSubtitle = document.getElementById('modalExpenseSubtitle');
+  const inputTitle = document.getElementById('inputExpenseTitle');
 
   if (isPersonal) {
     if (whoPaidContainer) whoPaidContainer.classList.add('hidden');
     if (sharedWithContainer) sharedWithContainer.classList.add('hidden');
+    if (categorySectionContainer) categorySectionContainer.classList.add('hidden');
+    if (modalSubtitle) modalSubtitle.textContent = 'Enter expense details & payment mode';
+    if (inputTitle) inputTitle.placeholder = 'e.g. Tea and snacks, Lunch, Groceries, Petrol, Medicine';
     document.getElementById('modalExpenseTitle').textContent = editId ? 'Edit Personal Expense' : 'Add Daily Expense';
     document.getElementById('btnSaveExpenseText').textContent = editId ? 'Update Expense' : 'Save Personal Expense';
   } else {
     if (whoPaidContainer) whoPaidContainer.classList.remove('hidden');
     if (sharedWithContainer) sharedWithContainer.classList.remove('hidden');
+    if (categorySectionContainer) categorySectionContainer.classList.remove('hidden');
+    if (modalSubtitle) modalSubtitle.textContent = 'Put expense amount and choose who paid & who shares';
+    if (inputTitle) inputTitle.placeholder = 'e.g. Seafood Dinner at Walking St, Speedboat to Phi Phi';
     document.getElementById('modalExpenseTitle').textContent = editId ? 'Edit Expense' : 'Add New Expense';
     document.getElementById('btnSaveExpenseText').textContent = editId ? 'Update Expense' : 'Save Expense & Update Balances';
   }
@@ -3703,11 +3804,9 @@ function openAddExpenseModal(editId = null) {
   document.getElementById('containerReceiptPreview').classList.add('hidden');
   document.getElementById('labelReceiptAttached').textContent = 'Attach Photo';
 
-  // Render Category Grid in Modal
-  renderModalCategoryGrid();
-
-  // Render Payers list & split grid if group mode
+  // Render Category Grid & Payers only in group mode
   if (!isPersonal) {
+    renderModalCategoryGrid();
     renderModalPayerSection();
     renderModalSplitGrid();
   }
@@ -3725,8 +3824,10 @@ function openAddExpenseModal(editId = null) {
       // Payment Method
       if (exp.paymentMethod) setExpensePaymentMethod(exp.paymentMethod);
 
-      // Select category
-      selectModalCategory(exp.categoryId);
+      // Select category (group mode)
+      if (!isPersonal && exp.categoryId) {
+        selectModalCategory(exp.categoryId);
+      }
 
       // Payer
       if (Array.isArray(exp.paidBy) && exp.paidBy.length > 1) {
@@ -3773,7 +3874,13 @@ function renderModalCategoryGrid() {
   const container = document.getElementById('modalCategoryGrid');
   if (!container) return;
 
-  const allCats = [...DEFAULT_CATEGORIES, ...(state.activeTrip?.customCategories || [])];
+  const trip = state.activeTrip;
+  const isPersonal = trip && trip.type === 'personal';
+
+  let allCats = [...DEFAULT_CATEGORIES, ...(state.activeTrip?.customCategories || [])];
+  if (isPersonal) {
+    allCats = allCats.filter(c => !c.isAdult && c.id !== 'stay' && c.id !== 'boat');
+  }
 
   container.innerHTML = allCats.map(cat => {
     const info = getCategoryInfo(cat.id);
@@ -4239,13 +4346,20 @@ function handleSaveExpense(event) {
   const payerLabel = isPaidFromKitty ? 'Trip Kitty' : (trip.members.find(m => m.id === paidBy[0]?.memberId)?.name || currentUserName);
   const paymentMethod = document.getElementById('inputPaymentMethod')?.value || 'upi';
 
+  let resolvedCatId = selectedModalCategoryId;
+  if (isPersonal) {
+    const existingCat = editId ? trip.expenses.find(e => e.id === editId)?.categoryId : null;
+    const isBannedCat = ['lapdance', 'adult', 'oral', 'ladydrinks', 'dispensary', 'massage', 'stay', 'boat'].includes(existingCat);
+    resolvedCatId = (!existingCat || isBannedCat) ? inferPersonalCategory(title) : existingCat;
+  }
+
   const expenseObj = {
     id: editId || 'exp-' + Date.now(),
     title,
     amount,
     currency,
     convertedAmount,
-    categoryId: selectedModalCategoryId,
+    categoryId: resolvedCatId,
     paymentMethod,
     paidBy,
     paidByName: payerLabel,
@@ -6532,7 +6646,24 @@ function parseHinglishInput(rawText) {
   let categoryId = 'food';
   let title = 'Expense';
 
-  if (text.includes('dinner') || text.includes('lunch') || text.includes('khana') || text.includes('food') || text.includes('burger') || text.includes('pizza') || text.includes('seafood') || text.includes('breakfast')) {
+  if (trip.type === 'personal') {
+    categoryId = inferPersonalCategory(text);
+    if (text.includes('coffee') || text.includes('chai') || text.includes('tea')) title = 'Coffee / Tea';
+    else if (text.includes('lunch')) title = 'Lunch';
+    else if (text.includes('dinner')) title = 'Dinner';
+    else if (text.includes('breakfast')) title = 'Breakfast';
+    else if (text.includes('grocery') || text.includes('groceries') || text.includes('sabzi') || text.includes('milk') || text.includes('doodh')) title = 'Groceries';
+    else if (text.includes('petrol') || text.includes('fuel') || text.includes('diesel')) title = 'Fuel / Petrol';
+    else if (text.includes('cab') || text.includes('uber') || text.includes('ola') || text.includes('auto')) title = 'Cab / Ride';
+    else if (text.includes('rent')) title = 'Rent';
+    else if (text.includes('bijli') || text.includes('electricity') || text.includes('bill') || text.includes('wifi') || text.includes('recharge')) title = 'Bills & Utilities';
+    else if (text.includes('medicine') || text.includes('doctor') || text.includes('pharmacy')) title = 'Medicine / Healthcare';
+    else if (text.includes('snack') || text.includes('sweets') || text.includes('mithai')) title = 'Snacks';
+    else {
+      const cleanTitle = text.replace(/^(rs\.?|inr|₹|\$|\d+(\.\d+)?|k\b|upi|cash|card|\s)+/gi, '').trim();
+      title = cleanTitle ? (cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1)) : 'Daily Spend';
+    }
+  } else if (text.includes('dinner') || text.includes('lunch') || text.includes('khana') || text.includes('food') || text.includes('burger') || text.includes('pizza') || text.includes('seafood') || text.includes('breakfast')) {
     categoryId = 'food';
     title = text.includes('dinner') ? 'Dinner Feast' : (text.includes('lunch') ? 'Lunch' : (text.includes('breakfast') ? 'Breakfast' : 'Food & Dining'));
   } else if (text.includes('coffee') || text.includes('chai') || text.includes('tea') || text.includes('cafe') || text.includes('starbucks')) {
@@ -8965,7 +9096,7 @@ function openPolaroidsModal() {
       : `
         <div class="w-full h-36 rounded-md flex flex-col items-center justify-center text-center p-3 relative overflow-hidden" 
              style="background: linear-gradient(135deg, ${cat.color}30, #0F172A);">
-          <div class="text-4xl mb-1">${cat.displayEmoji}</div>
+          <div class="text-4xl mb-1">${trip.type === 'personal' ? `<i class="${getPaymentMethodGlyph(exp.paymentMethod).icon} text-3xl" style="color: ${getPaymentMethodGlyph(exp.paymentMethod).color};"></i>` : cat.displayEmoji}</div>
           <div class="text-[11px] font-bold text-white px-2 truncate w-full">${escapeHtml(exp.title)}</div>
           <div class="text-[10px] text-amber-300 font-mono font-bold mt-1">₹${Math.round(convertedHome).toLocaleString('en-IN')}</div>
         </div>
