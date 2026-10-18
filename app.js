@@ -3355,34 +3355,84 @@ function fireConfetti() {
 }
 
 // ==================== SETTINGS & TRIP MANAGEMENT TAB ====================
+function copyTextToClipboard(text, successMsg = 'Copied to clipboard!') {
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 ' + successMsg);
+    }).catch(() => {
+      showToast('Copied: ' + text);
+    });
+  } else {
+    showToast('Copied: ' + text);
+  }
+}
+window.copyTextToClipboard = copyTextToClipboard;
+
+function togglePerksCollapsible() {
+  const container = document.getElementById('hubSmartPerksContainer');
+  const icon = document.getElementById('iconPerksToggle');
+  if (!container) return;
+  const isHidden = container.classList.contains('hidden');
+  if (isHidden) {
+    container.classList.remove('hidden');
+    if (icon) icon.className = 'fa-solid fa-chevron-up text-[10px]';
+  } else {
+    container.classList.add('hidden');
+    if (icon) icon.className = 'fa-solid fa-chevron-down text-[10px]';
+  }
+}
+window.togglePerksCollapsible = togglePerksCollapsible;
+
 function renderSettingsTab() {
   const trip = state.activeTrip;
   if (!trip) return;
 
-  document.getElementById('settingsTripTitle').textContent = trip.name;
-  document.getElementById('settingsTripDescription').textContent = `${trip.destination || ''} • ${trip.dates || ''}`;
-  document.getElementById('settingsTripCurrency').textContent = `${trip.baseCurrency} (${trip.currencySymbol || ''})`;
-  document.getElementById('settingsHomeCurrency').textContent = `${trip.homeCurrency} (${trip.homeCurrencySymbol || ''})`;
-  document.getElementById('settingsForexRateDisplay').textContent = `1 ${trip.baseCurrency} = ${Number(trip.forexRate || 1).toFixed(2)} ${trip.homeCurrency}`;
-  document.getElementById('settingsTripCode').textContent = trip.code || 'TRIP26';
-  document.getElementById('settingsMemberCount').textContent = trip.members.length;
+  if (document.getElementById('settingsTripTitle')) document.getElementById('settingsTripTitle').textContent = trip.name;
+  if (document.getElementById('settingsTripCodeBadge')) document.getElementById('settingsTripCodeBadge').textContent = trip.code || 'TRIP26';
+  if (document.getElementById('settingsTripDescription')) document.getElementById('settingsTripDescription').textContent = `${trip.destination || ''} • ${trip.dates || ''}`;
+  if (document.getElementById('settingsTripCurrency')) document.getElementById('settingsTripCurrency').textContent = `${trip.baseCurrency} (${trip.currencySymbol || ''})`;
+  if (document.getElementById('settingsHomeCurrency')) document.getElementById('settingsHomeCurrency').textContent = `${trip.homeCurrency} (${trip.homeCurrencySymbol || ''})`;
+  if (document.getElementById('settingsForexRateDisplay')) document.getElementById('settingsForexRateDisplay').textContent = `1 ${trip.baseCurrency} = ${Number(trip.forexRate || 1).toFixed(2)} ${trip.homeCurrency}`;
+  if (document.getElementById('settingsTripCode')) document.getElementById('settingsTripCode').textContent = trip.code || 'TRIP26';
+  if (document.getElementById('settingsMemberCount')) document.getElementById('settingsMemberCount').textContent = trip.members.length;
+
+  const activeThemeKey = trip.theme || detectThemeFromTrip(trip);
+  const themeInfo = DESTINATION_THEMES[activeThemeKey] || DESTINATION_THEMES.tropical;
+  const themeBadgeEl = document.getElementById('activeThemeBadge');
+  if (themeBadgeEl) {
+    themeBadgeEl.textContent = themeInfo.badge || themeInfo.name;
+  }
 
   const memberListEl = document.getElementById('settingsMemberList');
   if (memberListEl) {
     memberListEl.innerHTML = trip.members.map(m => `
-      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
-        <div class="flex items-center gap-2.5">
-          <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] text-white" style="background: ${m.color || '#0D9488'};">
-            ${m.name.charAt(0)}
+      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs hover:border-slate-700 transition-all">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs text-white shrink-0 shadow-sm" style="background: ${m.color || '#0D9488'};">
+            ${m.name.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div class="font-bold text-white">${escapeHtml(m.name)}</div>
-            <div class="text-[10px] text-slate-500 font-mono">${escapeHtml(m.upi || 'No UPI ID')}</div>
+          <div class="min-w-0">
+            <div class="font-bold text-white truncate text-xs flex items-center gap-1.5">
+              <span>${escapeHtml(m.name)}</span>
+              ${m.phone ? `<span class="text-[10px] text-slate-500 font-normal">(${escapeHtml(m.phone)})</span>` : ''}
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono mt-0.5 flex items-center gap-1.5 truncate">
+              <i class="fa-solid fa-bolt text-[9px] text-amber-400"></i>
+              <span>${escapeHtml(m.upi || 'No UPI ID')}</span>
+            </div>
           </div>
         </div>
-        <button onclick="editMemberModal('${m.id}')" class="text-slate-400 hover:text-brand-400 text-xs px-2 py-1">
-          <i class="fa-solid fa-pen"></i>
-        </button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          ${m.upi ? `
+            <button onclick="copyTextToClipboard('${escapeHtml(m.upi)}', 'UPI ID copied!')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white flex items-center justify-center active-press" title="Copy UPI ID">
+              <i class="fa-solid fa-copy text-xs"></i>
+            </button>
+          ` : ''}
+          <button onclick="editMemberModal('${m.id}')" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-brand-300 flex items-center justify-center active-press" title="Edit Member">
+            <i class="fa-solid fa-pen text-xs"></i>
+          </button>
+        </div>
       </div>
     `).join('');
   }
@@ -5971,12 +6021,22 @@ async function checkUrlForJoinCode() {
 function switchTab(tabId) {
   state.activeTab = tabId;
 
-  // Map aliases for tabs: 'hub' -> 'settings', 'friends' -> 'settings' (or dedicated sections if present)
+  // Map aliases for tabs: 'hub' -> 'hub', 'friends' -> 'friends'
   let targetSectionId = tabId;
   if (tabId === 'hub') {
     targetSectionId = document.getElementById('tab-hub') ? 'hub' : 'settings';
   } else if (tabId === 'friends') {
     targetSectionId = document.getElementById('tab-friends') ? 'friends' : 'settings';
+  }
+
+  // Hero Card visibility: Show on 'expenses', hide on 'hub', 'settle', 'friends'
+  const heroCard = document.getElementById('heroTripCard');
+  if (heroCard) {
+    if (targetSectionId === 'expenses') {
+      heroCard.classList.remove('hidden');
+    } else {
+      heroCard.classList.add('hidden');
+    }
   }
 
   const allSections = ['expenses', 'settle', 'analytics', 'settings', 'hub', 'friends'];
@@ -6005,6 +6065,10 @@ function switchTab(tabId) {
 
   if (targetSectionId === 'analytics') {
     renderAnalyticsTab();
+  } else if (targetSectionId === 'settle') {
+    renderSettleUpTab();
+  } else if (targetSectionId === 'hub' || targetSectionId === 'friends' || targetSectionId === 'settings') {
+    renderSettingsTab();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });

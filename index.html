@@ -617,379 +617,248 @@
 
     </section>
 
-    <!-- ==================== TAB 4: TRIP & SETTINGS ==================== -->
-    <section id="tab-settings" class="hidden space-y-4">
+    <!-- ==================== TAB 3: TRIP HUB (CONTROL CENTER) ==================== -->
+    <section id="tab-hub" class="hidden space-y-3.5">
       
-      <!-- Current Trip Card -->
-      <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
-        <div class="flex items-start justify-between">
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">Active Trip</span>
-            <h3 class="text-base font-bold text-white mt-1" id="settingsTripTitle">Thailand Boys Trip</h3>
-            <p class="text-xs text-slate-400" id="settingsTripDescription">Bangkok, Pattaya & Phuket</p>
+      <!-- 1. Active Trip Header Card -->
+      <div class="p-3.5 rounded-2xl glass-card border border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-xl shrink-0">
+            🌴
           </div>
-          <button onclick="openTripSwitcherModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-semibold text-brand-400 border border-slate-700 active-press">
-            Switch Trip
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-xs">
-          <div>
-            <span class="text-slate-500 block text-[10px]">Trip Currency:</span>
-            <span class="font-bold text-slate-200" id="settingsTripCurrency">THB (฿)</span>
-          </div>
-          <div>
-            <span class="text-slate-500 block text-[10px]">Home Currency:</span>
-            <span class="font-bold text-slate-200" id="settingsHomeCurrency">INR (₹)</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white truncate" id="settingsTripTitle">Trip Title</h3>
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30" id="settingsTripCodeBadge">TRIP</span>
+            </div>
+            <p class="text-[11px] text-slate-400 truncate" id="settingsTripDescription">Destination • Dates</p>
+            <div class="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5">
+              <span>Currencies: <strong class="text-slate-300" id="settingsTripCurrency">IDR</strong> / <strong class="text-slate-300" id="settingsHomeCurrency">INR</strong></span>
+            </div>
           </div>
         </div>
+        <button onclick="openTripSwitcherModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-brand-400 border border-slate-700 text-xs font-bold shrink-0 active-press transition-all">
+          Switch
+        </button>
       </div>
 
-      <!-- 🌟 SMART TRAVEL & LIFESTYLE PERKS (Option 3 Dynamic Monetization) -->
-      <div id="hubSmartPerksContainer" class="space-y-3">
-        <!-- Rendered dynamically by renderSmartPerks() in JS -->
-      </div>
-
-      <!-- Trip Members Management Card -->
-      <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-user-group text-brand-400"></i>
-            <span>Trip Friends & UPI IDs (<span id="settingsMemberCount">9</span>)</span>
-          </h3>
-          <button onclick="openAddMemberModal()" class="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 active-press">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Add Friend</span>
-          </button>
-        </div>
-
-        <div id="settingsMemberList" class="space-y-2 pt-1">
-          <!-- Rendered by JS -->
-        </div>
-      </div>
-
-      <!-- Currency & Custom Forex Settings Card -->
-      <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-coins text-amber-400"></i>
-          <span>Currencies & Forex Exchange Rate</span>
-        </h3>
-        
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          Lock in the exact exchange rate you got at SuperRich / ATM cash counters or your credit card forex markup.
-        </p>
-
-        <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
-          <div>
-            <div class="text-xs font-bold text-white" id="settingsForexRateDisplay">1 THB = 2.48 INR</div>
-            <div class="text-[10px] text-slate-400">Fixed rate applied to all conversions</div>
-          </div>
-          <button onclick="openForexModal()" class="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold active-press">
-            Edit Rate
-          </button>
-        </div>
-      </div>
-
-      <!-- Trip Tools & Advanced Utilities Card -->
-      <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+      <!-- 2. Section: Trip Tools & Calculators (2-column compact grid) -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
           <i class="fa-solid fa-toolbox text-brand-400"></i>
-          <span>Trip Super Tools & Reports</span>
-        </h3>
+          <span>Trip Tools & Calculators</span>
+        </span>
 
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <!-- Kitty Manager -->
-          <button onclick="openKittyManagerModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-left active-press flex items-center gap-2">
-            <span class="text-lg">💰</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Trip Kitty Fund</div>
-              <div class="text-[9px] text-slate-400">Treasurer Mode</div>
+          <!-- Kitty Fund -->
+          <button onclick="openKittyManagerModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0 text-base">
+              💰
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Trip Kitty</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Pool fund & treasurer</div>
             </div>
           </button>
 
           <!-- Bill Itemizer -->
-          <button onclick="openBillItemizerModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/40 text-left active-press flex items-center gap-2">
-            <span class="text-lg">🧾</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Bill Itemizer</div>
-              <div class="text-[9px] text-slate-400">Proportional Tax</div>
+          <button onclick="openBillItemizerModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-brand-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-brand-500/15 text-brand-400 flex items-center justify-center shrink-0 text-base">
+              🧾
             </div>
-          </button>
-
-          <!-- Road Trip Mode -->
-          <button onclick="openRoadTripModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/40 text-left active-press flex items-center gap-2">
-            <span class="text-lg">🚗</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Road Trip Mode</div>
-              <div class="text-[9px] text-slate-400">Fuel & FASTag</div>
-            </div>
-          </button>
-
-          <!-- Trip Wrapped -->
-          <button onclick="openTripWrappedModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-purple-500/40 text-left active-press flex items-center gap-2">
-            <span class="text-lg">🎁</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Trip Wrapped</div>
-              <div class="text-[9px] text-slate-400">Story & Awards</div>
-            </div>
-          </button>
-
-          <!-- Activity Log / Audit Trail -->
-          <button onclick="openActivityLogModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-600 text-left active-press flex items-center gap-2">
-            <span class="text-lg">📜</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Audit History</div>
-              <div class="text-[9px] text-slate-400">Dispute-Proof Log</div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Bill Itemizer</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Dish-by-dish + tax</div>
             </div>
           </button>
 
           <!-- Trip Budget -->
-          <button onclick="openBudgetModal()" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-emerald-500/40 text-left active-press flex items-center gap-2">
-            <span class="text-lg">🎯</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Trip Budget</div>
-              <div class="text-[9px] text-slate-400">Burn Rate Pace</div>
+          <button onclick="openBudgetModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 text-base">
+              🎯
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Trip Budget</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Burn pace & targets</div>
+            </div>
+          </button>
+
+          <!-- Road Trip Mode -->
+          <button onclick="openRoadTripModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-sky-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0 text-base">
+              🚗
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Road Trip</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Fuel & FASTag split</div>
+            </div>
+          </button>
+
+          <!-- Trip Wrapped / Recap -->
+          <button onclick="openTripWrappedModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0 text-base">
+              🎁
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Trip Wrapped</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Spotify-style recap</div>
+            </div>
+          </button>
+
+          <!-- Dispute-Proof Audit Trail -->
+          <button onclick="openActivityLogModal()" class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/40 text-left active-press transition-all flex items-start gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0 text-base">
+              📜
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-white text-xs truncate">Audit History</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">Full dispute log</div>
             </div>
           </button>
         </div>
 
-        <!-- Export Buttons (PDF & CSV) -->
-        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
-          <button onclick="exportTripPDF()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold active-press flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-file-pdf text-red-400"></i>
-            <span>Print / PDF Bill</span>
+        <!-- Export Actions (Clean Pill Row) -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="exportTripPDF()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold active-press flex items-center justify-center gap-2 transition-all">
+            <i class="fa-solid fa-file-pdf text-rose-400 text-xs"></i>
+            <span>Download PDF Bill</span>
           </button>
-          <button onclick="exportTripCSV()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold active-press flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-file-excel text-emerald-400"></i>
-            <span>Export CSV</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 🎨 Dynamic Destination Atmosphere Theme Card -->
-      <div class="p-4 rounded-2xl glass-card border border-brand-500/30 space-y-3 relative overflow-hidden">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-palette text-brand-400"></i>
-            <span>Destination Atmosphere Theme</span>
-          </h3>
-          <span id="activeThemeBadge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            🌴 Tropical Beach
-          </span>
-        </div>
-
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          The app dynamically transforms its ambient glow, colors, and mood to match where your trip is happening:
-        </p>
-
-        <!-- Quick Action: Open Full 25-Destination Gallery -->
-        <button type="button" onclick="openThemePickerModal()" 
-          class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-brand-500/20 via-sky-500/20 to-purple-500/20 hover:from-brand-500/30 hover:to-purple-500/30 border border-brand-500/30 text-white font-bold text-xs flex items-center justify-between active-press transition-all group">
-          <div class="flex items-center gap-2">
-            <span class="text-base group-hover:scale-125 transition-transform">🎨</span>
-            <span>Browse All 25 Destination Vibes</span>
-          </div>
-          <div class="flex items-center gap-1.5 text-[11px] text-brand-300">
-            <span>Explore</span>
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-          </div>
-        </button>
-
-        <!-- Quick Pick Presets Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs pt-1">
-          <!-- 1. Tropical Beach -->
-          <button type="button" onclick="setAppTheme('tropical')" id="themeBtn-tropical" 
-            class="p-2.5 rounded-xl border border-brand-400 bg-brand-500/20 text-left active-press transition-all flex items-center gap-2">
-            <span class="text-lg">🌴</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Tropical Beach</div>
-              <div class="text-[9px] text-slate-400">Thailand, Phuket</div>
-            </div>
-          </button>
-
-          <!-- 2. Goa Coastal -->
-          <button type="button" onclick="setAppTheme('goa')" id="themeBtn-goa" 
-            class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-left active-press transition-all flex items-center gap-2">
-            <span class="text-lg">🏖️</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Goa Coastal</div>
-              <div class="text-[9px] text-slate-400">Anjuna, Baga</div>
-            </div>
-          </button>
-
-          <!-- 3. Desert Luxury -->
-          <button type="button" onclick="setAppTheme('dubai')" id="themeBtn-dubai" 
-            class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-left active-press transition-all flex items-center gap-2">
-            <span class="text-lg">🏜️</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Desert Luxury</div>
-              <div class="text-[9px] text-slate-400">Dubai, Dunes</div>
-            </div>
-          </button>
-
-          <!-- 4. Swiss Alps -->
-          <button type="button" onclick="setAppTheme('swiss')" id="themeBtn-swiss" 
-            class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-left active-press transition-all flex items-center gap-2">
-            <span class="text-lg">⛷️</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Swiss Alps</div>
-              <div class="text-[9px] text-slate-400">Matterhorn, Zermatt</div>
-            </div>
-          </button>
-
-          <!-- 5. Tokyo Cyber -->
-          <button type="button" onclick="setAppTheme('cyber')" id="themeBtn-cyber" 
-            class="p-2.5 rounded-xl border border-slate-800 bg-slate-900 text-left active-press transition-all flex items-center gap-2">
-            <span class="text-lg">🔮</span>
-            <div>
-              <div class="font-bold text-white text-[11px]">Tokyo Cyber</div>
-              <div class="text-[9px] text-slate-400">Neon & Mt. Fuji</div>
-            </div>
-          </button>
-
-          <!-- 6. View All 25 Destinations Button -->
-          <button type="button" onclick="openThemePickerModal()" 
-            class="p-2.5 rounded-xl border border-dashed border-slate-700 bg-slate-900/60 hover:bg-slate-800/80 text-left active-press transition-all flex items-center gap-2 text-slate-400 hover:text-white">
-            <span class="text-lg">✨</span>
-            <div>
-              <div class="font-bold text-xs text-brand-300">+20 More</div>
-              <div class="text-[9px] text-slate-400">View All 25</div>
-            </div>
+          <button onclick="exportTripCSV()" class="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-bold active-press flex items-center justify-center gap-2 transition-all">
+            <i class="fa-solid fa-file-csv text-emerald-400 text-xs"></i>
+            <span>Export CSV Sheet</span>
           </button>
         </div>
       </div>
 
-      <!-- 🛡️ Military Security & Cryptographic Vault Card -->
-      <div class="p-4 rounded-2xl glass-card border border-rose-500/30 space-y-3 relative overflow-hidden">
-        <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      <!-- 3. Section: Forex & Atmosphere -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-sliders text-amber-400"></i>
+          <span>Forex & Atmosphere</span>
+        </span>
 
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-rose-400"></i>
-            <span>Fortress Security & Cryptographic Vault</span>
-          </h3>
-          <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/30">
-            AES-256 GCM
-          </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <!-- Forex Rate -->
+          <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Custom Forex Rate</div>
+              <div class="text-xs font-bold text-white mt-0.5" id="settingsForexRateDisplay">1 THB = 2.48 INR</div>
+            </div>
+            <button onclick="openForexModal()" class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/25 text-xs font-bold active-press hover:bg-amber-500/20">
+              Edit Rate
+            </button>
+          </div>
+
+          <!-- Theme / Atmosphere -->
+          <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Trip Atmosphere</div>
+              <div class="text-xs font-bold text-white mt-0.5" id="activeThemeBadge">🌴 Tropical Beach</div>
+            </div>
+            <button onclick="openThemePickerModal()" class="px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/25 text-xs font-bold active-press hover:bg-brand-500/20">
+              Change
+            </button>
+          </div>
         </div>
+      </div>
 
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          Military-grade data protection with native WebCrypto authenticated encryption, PBKDF2 (100k rounds), blockchain-style tamper-proof ledger hashing, and automatic anti-shoulder surfing blur.
-        </p>
+      <!-- 4. Section: Cloud & Security -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-sky-400"></i>
+          <span>Cloud & Security</span>
+        </span>
 
-        <!-- PIN Protection Status -->
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+          <!-- Cloud Room Code -->
           <div class="flex items-center justify-between">
             <div>
               <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-key text-amber-400"></i>
-                <span>Master PIN Shield</span>
+                <i class="fa-solid fa-cloud text-sky-400"></i>
+                <span>Live Sync Room: <strong class="font-mono text-brand-400" id="settingsTripCode">TRIP26</strong></span>
               </div>
-              <div class="text-[10px]" id="securityStatusText">
-                <span class="text-slate-400">Not Set (Unlocked)</span>
-              </div>
-            </div>
-            <button id="btnToggleSecurityPin" onclick="SecurityVault.openPinSetupModal()" 
-              class="px-3 py-1.5 rounded-lg bg-brand-500 text-slate-950 font-bold text-xs active-press shadow-sm">
-              Setup PIN Shield
-            </button>
-          </div>
-          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80 text-[10px] text-slate-400">
-            <div class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Anti-Shoulder Surfing: <strong>Active</strong></span>
+              <div class="text-[10px] text-slate-400 mt-0.5">Friends view & add spends live on Android or iOS</div>
             </div>
             <div class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Session Inactivity: <strong>2m Lock</strong></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cryptographic Ledger Hash Verification -->
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-xs font-bold text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-link text-brand-400"></i>
-                <span>Anti-Tamper Hash Ledger</span>
-              </div>
-              <div class="text-[10px] text-slate-400">Chained SHA-256 block verification</div>
-            </div>
-            <button onclick="runLedgerAudit()" 
-              class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs active-press flex items-center gap-1">
-              <i class="fa-solid fa-circle-check text-emerald-400"></i>
-              <span>Audit Ledger</span>
-            </button>
-          </div>
-          <div id="ledgerAuditResult" class="hidden text-[11px] p-2 rounded-lg bg-slate-950/80 border border-slate-800 text-slate-300">
-            <!-- Populated on click -->
-          </div>
-        </div>
-
-        <!-- Encrypted Backup (.barabar format) -->
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-          <div class="text-xs font-bold text-white flex items-center gap-1.5">
-            <i class="fa-solid fa-file-shield text-purple-400"></i>
-            <span>Encrypted Vault Backup (.barabar)</span>
-          </div>
-          <p class="text-[10px] text-slate-400">
-            Download your trip database sealed in an authenticated AES-256-GCM cipher file. Cannot be cracked without your passphrase.
-          </p>
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="openVaultExportModal()" 
-              class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 text-xs font-bold active-press flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-download text-xs"></i>
-              <span>Export Vault</span>
-            </button>
-            <button onclick="openVaultImportModal()" 
-              class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 text-xs font-bold active-press flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-upload text-xs"></i>
-              <span>Import Vault</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Realtime Cloud Sync Configuration Card -->
-      <div class="p-4 rounded-2xl glass-card border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-cloud text-sky-400"></i>
-          <span>Real-time Cloud Sync & Trip Share Code</span>
-        </h3>
-        
-        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-slate-400">Trip Invite Code:</span>
-            <div class="flex items-center gap-2">
-              <span class="font-mono text-sm font-extrabold text-brand-400 tracking-wider" id="settingsTripCode">THAI26</span>
-              <button onclick="copyTripShareLink()" class="px-2 py-1 rounded bg-slate-800 text-xs text-slate-200 border border-slate-700 active-press" title="Copy Invite Link">
-                <i class="fa-solid fa-copy"></i>
+              <button onclick="copyTripShareLink()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-bold active-press" title="Copy Invite Link">
+                <i class="fa-solid fa-copy text-xs"></i>
+              </button>
+              <button onclick="openCloudConfigModal()" class="px-2.5 py-1.5 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/25 text-xs font-bold active-press">
+                Status
               </button>
             </div>
           </div>
-          <p class="text-[10px] text-slate-400">
-            Share this link in your WhatsApp group. Friends on iPhone or Android tap it to view and add expenses live without logging in!
-          </p>
-        </div>
 
-        <button onclick="openCloudConfigModal()" class="w-full py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white active-press flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cloud-arrow-up text-xs text-sky-400"></i>
-          <span>24/7 Cloud Sync & Live Room Status</span>
-        </button>
+          <!-- App PIN Lock & Backup Row -->
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs">
+            <button onclick="SecurityVault.openPinSetupModal()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-750 border border-slate-700 text-left active-press flex items-center justify-between">
+              <div>
+                <div class="font-bold text-white text-[11px] flex items-center gap-1">
+                  <i class="fa-solid fa-key text-amber-400 text-[10px]"></i>
+                  <span>PIN Shield</span>
+                </div>
+                <div class="text-[9px] text-slate-400 mt-0.5" id="securityStatusText">App Passcode</div>
+              </div>
+              <span class="text-[10px] text-brand-400 font-bold">Setup</span>
+            </button>
+
+            <button onclick="openVaultExportModal()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-750 border border-slate-700 text-left active-press flex items-center justify-between">
+              <div>
+                <div class="font-bold text-white text-[11px] flex items-center gap-1">
+                  <i class="fa-solid fa-download text-purple-400 text-[10px]"></i>
+                  <span>Backup File</span>
+                </div>
+                <div class="text-[9px] text-slate-400 mt-0.5">Save offline trip</div>
+              </div>
+              <span class="text-[10px] text-purple-400 font-bold">Export</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- App Store & Play Store Publishing Guide -->
-      <div onclick="openModal('modalAppStoreInfo')" 
-        class="cursor-pointer p-4 rounded-2xl glass-card border border-emerald-500/30 hover:border-emerald-400/60 space-y-2 text-center text-xs text-slate-300 group active-press transition-all">
-        <div class="flex items-center justify-center gap-2">
-          <i class="fa-brands fa-google-play text-emerald-400"></i>
-          <i class="fa-brands fa-apple text-slate-200"></i>
-          <span class="font-bold text-white group-hover:text-emerald-300 transition-colors">Official Play Store & App Store Distribution</span>
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+      <!-- 5. Collapsible Travel Perks & Partner Offers (Clean accordion at the bottom) -->
+      <div class="pt-1">
+        <button type="button" onclick="togglePerksCollapsible()" class="w-full py-2.5 px-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center justify-between active-press transition-all">
+          <div class="flex items-center gap-2">
+            <span>🎁</span>
+            <span>Travel Perks & Member Deals (Optional)</span>
+          </div>
+          <i id="iconPerksToggle" class="fa-solid fa-chevron-down text-[10px]"></i>
+        </button>
+        <div id="hubSmartPerksContainer" class="hidden space-y-2.5 mt-2">
+          <!-- Rendered dynamically by renderSmartPerks() in JS -->
         </div>
-        <div class="text-[11px] text-slate-400">Capacitor Native Architecture • .aab & .ipa ready (No raw .apk needed)</div>
-        <div class="text-[10px] text-slate-500 font-mono">App ID: com.tripbarabar.app • Tap for packaging instructions</div>
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 4: TRIP FRIENDS (CREW DIRECTORY) ==================== -->
+    <section id="tab-friends" class="hidden space-y-3.5">
+      
+      <!-- Crew Header & Quick Actions -->
+      <div class="p-3.5 rounded-2xl glass-card border border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-users text-brand-400"></i>
+            <span>Trip Crew (<span id="settingsMemberCount">0</span>)</span>
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Group members, balances & UPI IDs</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openAddMemberModal()" class="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 active-press shadow-sm">
+            <i class="fa-solid fa-user-plus text-xs"></i>
+            <span>+ Add</span>
+          </button>
+          <button onclick="copyTripShareLink()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-1.5 active-press" title="Invite Friends via WhatsApp">
+            <i class="fa-brands fa-whatsapp text-emerald-400 text-xs"></i>
+            <span>Invite</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Member Cards Container -->
+      <div id="settingsMemberList" class="space-y-2">
+        <!-- Rendered dynamically by JS -->
       </div>
 
     </section>

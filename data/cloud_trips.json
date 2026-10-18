@@ -906,7 +906,7 @@
       ],
       "deletedExpenseIds": []
     },
-    "lastModified": 1792267560372,
+    "lastModified": 1792327752540,
     "updatedBy": "Ankuj Torka",
     "ip": "127.0.0.1"
   },
@@ -1138,6 +1138,64 @@
       "deletedExpenseIds": []
     },
     "lastModified": 1792267946428,
+    "updatedBy": "Ankuj Torka",
+    "ip": "127.0.0.1"
+  },
+  "SOLO87": {
+    "trip": {
+      "id": "space-1792327755079",
+      "type": "personal",
+      "name": "Daily Expenses",
+      "destination": "Personal Wallet",
+      "dates": "Daily / Ongoing",
+      "code": "SOLO87",
+      "theme": "cyber",
+      "baseCurrency": "INR",
+      "currencySymbol": "₹",
+      "homeCurrency": "INR",
+      "homeCurrencySymbol": "₹",
+      "forexRate": 1,
+      "myMemberId": "m1",
+      "members": [
+        {
+          "id": "m1",
+          "name": "Ankuj Torka",
+          "phone": "",
+          "upi": "",
+          "color": "#0D9488"
+        }
+      ],
+      "customCategories": [],
+      "expenses": [],
+      "settlements": [],
+      "itinerary": [],
+      "kitty": {
+        "balance": 0,
+        "targetPerMember": 0,
+        "totalCollected": 0,
+        "contributors": [
+          "m1"
+        ],
+        "transactions": []
+      },
+      "budget": {
+        "total": 0,
+        "days": 30,
+        "currency": "INR"
+      },
+      "pendingSettlements": [],
+      "activityLog": [
+        {
+          "id": "act-1792327755079",
+          "action": "create_space",
+          "text": "Created Personal Expense Tracker \"Daily Expenses\"",
+          "timestamp": 1792327755079,
+          "memberId": "m1"
+        }
+      ],
+      "deletedExpenseIds": []
+    },
+    "lastModified": 1792327762249,
     "updatedBy": "Ankuj Torka",
     "ip": "127.0.0.1"
   }
