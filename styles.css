@@ -926,3 +926,264 @@ body[data-theme="varanasi"] {
   border-radius: 18px;
 }
 
+/* ==========================================================================
+   🌞 PRISTINE LIGHT DESIGN SYSTEM (Apple Wallet & Splitwise Spacious Aesthetic)
+   ========================================================================== */
+
+body.light-theme {
+  --bg-dark: #F8FAFC;
+  --surface-dark: #FFFFFF;
+  --card-dark: #FFFFFF;
+  --border-dark: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  background-color: #F8FAFC !important;
+  background-image: none !important;
+  color: #0F172A !important;
+}
+
+/* App Bar & Sticky Headers */
+body.light-theme #mainAppHeader,
+body.light-theme #bottomNavBar,
+body.light-theme .glass-panel {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: #E2E8F0 !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.02) !important;
+}
+
+/* Glass Cards & Containers */
+body.light-theme .glass-card {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 14px -2px rgba(15, 23, 42, 0.03) !important;
+}
+
+body.light-theme .theme-glow-card {
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Modals & Bottom Sheets */
+body.light-theme .glass-modal {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+  color: #0F172A !important;
+}
+
+/* Base Slate Utility Overrides in Light Mode */
+body.light-theme .bg-slate-950 {
+  background-color: #F8FAFC !important;
+}
+
+body.light-theme .bg-slate-900,
+body.light-theme .bg-slate-900\/90,
+body.light-theme .bg-slate-900\/80,
+body.light-theme .bg-slate-900\/70,
+body.light-theme .bg-slate-900\/60,
+body.light-theme .bg-slate-900\/50,
+body.light-theme .bg-slate-900\/40 {
+  background-color: #FFFFFF !important;
+}
+
+body.light-theme .bg-slate-800,
+body.light-theme .bg-slate-800\/90,
+body.light-theme .bg-slate-800\/80,
+body.light-theme .bg-slate-800\/70,
+body.light-theme .bg-slate-800\/60,
+body.light-theme .bg-slate-800\/50 {
+  background-color: #F1F5F9 !important;
+}
+
+body.light-theme .bg-slate-750,
+body.light-theme .bg-slate-700 {
+  background-color: #E2E8F0 !important;
+}
+
+body.light-theme .hover\:bg-slate-800:hover,
+body.light-theme .hover\:bg-slate-750:hover,
+body.light-theme .hover\:bg-slate-900:hover {
+  background-color: #E2E8F0 !important;
+}
+
+/* Borders */
+body.light-theme .border-slate-800,
+body.light-theme .border-slate-800\/90,
+body.light-theme .border-slate-800\/80,
+body.light-theme .border-slate-700,
+body.light-theme .border-slate-700\/80,
+body.light-theme .border-slate-600 {
+  border-color: #E2E8F0 !important;
+}
+
+/* Typography & Contrast */
+body.light-theme .text-white,
+body.light-theme .text-slate-100 {
+  color: #0F172A !important;
+}
+
+body.light-theme .text-slate-200 {
+  color: #1E293B !important;
+}
+
+body.light-theme .text-slate-300 {
+  color: #334155 !important;
+}
+
+body.light-theme .text-slate-400 {
+  color: #64748B !important;
+}
+
+body.light-theme .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+body.light-theme .text-slate-600 {
+  color: #94A3B8 !important;
+}
+
+/* High-Contrast Accents for Daylight Legibility */
+body.light-theme .text-brand-400,
+body.light-theme .text-brand-300 {
+  color: #0D9488 !important;
+}
+
+body.light-theme .text-amber-400,
+body.light-theme .text-amber-300 {
+  color: #B45309 !important;
+}
+
+body.light-theme .text-emerald-400,
+body.light-theme .text-emerald-300 {
+  color: #059669 !important;
+}
+
+/* Form Inputs, Selects, and Textareas */
+body.light-theme input,
+body.light-theme select,
+body.light-theme textarea {
+  background-color: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+body.light-theme input:focus,
+body.light-theme select:focus,
+body.light-theme textarea:focus {
+  border-color: #0D9488 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15) !important;
+}
+
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Badges & Soft Color Tints */
+body.light-theme .bg-brand-500\/20,
+body.light-theme .bg-brand-500\/25,
+body.light-theme .bg-brand-500\/15 {
+  background-color: #CCFBF1 !important;
+  color: #0F766E !important;
+  border-color: #99F6E4 !important;
+}
+
+body.light-theme .bg-amber-500\/20,
+body.light-theme .bg-amber-500\/15,
+body.light-theme .bg-amber-500\/10 {
+  background-color: #FEF3C7 !important;
+  color: #92400E !important;
+  border-color: #FDE68A !important;
+}
+
+body.light-theme .bg-emerald-500\/20,
+body.light-theme .bg-emerald-500\/15,
+body.light-theme .bg-emerald-500\/10 {
+  background-color: #D1FAE5 !important;
+  color: #065F46 !important;
+  border-color: #A7F3D0 !important;
+}
+
+body.light-theme .bg-rose-500\/20,
+body.light-theme .bg-rose-500\/15,
+body.light-theme .bg-rose-500\/10,
+body.light-theme .bg-red-500\/20 {
+  background-color: #FFE4E6 !important;
+  color: #9F1239 !important;
+  border-color: #FECDD3 !important;
+}
+
+body.light-theme .bg-purple-500\/20,
+body.light-theme .bg-purple-500\/15,
+body.light-theme .bg-purple-500\/10 {
+  background-color: #F3E8FF !important;
+  color: #6B21A8 !important;
+  border-color: #E9D5FF !important;
+}
+
+body.light-theme .bg-blue-500\/20,
+body.light-theme .bg-blue-500\/15 {
+  background-color: #DBEAFE !important;
+  color: #1E40AF !important;
+  border-color: #BFDBFE !important;
+}
+
+/* Scenic Horizon Graphic in Light Mode */
+body.light-theme .scenic-art-container {
+  opacity: 0.18 !important;
+  filter: contrast(120%) brightness(80%);
+}
+
+body.light-theme .theme-ambient-blob {
+  opacity: 0.25 !important;
+}
+
+/* Light Mode Destination Ambient Backgrounds (Subtle, Airy, Non-Dark) */
+body.light-theme[data-theme="bali"] {
+  background-color: #FFF5F7 !important;
+  background-image: radial-gradient(circle at 10% 10%, rgba(244, 63, 94, 0.06) 0%, transparent 50%),
+                    radial-gradient(circle at 90% 85%, rgba(16, 185, 129, 0.05) 0%, transparent 50%) !important;
+}
+
+body.light-theme[data-theme="tropical"] {
+  background-color: #F4FBF9 !important;
+  background-image: radial-gradient(circle at 10% 15%, rgba(13, 148, 136, 0.06) 0%, transparent 50%),
+                    radial-gradient(circle at 90% 85%, rgba(245, 158, 11, 0.05) 0%, transparent 50%) !important;
+}
+
+body.light-theme[data-theme="goa"] {
+  background-color: #FFF9F3 !important;
+  background-image: radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.06) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.05) 0%, transparent 55%) !important;
+}
+
+body.light-theme[data-theme="mountains"] {
+  background-color: #F4FAFD !important;
+  background-image: radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.06) 0%, transparent 55%) !important;
+}
+
+body.light-theme[data-theme="dubai"] {
+  background-color: #FFFDF4 !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(217, 119, 6, 0.06) 0%, transparent 55%) !important;
+}
+
+body.light-theme[data-theme="cyber"] {
+  background-color: #FAF6FD !important;
+  background-image: radial-gradient(circle at 15% 25%, rgba(147, 51, 234, 0.06) 0%, transparent 55%) !important;
+}
+
+body.light-theme[data-theme="europe"],
+body.light-theme[data-theme="paris"] {
+  background-color: #FFF7F8 !important;
+  background-image: radial-gradient(circle at 30% 10%, rgba(190, 18, 60, 0.06) 0%, transparent 55%) !important;
+}
+
+body.light-theme[data-theme="london"] {
+  background-color: #F5F8FF !important;
+  background-image: radial-gradient(circle at 20% 15%, rgba(29, 78, 216, 0.06) 0%, transparent 55%) !important;
+}
+
+

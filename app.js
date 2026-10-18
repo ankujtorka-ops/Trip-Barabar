@@ -1335,6 +1335,50 @@ function applyDestinationTheme(themeKey) {
   }
 }
 
+// ==================== 🌞 COLOR MODE (LIGHT / DARK SYSTEM) ====================
+function getAppThemeMode() {
+  return localStorage.getItem('tb_theme_mode') || 'light'; // Default to pristine light mode!
+}
+
+function setAppThemeMode(mode) {
+  const isLight = mode === 'light';
+  if (isLight) {
+    document.body.classList.add('light-theme');
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('tb_theme_mode', 'light');
+  } else {
+    document.body.classList.remove('light-theme');
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+    localStorage.setItem('tb_theme_mode', 'dark');
+  }
+  updateThemeModeUI();
+}
+
+function toggleColorMode() {
+  const current = getAppThemeMode();
+  const next = current === 'dark' ? 'light' : 'dark';
+  setAppThemeMode(next);
+  if (window.SoundEffects) window.SoundEffects.playPop();
+  if (window.showToast) {
+    window.showToast(next === 'light' ? '☀️ Switched to Crisp Light Theme' : '🌙 Switched to Midnight Dark Theme');
+  }
+}
+
+function updateThemeModeUI() {
+  const mode = getAppThemeMode();
+  const isLight = mode === 'light';
+  const icons = document.querySelectorAll('.theme-mode-icon');
+  icons.forEach(el => {
+    el.className = isLight ? 'theme-mode-icon fa-solid fa-sun text-amber-500 text-xs' : 'theme-mode-icon fa-solid fa-moon text-amber-300 text-xs';
+  });
+  const textLabels = document.querySelectorAll('.theme-mode-label');
+  textLabels.forEach(el => {
+    el.textContent = isLight ? 'Light Theme' : 'Dark Theme';
+  });
+}
+
 function setAppTheme(themeKey) {
   const trip = state.activeTrip;
   if (!trip) return;
@@ -1498,18 +1542,60 @@ function initApp() {
     state.activeTrip = null;
   }
 
-  // Register Service Worker for Offline-First PWA
+  // Register Service Worker for Offline-First PWA with Instant Auto-Update
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => {
       reg.update().catch(() => {});
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('⚡ New App update detected! Auto-reloading to apply latest version...');
+              if (window.showToast) window.showToast('App updated! Refreshing...', 'info');
+              setTimeout(() => window.location.reload(), 700);
+            }
+          });
+        }
+      });
     }).catch(err => {
       console.warn('SW registration skipped:', err);
     });
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
   }
+
+  // Global 1-Tap Hard Refresh & Cache Bypass utility for Mobile testing
+  window.forceRefreshApp = function() {
+    if (window.showToast) window.showToast('Checking for latest updates...', 'info');
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        return Promise.all(keys.map(k => caches.delete(k)));
+      }).then(() => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(r => r.unregister());
+            window.location.href = window.location.pathname + '?v=' + Date.now();
+          });
+        } else {
+          window.location.href = window.location.pathname + '?v=' + Date.now();
+        }
+      }).catch(() => {
+        window.location.reload(true);
+      });
+    } else {
+      window.location.reload(true);
+    }
+  };
 
   // Network online/offline event listeners
   window.addEventListener('online', updateSyncStatus);
   window.addEventListener('offline', updateSyncStatus);
+
+  // Initialize Color Mode (Default: Pristine Light Theme for spacious airy UI)
+  setAppThemeMode(getAppThemeMode());
 
   // Initialize Security Vault Engine
   if (window.SecurityVault) {

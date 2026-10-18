@@ -1,5 +1,5 @@
 // Trip Barabar — Offline-First Service Worker
-const CACHE_NAME = 'trip-barabar-v15';
+const CACHE_NAME = 'trip-barabar-v16';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -45,8 +45,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
-  // Stale-while-revalidate for local assets, network-first for external APIs
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
@@ -56,7 +61,31 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // If same origin asset, serve from cache first, fallback to network
+  // Network-First for core application files (HTML, JS, CSS) so updates appear instantly on mobile
+  const isCoreAsset = url.origin === location.origin && (
+    event.request.mode === 'navigate' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css')
+  );
+
+  if (isCoreAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request).then((res) => res || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // If other local static asset (images, icons, fonts): cache-first with network background update
   if (url.origin === location.origin) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
@@ -65,13 +94,13 @@ self.addEventListener('fetch', (event) => {
             if (networkResponse && networkResponse.status === 200) {
               caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
             }
-          }).catch(() => {/* ignore offline error */});
+          }).catch(() => {});
           return cachedResponse;
         }
         return fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           }
           return networkResponse;
         });
