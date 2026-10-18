@@ -2326,7 +2326,7 @@ function renderFriendsBreakdown() {
       <span class="w-6 h-6 rounded-full bg-slate-800 text-brand-300 flex items-center justify-center font-bold text-[10px] border border-slate-700">
         <i class="fa-solid fa-users text-[9px]"></i>
       </span>
-      <span class="text-[11px] font-bold text-white">All</span>
+      <span class="member-chip-name text-[11px] font-bold">All</span>
       <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-mono-num font-semibold">${trip.members.length}</span>
     </button>
   `;
@@ -2353,11 +2353,11 @@ function renderFriendsBreakdown() {
       <button type="button" onclick="toggleMemberFilter('${m.id}')" 
         class="member-chip shrink-0 ${isSelected ? 'active' : ''} ${isYou ? 'border-brand-500/40 bg-brand-500/5' : ''}" 
         title="Tap to filter expenses by ${escapeHtml(m.name)}${isYou ? ' (You)' : ''}">
-        <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] text-white shadow-sm shrink-0 border border-white/20" style="background: ${m.color || '#0D9488'};">
+        <span class="avatar-initial w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0 border border-white/20" style="background: ${m.color || '#0D9488'}; color: #FFFFFF !important;">
           ${escapeHtml(m.name.charAt(0))}
         </span>
-        <span class="text-[11px] font-bold text-white truncate max-w-[85px] sm:max-w-[110px]">
-          ${escapeHtml(m.name)}${isYou ? ' <span class="text-[9px] text-brand-400 font-semibold">(You)</span>' : ''}
+        <span class="member-chip-name text-[11px] font-bold truncate max-w-[85px] sm:max-w-[110px]">
+          ${escapeHtml(m.name)}${isYou ? ' <span class="text-[9px] text-brand-500 font-semibold">(You)</span>' : ''}
         </span>
         ${balancePill}
       </button>
