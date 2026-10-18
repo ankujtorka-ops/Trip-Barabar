@@ -408,9 +408,9 @@
     <!-- ==================== TAB 1: EXPENSES (LEDGER) ==================== -->
     <section id="tab-expenses" class="space-y-3">
       
-      <!-- 🎯 TRIP BUDGET VITALS (Clean, Legible Full-Width Progress Card) -->
+      <!-- 🎯 TRIP BUDGET VITALS (Hidden from main feed; accessible in Trip Hub) -->
       <div id="dailyBudgetPaceCard" onclick="openBudgetModal()" 
-        class="p-2.5 sm:p-3 rounded-2xl glass-card border border-slate-800/90 hover:border-brand-500/40 cursor-pointer active-press transition-all flex items-center justify-between gap-3 group shadow-sm">
+        class="hidden p-2.5 sm:p-3 rounded-2xl glass-card border border-slate-800/90 hover:border-brand-500/40 cursor-pointer active-press transition-all flex items-center justify-between gap-3 group shadow-sm">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-500/20 to-sky-500/20 text-brand-400 flex items-center justify-center text-sm shrink-0">
             🎯
@@ -486,8 +486,8 @@
             class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
         </div>
 
-        <!-- Filter Chips Carousel -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs" id="categoryFilterChips">
+        <!-- Filter Chips Carousel (Hidden on main feed; full category breakdown in Analytics) -->
+        <div class="hidden items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs" id="categoryFilterChips">
           <!-- Populated dynamically via JS -->
         </div>
       </div>

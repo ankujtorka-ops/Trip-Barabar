@@ -2099,8 +2099,7 @@ function renderHeroCard() {
 
   const budgetCard = document.getElementById('dailyBudgetPaceCard');
   if (budgetCard) {
-    if (isPersonal) budgetCard.classList.add('hidden');
-    else budgetCard.classList.remove('hidden');
+    budgetCard.classList.add('hidden');
   }
 
   const btnRecap = document.getElementById('btnWhatsAppRecap');
@@ -2312,42 +2311,9 @@ function renderCategoryFilterChips() {
   const container = document.getElementById('categoryFilterChips');
   if (!container) return;
 
-  const trip = state.activeTrip;
-  const isPersonal = trip && trip.type === 'personal';
-
-  if (isPersonal) {
-    container.classList.add('hidden');
-    container.innerHTML = '';
-    state.selectedFilterCategory = 'all';
-    return;
-  }
-  container.classList.remove('hidden');
-
-  const allCats = [{ id: 'all', emoji: '✨', name: 'All' }, ...DEFAULT_CATEGORIES];
-
-  container.innerHTML = allCats.map(cat => {
-    const isSelected = state.selectedFilterCategory === cat.id;
-    let label = cat.name;
-    let icon = cat.emoji;
-
-    if (state.discreetMode && cat.id !== 'all') {
-      const info = getCategoryInfo(cat.id);
-      label = info.displayName;
-      icon = info.displayEmoji;
-    }
-
-    return `
-      <button onclick="setFilterCategory('${cat.id}')"
-        class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all active-press ${
-          isSelected
-            ? 'bg-brand-500/20 text-brand-300 border-brand-500 shadow-sm'
-            : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
-        }">
-        <span>${icon}</span>
-        <span>${escapeHtml(label)}</span>
-      </button>
-    `;
-  }).join('');
+  container.classList.add('hidden');
+  container.innerHTML = '';
+  state.selectedFilterCategory = 'all';
 }
 
 function renderExpensesList() {

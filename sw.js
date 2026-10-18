@@ -1,5 +1,5 @@
 // Trip Barabar — Offline-First Service Worker
-const CACHE_NAME = 'trip-barabar-v14';
+const CACHE_NAME = 'trip-barabar-v15';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
